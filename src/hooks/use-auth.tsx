@@ -62,8 +62,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error.code === 'auth/unauthorized-domain') {
       toast({
           variant: 'destructive',
-          title: 'Unauthorized Domain',
-          description: `Please add '${window.location.origin}' to your Firebase project's authorized domains list.`,
+          title: 'Action Required: Unauthorized Domain',
+          description: `To fix this, go to your Firebase project > Authentication > Settings and add this domain to the 'Authorized domains' list: ${window.location.origin}`,
+          duration: 20000,
       });
     } else {
       toast({
