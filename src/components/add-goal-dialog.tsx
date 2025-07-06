@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -54,6 +54,12 @@ const categoryIcons: Record<GoalCategory, React.ReactNode> = {
 export default function AddGoalDialog({ onGoalAdd }: AddGoalDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const [minDate, setMinDate] = useState<Date | undefined>(undefined);
+
+  useEffect(() => {
+    // Set minDate for calendar only on client-side to prevent hydration errors
+    setMinDate(new Date());
+  }, []);
   
   const form = useForm<z.infer<typeof goalSchema>>({
     resolver: zodResolver(goalSchema),
@@ -143,7 +149,7 @@ export default function AddGoalDialog({ onGoalAdd }: AddGoalDialogProps) {
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          disabled={(date) => date < new Date()}
+                          disabled={minDate ? { before: minDate } : true}
                           initialFocus
                         />
                       </PopoverContent>

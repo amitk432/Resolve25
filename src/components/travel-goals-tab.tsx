@@ -1,7 +1,6 @@
-
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -46,18 +45,36 @@ const travelGoalSchema = z.object({
 export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }: TravelGoalsTabProps) {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
+  const [minDate, setMinDate] = useState<Date | undefined>(undefined);
+
+  useEffect(() => {
+    // Set minDate for calendar only on client-side to prevent hydration errors
+    setMinDate(new Date());
+  }, []);
 
   const form = useForm<z.infer<typeof travelGoalSchema>>({
     resolver: zodResolver(travelGoalSchema),
     defaultValues: {
       destination: '',
       status: 'Planned',
-      travelDate: new Date(),
+      travelDate: null, // Initialize with null to prevent hydration mismatch
       notes: '',
     },
   });
   
   const status = form.watch('status');
+
+  // When dialog opens, reset form with fresh values on the client
+  useEffect(() => {
+    if (isDialogOpen) {
+      form.reset({
+        destination: '',
+        status: 'Planned',
+        travelDate: new Date(),
+        notes: '',
+      });
+    }
+  }, [isDialogOpen, form]);
 
   const onSubmit = (values: z.infer<typeof travelGoalSchema>) => {
     onAddGoal({
@@ -68,12 +85,7 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }:
     });
     toast({ title: "Travel Goal Added!", description: `Your trip to ${values.destination} is on the list.` });
     setDialogOpen(false);
-    form.reset({
-      destination: '',
-      status: 'Planned',
-      travelDate: new Date(),
-      notes: '',
-    });
+    form.reset();
   };
 
   return (
@@ -133,7 +145,7 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }:
                           </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
-                          <Calendar mode="single" selected={field.value ?? undefined} onSelect={field.onChange} initialFocus disabled={(date) => date < new Date()} />
+                          <Calendar mode="single" selected={field.value ?? undefined} onSelect={field.onChange} initialFocus disabled={minDate ? { before: minDate } : true} />
                         </PopoverContent>
                       </Popover>
                       <FormMessage />
