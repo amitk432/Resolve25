@@ -43,6 +43,18 @@ export interface JobApplication {
     status: JobStatus;
 }
 
+export type TravelGoalStatus = 'Completed' | 'Planned';
+
+export interface TravelGoal {
+  id: string;
+  destination: string;
+  status: TravelGoalStatus;
+  travelDate: string | null; // Stored as ISO string
+  notes?: string;
+  image: string;
+}
+
+
 export interface AppData {
     goals: Goal[];
     monthlyPlan: MonthlyPlan[];
@@ -56,4 +68,5 @@ export interface AppData {
     sipAmount: string;
     sipMutualFund: string;
     sipPlatform: string;
+    travelGoals: TravelGoal[];
 }

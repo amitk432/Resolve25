@@ -1,9 +1,9 @@
 
 'use client';
 
-import type { AppData, GoalStatus, JobStatus, LoanStatus, Loan } from '@/lib/types';
+import type { AppData, GoalStatus, JobStatus, LoanStatus, Loan, TravelGoal } from '@/lib/types';
 import { produce } from 'immer';
-import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase } from 'lucide-react';
+import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import MonthlyPlanTab from './monthly-plan-tab';
 import CarSaleTab from './car-sale-tab';
 import FinanceTab from './finance-tab';
 import JobSearchTab from './job-search-tab';
+import TravelGoalsTab from './travel-goals-tab';
 
 interface DashboardProps {
   data: AppData;
@@ -146,6 +147,25 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         });
     }
 
+    const handleAddTravelGoal = (goal: Omit<TravelGoal, 'id' | 'image'> & { travelDate: Date | null }) => {
+        onUpdate(draft => {
+            draft.travelGoals.push({
+                id: `travel-${Date.now()}`,
+                destination: goal.destination,
+                status: goal.status,
+                notes: goal.notes,
+                travelDate: goal.travelDate ? goal.travelDate.toISOString() : null,
+                image: `https://placehold.co/400x250.png`
+            });
+        });
+    };
+
+    const handleDeleteTravelGoal = (id: string) => {
+        onUpdate(draft => {
+            draft.travelGoals = draft.travelGoals.filter(g => g.id !== id);
+        });
+    };
+
   return (
     <div className="max-w-7xl mx-auto bg-card rounded-2xl shadow-lg overflow-hidden">
       <header className="bg-foreground text-primary-foreground p-6 flex justify-between items-center">
@@ -190,6 +210,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 <TabsTrigger value="car-sale"><Car/>Car Sale</TabsTrigger>
                 <TabsTrigger value="finance"><PiggyBank/>Finance Tracker</TabsTrigger>
                 <TabsTrigger value="job-search"><Briefcase/>Job Search</TabsTrigger>
+                <TabsTrigger value="travel-goals"><Plane/>Travel Goals</TabsTrigger>
             </TabsList>
         </div>
         
@@ -237,6 +258,13 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onAddApplication={handleAddApplication}
                     onUpdateStatus={handleUpdateJobStatus}
                     onDelete={handleDeleteJob}
+                />
+            </TabsContent>
+            <TabsContent value="travel-goals">
+                <TravelGoalsTab 
+                    travelGoals={data.travelGoals}
+                    onAddGoal={handleAddTravelGoal}
+                    onDeleteGoal={handleDeleteTravelGoal}
                 />
             </TabsContent>
         </div>
