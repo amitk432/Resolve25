@@ -1,55 +1,94 @@
 
 'use client'
 
-import type { Goal, GoalStatus } from '@/lib/types';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { produce } from 'immer';
+import type { AppData, Goal } from '@/lib/types';
+import AddGoalDialog from './add-goal-dialog';
+import GoalCard from './goal-card';
+import StatsCard from './stats-card';
+import MotivationalQuote from './motivational-quote';
 
 interface GoalsTabProps {
     goals: Goal[];
-    onUpdateGoalStatus: (goal: string, newStatus: GoalStatus) => void;
+    onUpdate: (updater: (draft: AppData) => void) => void;
 }
 
-export default function GoalsTab({ goals, onUpdateGoalStatus }: GoalsTabProps) {
+export default function GoalsTab({ goals, onUpdate }: GoalsTabProps) {
+
+    const handleGoalAdd = (newGoal: Omit<Goal, 'id' | 'steps' | 'deadline'> & { deadline: Date }) => {
+        onUpdate(draft => {
+            draft.goals.push({
+                ...newGoal,
+                id: `goal-${Date.now()}`,
+                deadline: newGoal.deadline.toISOString(),
+                steps: []
+            });
+        });
+    };
+
+    const handleGoalDelete = (goalId: string) => {
+        onUpdate(draft => {
+            draft.goals = draft.goals.filter(g => g.id !== goalId);
+        });
+    };
+
+    const handleStepAdd = (goalId: string, stepText: string) => {
+        onUpdate(draft => {
+            const goal = draft.goals.find(g => g.id === goalId);
+            if (goal) {
+                goal.steps.push({
+                    id: `step-${Date.now()}`,
+                    text: stepText,
+                    completed: false
+                });
+            }
+        });
+    };
+    
+    const handleStepToggle = (goalId: string, stepId: string) => {
+        onUpdate(draft => {
+            const goal = draft.goals.find(g => g.id === goalId);
+            if (goal) {
+                const step = goal.steps.find(s => s.id === stepId);
+                if (step) {
+                    step.completed = !step.completed;
+                }
+            }
+        });
+    };
+    
     return (
-        <div>
-            <h2 className="text-xl font-bold text-foreground mb-4">Goals for 2025</h2>
-             <div className="overflow-x-auto rounded-lg border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Category</TableHead>
-                            <TableHead>Goal</TableHead>
-                            <TableHead>Target</TableHead>
-                            <TableHead>Status</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {goals.map((goal, index) => (
-                            <TableRow key={index}>
-                                <TableCell>{goal.category}</TableCell>
-                                <TableCell className="font-medium">{goal.goal}</TableCell>
-                                <TableCell>{goal.target}</TableCell>
-                                <TableCell>
-                                     <Select 
-                                        value={goal.status} 
-                                        onValueChange={(value: GoalStatus) => onUpdateGoalStatus(goal.goal, value)}
-                                     >
-                                        <SelectTrigger className="w-[120px]">
-                                            <SelectValue placeholder="Status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="To Do">To Do</SelectItem>
-                                            <SelectItem value="In Progress">In Progress</SelectItem>
-                                            <SelectItem value="Done">Done</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </TableCell>
-                            </TableRow>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+            <div className="lg:col-span-3 space-y-8">
+                <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-foreground">Your Goals for 2025</h2>
+                    <AddGoalDialog onGoalAdd={handleGoalAdd} />
+                </div>
+                
+                {goals.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {goals.map(goal => (
+                           <GoalCard 
+                                key={goal.id} 
+                                goal={goal}
+                                onStepToggle={handleStepToggle}
+                                onStepAdd={handleStepAdd}
+                                onGoalDelete={handleGoalDelete}
+                            />
                         ))}
-                    </TableBody>
-                </Table>
+                    </div>
+                ) : (
+                    <div className="text-center py-16 border-2 border-dashed rounded-lg">
+                        <Target className="mx-auto h-12 w-12 text-muted-foreground" />
+                        <h3 className="mt-2 text-lg font-medium">No Goals Yet</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">Click "Add New Goal" to get started.</p>
+                    </div>
+                )}
             </div>
+            <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-8">
+                <StatsCard goals={goals} />
+                <MotivationalQuote />
+            </aside>
         </div>
     )
 }

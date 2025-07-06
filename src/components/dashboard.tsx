@@ -2,8 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { AppData, GoalStatus, JobStatus, LoanStatus, Loan, TravelGoal } from '@/lib/types';
-import { produce } from 'immer';
+import type { AppData, JobStatus, LoanStatus, TravelGoal } from '@/lib/types';
 import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -33,13 +32,6 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     const { toast } = useToast();
     
     // Handlers for updating state
-    const handleUpdateGoalStatus = (goal: string, newStatus: GoalStatus) => {
-        onUpdate(draft => {
-            const goalToUpdate = draft.goals.find(g => g.goal === goal);
-            if (goalToUpdate) goalToUpdate.status = newStatus;
-        });
-    };
-
     const handleToggleMonthlyTask = (monthIndex: number, taskIndex: number, done: boolean) => {
         onUpdate(draft => {
             draft.monthlyPlan[monthIndex].tasks[taskIndex].done = done;
@@ -271,7 +263,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 <DashboardOverview data={data} />
             </TabsContent>
             <TabsContent value="goals">
-                <GoalsTab goals={data.goals} onUpdateGoalStatus={handleUpdateGoalStatus} />
+                <GoalsTab goals={data.goals} onUpdate={onUpdate} />
             </TabsContent>
             <TabsContent value="monthly-plan">
                 <MonthlyPlanTab monthlyPlan={data.monthlyPlan} onToggleTask={handleToggleMonthlyTask}/>

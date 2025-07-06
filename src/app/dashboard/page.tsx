@@ -46,7 +46,15 @@ export default function DashboardPage() {
           if (planSnap.exists()) {
             const fetchedData = planSnap.data();
             // Merge with initialData to ensure all fields are present for older user documents
-            const completeData = { ...initialData, ...fetchedData, travelGoals: fetchedData.travelGoals || [] };
+            const completeData = { ...initialData, ...fetchedData };
+            // Ensure nested arrays exist
+            completeData.goals = completeData.goals || [];
+            completeData.travelGoals = completeData.travelGoals || [];
+            completeData.monthlyPlan = completeData.monthlyPlan || [];
+            completeData.carSaleChecklist = completeData.carSaleChecklist || [];
+            completeData.loans = completeData.loans || [];
+            completeData.jobApplications = completeData.jobApplications || [];
+            
             setData(completeData as AppData);
           } else {
             await setDoc(planRef, initialData);
@@ -132,7 +140,9 @@ service cloud.firestore {
     if (!user || !db) return;
     const planRef = doc(db, 'users', user.uid);
     try {
-      await setDoc(planRef, updatedData, { merge: true });
+      // Create a deep copy and convert Dates to ISO strings for Firestore
+      const firestoreReadyData = JSON.parse(JSON.stringify(updatedData));
+      await setDoc(planRef, firestoreReadyData, { merge: true });
     } catch (error) {
       console.error("Error updating data: ", error);
       if (error instanceof FirestoreError && error.code === 'permission-denied') {

@@ -1,20 +1,46 @@
 
 import type { AppData } from './types';
+import { subDays, addDays, addMonths } from 'date-fns';
+
+const now = new Date();
 
 export const initialData: AppData = {
     goals: [
-        { category: '🚀 Career', goal: 'Switch to a higher-paying QA role by Dec 2025', target: '₹7–10 LPA', status: 'To Do' },
-        { category: '🚀 Career', goal: 'Get shortlisted/interviewed at Tier 1 or Product-based companies', target: '3-5 Interviews', status: 'To Do' },
-        { category: '🚀 Career', goal: 'Sharpen mobile automation + API testing + performance testing', target: 'Project Completion', status: 'To Do' },
-        { category: '💰 Financial', goal: 'Close at least one major loan', target: 'Car Loan', status: 'In Progress' },
-        { category: '💰 Financial', goal: 'Grow emergency fund up to ₹40K+', target: '₹40,000+', status: 'To Do' },
-        { category: '💰 Financial', goal: 'Begin SIPs or investment planning by Dec 2025', target: '₹1-2K/month', status: 'To Do' },
-        { category: '🧠 Skill', goal: 'Complete 1-2 certifications', target: 'ISTQB Advanced, REST API testing', status: 'To Do' },
-        { category: '🧠 Skill', goal: 'Master Java for automation and gain exposure to Cypress or Playwright', target: 'GitHub Projects', status: 'To Do' },
-        { category: '🧠 Skill', goal: 'Build a public GitHub portfolio with structured automation projects', target: '3+ Projects', status: 'To Do' },
-        { category: '💼 Job Search', goal: 'Apply smartly to MNCs/remote-first firms with better pay & perks', target: 'Targeted Applications', status: 'To Do' },
-        { category: '💼 Job Search', goal: 'Build a personalized cover letter + resume for each target job', target: '3 Templates', status: 'To Do' },
-        { category: '💼 Job Search', goal: 'Leverage LinkedIn & developer communities weekly', target: 'Active Participation', status: 'To Do' },
+        { 
+            id: 'g1',
+            category: 'Career', 
+            title: 'Switch to a higher-paying QA role',
+            description: 'Target a salary of ₹7–10 LPA by the end of 2025.',
+            deadline: addMonths(now, 6).toISOString(),
+            steps: [
+                { id: 'g1s1', text: 'Refine resume for product-based companies', completed: true },
+                { id: 'g1s2', text: 'Complete API testing course', completed: false },
+                { id: 'g1s3', text: 'Build 2 portfolio projects on GitHub', completed: false },
+            ]
+        },
+        { 
+            id: 'g2',
+            category: 'Personal', 
+            title: 'Grow emergency fund', 
+            description: 'Save consistently to build a solid financial cushion.',
+            deadline: addMonths(now, 12).toISOString(),
+            steps: [
+                { id: 'g2s1', text: 'Open a high-yield savings account', completed: true },
+                { id: 'g2s2', text: 'Automate a monthly transfer of ₹5,000', completed: true },
+                { id: 'g2s3', text: 'Reach ₹40,000 emergency fund target', completed: false },
+            ]
+        },
+         { 
+            id: 'g3',
+            category: 'Personal', 
+            title: 'Master Java for Automation',
+            description: 'Gain deep expertise in Java to enhance automation skills.',
+            deadline: addMonths(now, 4).toISOString(),
+            steps: [
+                { id: 'g3s1', text: 'Finish advanced Java course on Udemy', completed: false },
+                { id: 'g3s2', text: 'Refactor an existing Selenium project with better Java patterns', completed: false },
+            ]
+        },
     ],
     monthlyPlan: [
         { 

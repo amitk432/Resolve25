@@ -11,7 +11,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ModuleSuggestionInputSchema = z.object({
-  module: z.enum(['MonthlyPlan', 'CarSale', 'Finance', 'JobSearch', 'Travel']),
+  module: z.enum(['DashboardOverview', 'MonthlyPlan', 'CarSale', 'Finance', 'JobSearch', 'Travel']),
   context: z.any().describe('A JSON object containing the data for the specified module.'),
   userQuery: z.string().optional().describe('An optional specific question from the user.'),
 });
@@ -43,6 +43,9 @@ const prompt = ai.definePrompt({
 
     **Module-specific Instructions:**
 
+    - **If the module is 'DashboardOverview':**
+      Analyze the user's entire action plan (provided in the JSON context). Look at goals, tasks, and finances. Provide 2-3 high-level, encouraging suggestions. For example, identify a goal that's falling behind and suggest a relevant task, or congratulate them on their financial progress and suggest the next step.
+    
     - **If the module is 'MonthlyPlan':**
       Analyze the provided monthly plan data. Focus on the current and next month. Identify potential gaps or suggest new, relevant tasks that align with their overall goals. Do not repeat existing tasks. The context data will be an array of months with tasks.
 

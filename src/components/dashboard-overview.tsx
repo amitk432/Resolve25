@@ -6,6 +6,7 @@ import { AppData } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ArrowRight, CheckCircle } from 'lucide-react';
+import AiSuggestionSection from './ai-suggestion-section';
 
 interface DashboardOverviewProps {
     data: AppData;
@@ -23,20 +24,21 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
     }, []);
 
     const { overallProgress, goalsCompleted, goalsInProgress, criticalTasks } = useMemo(() => {
-        const allTasks = data.monthlyPlan.flatMap(m => m.tasks);
-        const completedTasks = allTasks.filter(t => t.done).length;
+        const allGoals = data.goals || [];
+        const allTasks = allGoals.flatMap(g => g.steps);
+        const completedTasks = allTasks.filter(t => t.completed).length;
         const totalTasks = allTasks.length;
         const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
         
-        const gCompleted = data.goals.filter(g => g.status === 'Done').length;
-        const gInProgress = data.goals.filter(g => g.status === 'In Progress').length;
-
-        const nextTasks = allTasks.filter(t => !t.done).slice(0, 3);
+        const gCompleted = allGoals.filter(g => g.steps.length > 0 && g.steps.every(s => s.completed)).length;
+        const gInProgress = allGoals.filter(g => !g.steps.every(s => s.completed)).length;
+        
+        const nextTasks = allTasks.filter(t => !t.completed).slice(0, 3);
         
         return {
             overallProgress: progress,
-            goalsCompleted: `${gCompleted}/${data.goals.length}`,
-            goalsInProgress: `${gInProgress}/${data.goals.length}`,
+            goalsCompleted: `${gCompleted}/${allGoals.length}`,
+            goalsInProgress: `${gInProgress}/${allGoals.length}`,
             criticalTasks: nextTasks
         };
     }, [data]);
@@ -57,7 +59,7 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                     <CardContent>
                         <Progress value={overallProgress} className="h-3" />
                         <p className="text-2xl font-bold mt-2">{overallProgress}%</p>
-                        <p className="text-xs text-muted-foreground mt-1">Based on completed tasks.</p>
+                        <p className="text-xs text-muted-foreground mt-1">Based on completed steps.</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -96,7 +98,7 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
             </div>
 
              <div className="mt-8">
-                <h3 className="text-lg font-bold text-foreground mb-4">Next 3 Critical Tasks</h3>
+                <h3 className="text-lg font-bold text-foreground mb-4">Next 3 Critical Steps</h3>
                 <div className="space-y-3">
                     {criticalTasks.length > 0 ? (
                         criticalTasks.map((task, index) => (
@@ -108,11 +110,18 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                     ) : (
                          <div className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 p-3 rounded-lg flex items-center">
                             <CheckCircle className="mr-3 h-4 w-4"/>
-                            <span className="text-sm font-medium">All tasks completed! Great job!</span>
+                            <span className="text-sm font-medium">All goals and steps completed! Great job!</span>
                         </div>
                     )}
                 </div>
             </div>
+
+            <AiSuggestionSection
+                moduleName="DashboardOverview"
+                title="Dashboard AI Strategist"
+                description="Get high-level suggestions based on your entire action plan—goals, tasks, and finances."
+                contextData={data}
+            />
         </div>
     )
 }

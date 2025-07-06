@@ -1,11 +1,19 @@
 
-export type GoalStatus = 'To Do' | 'In Progress' | 'Done';
+export type GoalCategory = 'Health' | 'Career' | 'Personal';
+
+export interface Step {
+  id: string;
+  text: string;
+  completed: boolean;
+}
 
 export interface Goal {
-    category: string;
-    goal: string;
-    target: string;
-    status: GoalStatus;
+  id:string;
+  title: string;
+  description?: string;
+  category: GoalCategory;
+  deadline: string; // Stored as ISO string
+  steps: Step[];
 }
 
 export interface Task {

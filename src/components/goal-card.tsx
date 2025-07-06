@@ -24,9 +24,9 @@ interface GoalCardProps {
 }
 
 const categoryInfo: Record<GoalCategory, { icon: React.ReactNode; className: string }> = {
-  Health: { icon: <HeartPulse className="h-4 w-4" />, className: 'bg-chart-1/20 text-chart-1 border-chart-1/50' },
-  Career: { icon: <Briefcase className="h-4 w-4" />, className: 'bg-chart-2/20 text-chart-2 border-chart-2/50' },
-  Personal: { icon: <BookOpenText className="h-4 w-4" />, className: 'bg-chart-3/20 text-chart-3 border-chart-3/50' },
+  Health: { icon: <HeartPulse className="h-4 w-4" />, className: 'bg-green-100 text-green-800 border-green-200' },
+  Career: { icon: <Briefcase className="h-4 w-4" />, className: 'bg-blue-100 text-blue-800 border-blue-200' },
+  Personal: { icon: <BookOpenText className="h-4 w-4" />, className: 'bg-purple-100 text-purple-800 border-purple-200' },
 };
 
 export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }: GoalCardProps) {
@@ -35,6 +35,8 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
   const totalSteps = goal.steps.length;
   const progress = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
   const isCompleted = progress === 100 && totalSteps > 0;
+  
+  const deadlineDate = new Date(goal.deadline);
 
   const handleAddStep = () => {
     if (newStepText.trim()) {
@@ -44,24 +46,24 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
   };
 
   return (
-    <Card className={cn('transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-xl', isCompleted && 'bg-muted/50')}>
+    <Card className={cn('transition-all duration-300 ease-in-out hover:shadow-xl flex flex-col', isCompleted ? 'bg-muted/50' : 'bg-card')}>
       <CardHeader>
         <div className="flex justify-between items-start">
             <div>
                 <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="secondary" className={cn("flex items-center gap-1.5", categoryInfo[goal.category].className)}>
+                    <Badge variant="outline" className={cn("flex items-center gap-1.5", categoryInfo[goal.category].className)}>
                         {categoryInfo[goal.category].icon}
                         {goal.category}
                     </Badge>
                     {isCompleted && (
-                        <Badge className="bg-primary/20 text-primary-foreground hover:bg-primary/30 flex items-center gap-1.5 border-primary/50">
+                        <Badge className="bg-green-500 text-white flex items-center gap-1.5 border-green-600">
                             <Check className="h-4 w-4" />
                             Completed!
                         </Badge>
                     )}
                 </div>
                 <CardTitle>{goal.title}</CardTitle>
-                <CardDescription className="mt-1">{goal.description}</CardDescription>
+                {goal.description && <CardDescription className="mt-1">{goal.description}</CardDescription>}
             </div>
             <TooltipProvider>
                 <Tooltip>
@@ -77,7 +79,7 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
             </TooltipProvider>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-grow">
         <div className="flex items-center justify-between mb-2 text-sm">
           <span className="text-muted-foreground">Progress</span>
           <span className="font-medium text-foreground">{completedSteps} / {totalSteps} steps</span>
@@ -98,13 +100,13 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
                     />
                     <label
                       htmlFor={`step-${step.id}`}
-                      className={cn('text-sm font-medium leading-none', step.completed && 'line-through text-muted-foreground')}
+                      className={cn('text-sm font-medium leading-none flex-1', step.completed && 'line-through text-muted-foreground')}
                     >
                       {step.text}
                     </label>
                   </div>
                 ))}
-                {goal.steps.length === 0 && <p className="text-sm text-muted-foreground p-2">No steps yet. Add one below!</p>}
+                {goal.steps.length === 0 && <p className="text-sm text-muted-foreground p-2 text-center">No steps yet. Add one below!</p>}
               </div>
               <div className="flex gap-2 mt-4">
                 <Input 
@@ -119,10 +121,10 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
           </AccordionItem>
         </Accordion>
       </CardContent>
-      <CardFooter className="flex-col sm:flex-row justify-between items-center gap-4">
+      <CardFooter className="flex-col sm:flex-row justify-between items-center gap-4 border-t pt-4">
         <div className="flex items-center text-sm text-muted-foreground">
           <Calendar className="mr-2 h-4 w-4" />
-          <span>Deadline: {format(goal.deadline, 'PPP')} ({formatDistanceToNow(goal.deadline, { addSuffix: true })})</span>
+          <span>Deadline: {format(deadlineDate, 'PPP')} ({formatDistanceToNow(deadlineDate, { addSuffix: true })})</span>
         </div>
         <AiTipsDialog goal={goal} />
       </CardFooter>
