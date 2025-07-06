@@ -4,9 +4,9 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
-import LoginForm from '@/components/login-form';
+import SignupForm from '@/components/signup-form';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -26,7 +26,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-secondary/50 p-4">
-      <LoginForm />
+      <SignupForm />
     </div>
   );
 }
