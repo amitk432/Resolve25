@@ -28,8 +28,8 @@ export default function RootLayout({
           </main>
         </AuthProvider>
         <Toaster />
-        <footer className="text-center p-4 text-muted-foreground text-sm flex-shrink-0">
-          Made by AmiT with ❤️
+        <footer className="border-t p-4 text-center text-sm text-muted-foreground">
+          Made by <span className="font-bold text-primary">AmiT</span> with <span className="text-destructive">❤️</span>
         </footer>
       </body>
     </html>
