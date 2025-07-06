@@ -21,11 +21,16 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></link>
       </head>
-      <body className="font-body antialiased h-full bg-background text-foreground">
+      <body className="font-body antialiased h-full bg-background text-foreground flex flex-col">
         <AuthProvider>
-          {children}
+          <main className="flex-grow">
+            {children}
+          </main>
         </AuthProvider>
         <Toaster />
+        <footer className="text-center p-4 text-muted-foreground text-sm flex-shrink-0">
+          Made by AmiT with ❤️
+        </footer>
       </body>
     </html>
   );
