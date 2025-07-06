@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
@@ -13,9 +14,10 @@ import {
   signInWithPopup,
   UserCredential,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { useToast } from './use-toast';
+import { initialData } from '@/lib/data';
 
 interface AuthContextType {
   user: User | null;
@@ -32,23 +34,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const createInitialUserData = async (user: User) => {
   if (!db) return;
-  const userRef = doc(db, 'users', user.uid);
-  const userDoc = await getDoc(userRef);
+  const userPlanRef = doc(db, 'users', user.uid);
+  const userPlanDoc = await getDoc(userPlanRef);
 
-  if (!userDoc.exists()) {
-    // Document for the user doesn't exist, create it
-    const goalsCollectionRef = doc(db, 'users', user.uid, 'goals', 'initial-goal');
-    
-    await setDoc(goalsCollectionRef, {
-      title: 'Complete your first goal!',
-      description: 'This is an example goal. You can edit or delete it.',
-      category: 'Personal',
-      deadline: Timestamp.fromDate(new Date(new Date().setDate(new Date().getDate() + 7))),
-      steps: [
-        { id: 'step1', text: 'Add another step to this goal', completed: false },
-        { id: 'step2', text: 'Create a new goal', completed: false },
-      ]
-    });
+  if (!userPlanDoc.exists()) {
+    await setDoc(userPlanRef, initialData);
   }
 };
 
@@ -63,7 +53,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isConfigured) {
       setLoading(false);
-      console.warn("Firebase not configured. Auth features are disabled. Please update src/lib/firebase.ts");
       return;
     }
     const unsubscribe = onAuthStateChanged(auth, (user) => {

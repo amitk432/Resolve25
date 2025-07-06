@@ -1,3 +1,4 @@
+
 import type { AppData } from './types';
 
 export const initialData: AppData = {

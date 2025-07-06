@@ -1,12 +1,14 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { doc, getDoc, setDoc, Timestamp, collection, getDocs, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { produce } from 'immer';
 import { db } from '@/lib/firebase';
-import type { Goal, Step } from '@/lib/types';
+import type { AppData } from '@/lib/types';
+import { initialData } from '@/lib/data';
 
 import { Loader2 } from 'lucide-react';
 import Dashboard from '@/components/dashboard';
@@ -17,7 +19,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const [goals, setGoals] = useState<Goal[]>([]);
+  const [data, setData] = useState<AppData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (user) {
-      const fetchGoals = async () => {
+      const fetchData = async () => {
         setLoading(true);
         if (!db) {
           console.error("Firestore not initialized");
@@ -36,125 +38,57 @@ export default function DashboardPage() {
           return;
         }
         try {
-          const goalsCol = collection(db, 'users', user.uid, 'goals');
-          const goalsSnapshot = await getDocs(goalsCol);
-          const userGoals = goalsSnapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-              id: doc.id,
-              ...data,
-              deadline: (data.deadline as Timestamp).toDate(),
-            } as Goal;
-          });
-          setGoals(userGoals);
+          const planRef = doc(db, 'users', user.uid);
+          const planSnap = await getDoc(planRef);
+
+          if (planSnap.exists()) {
+            setData(planSnap.data() as AppData);
+          } else {
+            await setDoc(planRef, initialData);
+            setData(initialData);
+             toast({
+              title: 'Welcome!',
+              description: "We've set up a personalized action plan for you.",
+            });
+          }
         } catch (error) {
-          console.error("Error fetching goals: ", error);
+          console.error("Error fetching user data: ", error);
           toast({
             variant: 'destructive',
-            title: 'Failed to load goals',
-            description: 'Could not retrieve your goals from the database.'
+            title: 'Failed to load your plan',
+            description: 'Could not retrieve your plan from the database.'
           });
         } finally {
           setLoading(false);
         }
       };
-      fetchGoals();
+      fetchData();
     }
   }, [user, toast]);
-  
-  const handleGoalAdd = async (newGoalData: Omit<Goal, 'id' | 'steps'>) => {
-    if (!user || !db) return;
-    const newId = doc(collection(db, 'users', user.uid, 'goals')).id;
-    const newGoal: Goal = {
-      ...newGoalData,
-      id: newId,
-      steps: [],
-    };
-    
-    try {
-      await setDoc(doc(db, 'users', user.uid, 'goals', newId), {
-        ...newGoalData,
-        deadline: Timestamp.fromDate(newGoalData.deadline),
-      });
 
-      setGoals(produce(draft => {
-        draft.push(newGoal);
-      }));
+  const updateDataInFirestore = async (updatedData: AppData) => {
+    if (!user || !db) return;
+    const planRef = doc(db, 'users', user.uid);
+    try {
+      await setDoc(planRef, updatedData, { merge: true });
     } catch (error) {
-      console.error("Error adding goal: ", error);
+      console.error("Error updating data: ", error);
       toast({
         variant: 'destructive',
-        title: 'Failed to add goal',
-        description: 'There was a problem saving your new goal.',
+        title: 'Failed to save changes',
+        description: 'Your recent changes could not be saved to the database.',
       });
     }
   };
-
-  const handleGoalDelete = async (goalId: string) => {
-    if (!user || !db) return;
-    try {
-      await deleteDoc(doc(db, 'users', user.uid, 'goals', goalId));
-      setGoals(produce(draft => {
-        return draft.filter(g => g.id !== goalId);
-      }));
-       toast({
-        title: 'Goal Deleted!',
-        description: 'Your goal has been successfully removed.',
-      });
-    } catch (error) {
-       console.error("Error deleting goal: ", error);
-       toast({
-        variant: 'destructive',
-        title: 'Failed to delete goal',
-        description: 'There was a problem deleting your goal.',
-      });
-    }
+  
+  const handleUpdate = (updater: (draft: AppData) => void) => {
+    if (!data) return;
+    const newData = produce(data, updater);
+    setData(newData);
+    updateDataInFirestore(newData);
   };
-
-  const updateGoalInFirestore = async (goal: Goal) => {
-    if (!user || !db) return;
-    const goalRef = doc(db, 'users', user.uid, 'goals', goal.id);
-    const { id, ...goalData } = goal;
-    await setDoc(goalRef, {
-      ...goalData,
-      deadline: Timestamp.fromDate(goal.deadline),
-    });
-  };
-
-  const handleStepToggle = (goalId: string, stepId: string) => {
-    const updatedGoals = produce(goals, draft => {
-      const goal = draft.find(g => g.id === goalId);
-      if (goal) {
-        const step = goal.steps.find(s => s.id === stepId);
-        if (step) {
-          step.completed = !step.completed;
-        }
-      }
-    });
-    setGoals(updatedGoals);
-    const updatedGoal = updatedGoals.find(g => g.id === goalId);
-    if (updatedGoal) updateGoalInFirestore(updatedGoal);
-  };
-
-  const handleStepAdd = (goalId: string, stepText: string) => {
-    const newStep: Step = {
-      id: doc(collection(db, 'users')).id, // Just for a unique client-side ID
-      text: stepText,
-      completed: false
-    };
-
-    const updatedGoals = produce(goals, draft => {
-      const goal = draft.find(g => g.id === goalId);
-      if (goal) {
-        goal.steps.push(newStep);
-      }
-    });
-    setGoals(updatedGoals);
-    const updatedGoal = updatedGoals.find(g => g.id === goalId);
-    if (updatedGoal) updateGoalInFirestore(updatedGoal);
-  };
-
-  if (authLoading || loading || !user) {
+  
+  if (authLoading || loading || !user || !data) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -163,12 +97,11 @@ export default function DashboardPage() {
   }
   
   return (
-    <Dashboard
-      goals={goals}
-      onGoalAdd={handleGoalAdd}
-      onGoalDelete={handleGoalDelete}
-      onStepToggle={handleStepToggle}
-      onStepAdd={handleStepAdd}
-    />
+    <div className="w-full p-0 md:p-8">
+      <Dashboard
+        data={data}
+        onUpdate={handleUpdate}
+      />
+    </div>
   );
 }
