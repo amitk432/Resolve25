@@ -24,9 +24,9 @@ interface GoalCardProps {
 }
 
 const categoryInfo: Record<GoalCategory, { icon: React.ReactNode; className: string }> = {
-  Health: { icon: <HeartPulse className="h-4 w-4" />, className: 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300' },
-  Career: { icon: <Briefcase className="h-4 w-4" />, className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300' },
-  Personal: { icon: <BookOpenText className="h-4 w-4" />, className: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' },
+  Health: { icon: <HeartPulse className="h-4 w-4" />, className: 'bg-chart-1/20 text-chart-1 border-chart-1/50' },
+  Career: { icon: <Briefcase className="h-4 w-4" />, className: 'bg-chart-2/20 text-chart-2 border-chart-2/50' },
+  Personal: { icon: <BookOpenText className="h-4 w-4" />, className: 'bg-chart-3/20 text-chart-3 border-chart-3/50' },
 };
 
 export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }: GoalCardProps) {
@@ -44,7 +44,7 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
   };
 
   return (
-    <Card className={cn('transition-all', isCompleted && 'bg-muted/50')}>
+    <Card className={cn('transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-xl', isCompleted && 'bg-muted/50')}>
       <CardHeader>
         <div className="flex justify-between items-start">
             <div>

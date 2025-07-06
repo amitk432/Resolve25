@@ -7,6 +7,7 @@ import AddGoalDialog from './add-goal-dialog';
 import GoalCard from './goal-card';
 import StatsCard from './stats-card';
 import { Target } from 'lucide-react';
+import MotivationalQuote from './motivational-quote';
 
 const initialGoals: Goal[] = [
   {
@@ -115,8 +116,8 @@ export default function Dashboard() {
       <div className="lg:col-span-2 space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 className="text-2xl font-bold">Your Goals</h2>
-            <p className="text-muted-foreground">Here's what you're working on for 2025.</p>
+            <h2 className="text-2xl font-bold tracking-tight">Your 2025 Goals</h2>
+            <p className="text-muted-foreground">Stay focused and crush your resolutions!</p>
           </div>
           <AddGoalDialog onGoalAdd={handleAddGoal} />
         </div>
@@ -144,6 +145,7 @@ export default function Dashboard() {
       </div>
       <div className="lg:col-span-1 lg:sticky lg:top-24 space-y-6">
         <StatsCard goals={goals} />
+        <MotivationalQuote />
       </div>
     </div>
   );

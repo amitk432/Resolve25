@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
 import LoginForm from '@/components/login-form';
+import AuthLayout from '@/components/auth-layout';
 
 export default function LoginPage() {
   const { user, loading } = useAuth();
@@ -25,8 +26,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-secondary/50 p-4">
+    <AuthLayout>
       <LoginForm />
-    </div>
+    </AuthLayout>
   );
 }
