@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { doc, getDoc, setDoc, FirestoreError } from 'firebase/firestore';
@@ -20,7 +21,7 @@ export default function DashboardPage() {
 
   const [data, setData] = useState<AppData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [errorState, setErrorState] = useState<string | null>(null);
+  const [errorState, setErrorState] = useState<ReactNode | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -56,14 +57,41 @@ export default function DashboardPage() {
         } catch (error) {
           console.error("Error fetching user data: ", error);
           if (error instanceof FirestoreError) {
+             const rulesFix = (
+                <div className="text-left space-y-3">
+                    <p>This is a common setup issue. To fix it, please update your Firestore security rules in the Firebase Console for project <strong className="font-mono bg-muted/50 px-1 py-0.5 rounded">{`resolve25-9e336`}</strong>:</p>
+                    <ol className="list-decimal list-inside space-y-2 pl-2">
+                        <li>Go to <strong>Build &gt; Firestore Database</strong> and select the "Rules" tab.</li>
+                        <li>
+                            Copy and paste these rules to allow authenticated users to read and write their own documents:
+                            <pre className="mt-2 p-3 bg-muted rounded-md text-xs w-full overflow-x-auto">
+                                <code>{`rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}`}</code>
+                            </pre>
+                        </li>
+                    </ol>
+                </div>
+             );
+
              if (error.code === 'unavailable') {
-                const errorMessage = "Could not connect to the database. This can happen if you are offline, or if Firestore is not enabled or has incorrect security rules in your Firebase project. Please check your project settings.";
-                setErrorState(errorMessage);
-                toast({ variant: 'destructive', title: 'Connection Error', description: errorMessage, duration: 15000 });
+                setErrorState(
+                    <div className="text-left space-y-3">
+                        <p>This means your app can't connect to the database. In the Firebase Console for project <strong className="font-mono bg-muted/50 px-1 py-0.5 rounded">{`resolve25-9e336`}</strong>, please:</p>
+                        <ol className="list-decimal list-inside space-y-2 pl-2">
+                             <li>Go to <strong>Build &gt; Firestore Database</strong> and click <strong>Create database</strong>.</li>
+                             <li>Ensure your security rules are set up correctly (see below).</li>
+                        </ol>
+                        {rulesFix}
+                    </div>
+                );
             } else if (error.code === 'permission-denied') {
-                const errorMessage = "You do not have permission to read your data. Please check your Firestore security rules in the Firebase Console to allow reads for authenticated users.";
-                setErrorState(errorMessage);
-                toast({ variant: 'destructive', title: 'Permission Denied', description: errorMessage, duration: 15000 });
+                setErrorState(rulesFix);
             } else {
                 const errorMessage = `An unexpected error occurred: ${error.message}`;
                 setErrorState(errorMessage);
@@ -123,10 +151,10 @@ export default function DashboardPage() {
   if (errorState) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background p-8">
-          <div className="max-w-2xl text-center rounded-lg border bg-card text-card-foreground shadow-sm p-8">
+          <div className="max-w-2xl w-full text-center rounded-lg border bg-card text-card-foreground shadow-sm p-8">
             <h2 className="text-xl font-bold text-destructive mb-4">Failed to Load Your Plan</h2>
-            <p className="text-muted-foreground">{errorState}</p>
-            <p className="text-sm text-muted-foreground mt-4">Please resolve the issue in your Firebase Console and then refresh the page.</p>
+            <div className="text-muted-foreground">{errorState}</div>
+            <p className="text-sm text-muted-foreground mt-6">After resolving the issue in your Firebase Console, please refresh the page.</p>
           </div>
       </div>
     );
