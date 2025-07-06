@@ -5,7 +5,6 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { Calendar, Check, Plus, Trash2, Briefcase, HeartPulse, BookOpenText } from 'lucide-react';
 import type { Goal, Step, GoalCategory } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import AiTipsDialog from './ai-tips-dialog';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
@@ -121,12 +120,11 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
           </AccordionItem>
         </Accordion>
       </CardContent>
-      <CardFooter className="flex-col sm:flex-row justify-between items-center gap-4 border-t pt-4">
+      <CardFooter className="border-t pt-4">
         <div className="flex items-center text-sm text-muted-foreground">
           <Calendar className="mr-2 h-4 w-4" />
           <span>Deadline: {format(deadlineDate, 'PPP')} ({formatDistanceToNow(deadlineDate, { addSuffix: true })})</span>
         </div>
-        <AiTipsDialog goal={goal} />
       </CardFooter>
     </Card>
   );
