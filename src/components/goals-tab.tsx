@@ -1,7 +1,6 @@
 
 'use client'
 
-import { produce } from 'immer';
 import type { AppData, Goal } from '@/lib/types';
 import AddGoalDialog from './add-goal-dialog';
 import GoalCard from './goal-card';
