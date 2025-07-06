@@ -81,14 +81,21 @@ service cloud.firestore {
 
              if (error.code === 'unavailable') {
                 setErrorState(
-                    <div className="text-left space-y-3">
-                        <p>This means your app can't connect to the database. In the Firebase Console for project <strong className="font-mono bg-muted/50 px-1 py-0.5 rounded">{`resolve25-9e336`}</strong>, please:</p>
-                        <ol className="list-decimal list-inside space-y-2 pl-2">
-                             <li>Go to <strong>Build &gt; Firestore Database</strong> and click <strong>Create database</strong>.</li>
-                             <li>Ensure your security rules are set up correctly (see below).</li>
-                        </ol>
-                        {rulesFix}
-                    </div>
+                  <div className="text-left space-y-4">
+                    <p className="font-semibold">This is a one-time setup step in your Firebase project.</p>
+                    <ol className="list-decimal list-inside space-y-3 pl-2">
+                        <li>
+                            Go to the Firebase Console for project:
+                            <br/>
+                            <strong className="font-mono bg-muted/50 px-1.5 py-1 rounded my-1 inline-block">{`resolve25-9e336`}</strong>
+                        </li>
+                         <li>Navigate to <strong>Build &gt; Firestore Database</strong> in the left-hand menu.</li>
+                         <li>Click the large <strong className="text-primary">Create database</strong> button.</li>
+                         <li>Choose <strong>Start in production mode</strong> and click Next.</li>
+                         <li>Select a Cloud Firestore location (the default is fine) and click <strong>Enable</strong>.</li>
+                         <li>Once the database is ready, come back here and <strong className="text-primary">refresh the page</strong>.</li>
+                    </ol>
+                  </div>
                 );
             } else if (error.code === 'permission-denied') {
                 setErrorState(rulesFix);
@@ -152,7 +159,7 @@ service cloud.firestore {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background p-8">
           <div className="max-w-2xl w-full text-center rounded-lg border bg-card text-card-foreground shadow-sm p-8">
-            <h2 className="text-xl font-bold text-destructive mb-4">Failed to Load Your Plan</h2>
+            <h2 className="text-xl font-bold text-destructive mb-4">Action Required: Database Offline</h2>
             <div className="text-muted-foreground">{errorState}</div>
             <p className="text-sm text-muted-foreground mt-6">After resolving the issue in your Firebase Console, please refresh the page.</p>
           </div>
