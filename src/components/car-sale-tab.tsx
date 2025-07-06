@@ -127,11 +127,11 @@ export default function CarSaleTab({ checklist, salePrice, loanPayoff, onToggleT
                                 </AccordionTrigger>
                                 <AccordionContent className="px-6 pb-6">
                                     <div className="text-sm bg-muted p-4 rounded-lg border">
-                                       <p><strong>To:</strong> customer.service@toyotafinance.co.in</p>
+                                       <p><strong>To:</strong> customer.service@yourbank.co.in</p>
                                        <p><strong>Subject:</strong> Loan Foreclosure Request - Loan Account No. [Your Loan Account Number]</p>
                                        <Separator className="my-2" />
-                                       <p>Dear Toyota Financial Services Team,</p>
-                                       <p className="mt-2">I am writing to request a foreclosure statement for my car loan with the account number [Your Loan Account Number]. The loan is for my Maruti Baleno Sigma, with vehicle registration number [Your Car's Reg. No.].</p>
+                                       <p>Dear Bank Team,</p>
+                                       <p className="mt-2">I am writing to request a foreclosure statement for my car loan with the account number [Your Loan Account Number]. The loan is for my [Car Model], with vehicle registration number [Your Car's Reg. No.].</p>
                                        <p className="mt-2">Please provide the final foreclosure amount, including any applicable charges, and the detailed procedure for closing the loan. I intend to complete the payment at the earliest.</p>
                                        <p className="mt-2">Thank you for your prompt assistance.</p>
                                        <p className="mt-2">Sincerely,<br/>[Your Name]<br/>[Your Phone Number]</p>
@@ -157,7 +157,7 @@ export default function CarSaleTab({ checklist, salePrice, loanPayoff, onToggleT
                                         id={item.id}
                                         checked={item.done}
                                         onCheckedChange={(checked) => onToggleTask(item.id, !!checked)}
-                                        className="h-5 w-5 mr-4"
+                                        className="mr-4"
                                     />
                                     <label
                                         htmlFor={item.id}
