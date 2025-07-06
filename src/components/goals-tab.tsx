@@ -59,7 +59,7 @@ export default function GoalsTab({ goals, onUpdate }: GoalsTabProps) {
     
     return (
         <div className="space-y-8">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-center items-center gap-4">
                 <h2 className="text-xl font-bold text-foreground">Your Goals for 2025</h2>
                 <AddGoalDialog onGoalAdd={handleGoalAdd} />
             </div>
@@ -80,7 +80,7 @@ export default function GoalsTab({ goals, onUpdate }: GoalsTabProps) {
                 <div className="text-center py-16 border-2 border-dashed rounded-lg">
                     <Target className="mx-auto h-12 w-12 text-muted-foreground" />
                     <h3 className="mt-2 text-lg font-medium">No Goals Yet</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">Click "Add New Goal" to get started.</p>
+                    <p className="mt-1 text-sm text-muted-foreground">Click "Add New Goal" above to get started.</p>
                 </div>
             )}
         </div>
