@@ -131,7 +131,7 @@ export default function FinanceTab({
                                             loans.map((loan) => (
                                                 <TableRow key={loan.id}>
                                                     <TableCell className="font-medium">{loan.name}</TableCell>
-                                                    <TableCell>{loan.principal}</TableCell>
+                                                    <TableCell>₹{parseFloat(loan.principal).toLocaleString('en-IN')}</TableCell>
                                                     <TableCell>
                                                         <Select value={loan.status} onValueChange={(value: LoanStatus) => onUpdateLoanStatus(loan.id, value)}>
                                                             <SelectTrigger className="w-[120px]">
@@ -257,7 +257,7 @@ export default function FinanceTab({
                                     <FormItem>
                                     <FormLabel>Principal Amount</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="e.g., ₹50,000" {...field} />
+                                        <Input type="number" placeholder="e.g., 50000" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
