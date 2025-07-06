@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
+import AiSuggestionSection from './ai-suggestion-section';
 
 interface JobSearchTabProps {
     applications: JobApplication[];
@@ -33,7 +34,15 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
     return (
         <div>
             <h2 className="text-xl font-bold text-foreground mb-4">Job Application Tracker</h2>
-            <Card className="mb-6">
+            
+            <AiSuggestionSection
+                moduleName="JobSearch"
+                title="Job Search AI Strategist"
+                description="Get tips on how to improve your job search, from networking to following up on applications."
+                contextData={{ applications }}
+            />
+            
+            <Card className="my-8">
                 <CardContent className="p-4">
                     <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                         <div className="md:col-span-2">

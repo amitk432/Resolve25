@@ -5,6 +5,7 @@ import type { MonthlyPlan } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import AiSuggestionSection from './ai-suggestion-section';
 
 interface MonthlyPlanTabProps {
     monthlyPlan: MonthlyPlan[];
@@ -15,7 +16,15 @@ export default function MonthlyPlanTab({ monthlyPlan, onToggleTask }: MonthlyPla
     return (
          <div>
             <h2 className="text-xl font-bold text-foreground mb-4">Monthly Action Plan</h2>
-            <div className="space-y-8">
+            
+            <AiSuggestionSection
+                moduleName="MonthlyPlan"
+                title="Monthly Plan AI Assistant"
+                description="Get suggestions for new tasks to add to your current or upcoming months based on your goals."
+                contextData={{ monthlyPlan }}
+            />
+
+            <div className="space-y-8 mt-8">
                 {monthlyPlan.map((monthData, monthIndex) => (
                     <Card key={monthIndex}>
                         <CardHeader>

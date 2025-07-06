@@ -20,6 +20,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import AiSuggestionSection from './ai-suggestion-section';
 
 interface TravelGoalsTabProps {
   travelGoals: TravelGoal[];
@@ -177,48 +178,56 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }:
             <p className="mt-1 text-sm text-muted-foreground">Click "Add Travel Goal" to start your wishlist.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {travelGoals.map(goal => (
-            <Card key={goal.id} className="flex flex-col overflow-hidden">
-              <CardHeader className="relative p-0">
-                <Image src={goal.image} alt={goal.destination} width={400} height={250} className="rounded-t-lg object-cover aspect-[16/10]" />
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg">
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Travel Goal?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This will permanently delete your goal to travel to "{goal.destination}".
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => onDeleteGoal(goal.id)}>Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-              </CardHeader>
-              <CardContent className="pt-4 flex-grow">
-                <CardTitle>{goal.destination}</CardTitle>
-                {goal.status === 'Completed' ? (
-                  <div className="text-sm font-medium text-green-600 dark:text-green-500 flex items-center mt-1">
-                    <CheckCircle className="mr-1.5 h-4 w-4" />
-                    Completed
-                  </div>
-                ) : (
-                  goal.travelDate && <div className="text-sm text-muted-foreground mt-1">
-                    <span className="font-semibold text-primary">Planned for:</span> {format(new Date(goal.travelDate), 'PPP')}
-                  </div>
-                )}
-                {goal.notes && <CardDescription className="mt-2 text-sm">{goal.notes}</CardDescription>}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {travelGoals.map(goal => (
+                <Card key={goal.id} className="flex flex-col overflow-hidden">
+                <CardHeader className="relative p-0">
+                    <Image src={goal.image} alt={goal.destination} width={400} height={250} className="rounded-t-lg object-cover aspect-[16/10]" />
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg">
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Travel Goal?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This will permanently delete your goal to travel to "{goal.destination}".
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => onDeleteGoal(goal.id)}>Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </CardHeader>
+                <CardContent className="pt-4 flex-grow">
+                    <CardTitle>{goal.destination}</CardTitle>
+                    {goal.status === 'Completed' ? (
+                    <div className="text-sm font-medium text-green-600 dark:text-green-500 flex items-center mt-1">
+                        <CheckCircle className="mr-1.5 h-4 w-4" />
+                        Completed
+                    </div>
+                    ) : (
+                    goal.travelDate && <div className="text-sm text-muted-foreground mt-1">
+                        <span className="font-semibold text-primary">Planned for:</span> {format(new Date(goal.travelDate), 'PPP')}
+                    </div>
+                    )}
+                    {goal.notes && <CardDescription className="mt-2 text-sm">{goal.notes}</CardDescription>}
+                </CardContent>
+                </Card>
+            ))}
+            </div>
+            <AiSuggestionSection
+                moduleName="Travel"
+                title="Travel AI Assistant"
+                description="Get suggestions for activities for your planned trips, or ideas for your next adventure based on where you've been."
+                contextData={{ travelGoals }}
+            />
+        </>
       )}
     </div>
   );

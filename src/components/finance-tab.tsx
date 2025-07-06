@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
+import AiSuggestionSection from './ai-suggestion-section';
 
 interface FinanceTabProps {
     loans: Loan[];
@@ -135,7 +136,15 @@ export default function FinanceTab({
     return (
         <div>
             <h2 className="text-xl font-bold text-foreground mb-4">Loan & Investment Tracker</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <AiSuggestionSection
+                moduleName="Finance"
+                title="Financial AI Coach"
+                description="Get personalized suggestions on managing your loans and growing your emergency fund."
+                contextData={{ loans, emergencyFund, sipStarted }}
+            />
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
                 <div>
                     <Card>
                         <CardHeader>
