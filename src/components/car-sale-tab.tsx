@@ -62,7 +62,7 @@ export default function CarSaleTab({ checklist, salePrice, loanPayoff, onToggleT
             <h2 className="text-xl font-bold text-foreground mb-4">Car Sale Tracker & Checklist</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                 <div className="space-y-8">
-                    <Card className="shadow-lg hover:shadow-xl transition-shadow">
+                    <Card key="financial-summary" className="shadow-lg hover:shadow-xl transition-shadow">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <div className="space-y-1.5">
                                 <CardTitle className="text-lg">Financial Summary</CardTitle>
@@ -113,7 +113,7 @@ export default function CarSaleTab({ checklist, salePrice, loanPayoff, onToggleT
                             </span>
                         </CardFooter>
                     </Card>
-                     <Card className="shadow-lg hover:shadow-xl transition-shadow">
+                     <Card key="foreclosure-email" className="shadow-lg hover:shadow-xl transition-shadow">
                         <Accordion type="single" collapsible>
                             <AccordionItem value="item-1" className="border-b-0">
                                 <AccordionTrigger className="p-6">
