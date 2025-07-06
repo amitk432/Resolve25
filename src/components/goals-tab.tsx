@@ -1,4 +1,3 @@
-
 'use client'
 
 import type { AppData, Goal } from '@/lib/types';
@@ -34,6 +33,9 @@ export default function GoalsTab({ goals, onUpdate }: GoalsTabProps) {
         onUpdate(draft => {
             const goal = draft.goals.find(g => g.id === goalId);
             if (goal) {
+                if (!goal.steps) {
+                    goal.steps = [];
+                }
                 goal.steps.push({
                     id: `step-${Date.now()}`,
                     text: stepText,
@@ -46,7 +48,7 @@ export default function GoalsTab({ goals, onUpdate }: GoalsTabProps) {
     const handleStepToggle = (goalId: string, stepId: string) => {
         onUpdate(draft => {
             const goal = draft.goals.find(g => g.id === goalId);
-            if (goal) {
+            if (goal && goal.steps) {
                 const step = goal.steps.find(s => s.id === stepId);
                 if (step) {
                     step.completed = !step.completed;
