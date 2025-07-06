@@ -1,6 +1,7 @@
+
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -50,7 +51,7 @@ export default function FinanceTab({
 }: FinanceTabProps) {
     const [fundInput, setFundInput] = useState(emergencyFund);
     const [isLoanDialogOpen, setLoanDialogOpen] = useState(false);
-    const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
+    const [editingLoanId, setEditingLoanId] = useState<string | null>(null);
     const { toast } = useToast();
 
     const form = useForm<z.infer<typeof loanSchema>>({
@@ -58,33 +59,33 @@ export default function FinanceTab({
         defaultValues: { name: '', principal: '' },
     });
 
-    useEffect(() => {
-        if (isLoanDialogOpen) {
-            if (editingLoan) {
-                form.reset({
-                    name: editingLoan.name,
-                    principal: editingLoan.principal
-                });
-            } else {
-                form.reset({ name: '', principal: '' });
-            }
-        }
-    }, [isLoanDialogOpen, editingLoan, form]);
-
     const handleOpenDialog = (loan: Loan | null) => {
-        setEditingLoan(loan);
+        if (loan) {
+            setEditingLoanId(loan.id);
+            form.reset({ name: loan.name, principal: loan.principal });
+        } else {
+            setEditingLoanId(null);
+            form.reset({ name: '', principal: '' });
+        }
         setLoanDialogOpen(true);
     };
 
+    const handleDialogChange = (open: boolean) => {
+        setLoanDialogOpen(open);
+        if (!open) {
+            setEditingLoanId(null);
+        }
+    }
+
     const onSubmit = (values: z.infer<typeof loanSchema>) => {
-        if (editingLoan) {
-            onUpdateLoan(editingLoan.id, values.name, values.principal);
+        if (editingLoanId) {
+            onUpdateLoan(editingLoanId, values.name, values.principal);
             toast({ title: 'Loan Updated!', description: `"${values.name}" has been updated.` });
         } else {
             onAddLoan(values.name, values.principal);
             toast({ title: 'Loan Added!', description: `"${values.name}" has been added to your list.` });
         }
-        setLoanDialogOpen(false);
+        handleDialogChange(false);
     };
 
     const handleUpdateClick = () => {
@@ -226,12 +227,12 @@ export default function FinanceTab({
                 </div>
             </div>
 
-            <Dialog open={isLoanDialogOpen} onOpenChange={setLoanDialogOpen}>
+            <Dialog open={isLoanDialogOpen} onOpenChange={handleDialogChange}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{editingLoan ? 'Edit Loan' : 'Add New Loan'}</DialogTitle>
+                        <DialogTitle>{editingLoanId ? 'Edit Loan' : 'Add New Loan'}</DialogTitle>
                         <DialogDescription>
-                            {editingLoan ? 'Update the details of your loan.' : 'Enter the details for the new loan.'}
+                            {editingLoanId ? 'Update the details of your loan.' : 'Enter the details for the new loan.'}
                         </DialogDescription>
                     </DialogHeader>
                     <Form {...form}>
@@ -263,8 +264,8 @@ export default function FinanceTab({
                                 )}
                             />
                             <DialogFooter>
-                                <Button type="button" variant="outline" onClick={() => setLoanDialogOpen(false)}>Cancel</Button>
-                                <Button type="submit">{editingLoan ? 'Save Changes' : 'Add Loan'}</Button>
+                                <Button type="button" variant="outline" onClick={() => handleDialogChange(false)}>Cancel</Button>
+                                <Button type="submit">{editingLoanId ? 'Save Changes' : 'Add Loan'}</Button>
                             </DialogFooter>
                         </form>
                     </Form>
