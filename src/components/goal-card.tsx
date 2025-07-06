@@ -22,11 +22,12 @@ interface GoalCardProps {
   onGoalDelete: (goalId: string) => void;
 }
 
-const categoryInfo: Record<GoalCategory, { icon: React.ReactNode; className: string }> = {
-  Health: { icon: <HeartPulse className="h-4 w-4" />, className: 'bg-green-100 text-green-800 border-green-200' },
-  Career: { icon: <Briefcase className="h-4 w-4" />, className: 'bg-blue-100 text-blue-800 border-blue-200' },
-  Personal: { icon: <BookOpenText className="h-4 w-4" />, className: 'bg-purple-100 text-purple-800 border-purple-200' },
+const categoryInfo: Record<string, { icon: React.ReactNode; className: string }> = {
+  Health: { icon: <HeartPulse className="h-4 w-4" />, className: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800' },
+  Career: { icon: <Briefcase className="h-4 w-4" />, className: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800' },
+  Personal: { icon: <BookOpenText className="h-4 w-4" />, className: 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/50 dark:text-purple-300 dark:border-purple-800' },
 };
+
 
 export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }: GoalCardProps) {
   const [newStepText, setNewStepText] = useState('');
@@ -38,6 +39,8 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
   const isCompleted = progress === 100 && totalSteps > 0;
   
   const deadlineDate = new Date(goal.deadline);
+
+  const info = categoryInfo[goal.category] || categoryInfo['Personal'];
 
   const handleAddStep = () => {
     if (newStepText.trim()) {
@@ -52,9 +55,9 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
         <div className="flex justify-between items-start">
             <div>
                 <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="outline" className={cn("flex items-center gap-1.5", categoryInfo[goal.category].className)}>
-                        {categoryInfo[goal.category].icon}
-                        {goal.category}
+                    <Badge variant="outline" className={cn("flex items-center gap-1.5", info.className)}>
+                        {info.icon}
+                        {goal.category || 'Personal'}
                     </Badge>
                     {isCompleted && (
                         <Badge className="bg-green-500 text-white flex items-center gap-1.5 border-green-600">
