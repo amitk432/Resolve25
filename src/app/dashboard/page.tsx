@@ -45,7 +45,10 @@ export default function DashboardPage() {
           const planSnap = await getDoc(planRef);
 
           if (planSnap.exists()) {
-            setData(planSnap.data() as AppData);
+            const fetchedData = planSnap.data();
+            // Merge with initialData to ensure all fields are present for older user documents
+            const completeData = { ...initialData, ...fetchedData };
+            setData(completeData as AppData);
           } else {
             await setDoc(planRef, initialData);
             setData(initialData);
