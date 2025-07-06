@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -20,6 +19,7 @@ import TravelGoalsTab from './travel-goals-tab';
 import { EditProfileDialog } from './edit-profile-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { generateTravelImage } from '@/ai/flows/generate-travel-image';
+import FloatingAiButton from './floating-ai-button';
 
 interface DashboardProps {
   data: AppData;
@@ -29,6 +29,7 @@ interface DashboardProps {
 export default function Dashboard({ data, onUpdate }: DashboardProps) {
     const { user, logout } = useAuth();
     const [isProfileDialogOpen, setProfileDialogOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState('dashboard');
     const { toast } = useToast();
     
     // Handlers for updating state
@@ -201,6 +202,27 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         });
     };
 
+    const getAiContext = () => {
+        switch (activeTab) {
+            case 'monthly-plan':
+                return { module: 'MonthlyPlan' as const, context: { monthlyPlan: data.monthlyPlan } };
+            case 'car-sale':
+                return { module: 'CarSale' as const, context: { salePrice: data.carSalePrice, loanPayoff: data.carLoanPayoff } };
+            case 'finance':
+                return { module: 'Finance' as const, context: { loans: data.loans, emergencyFund: data.emergencyFund, sipStarted: data.sipStarted } };
+            case 'job-search':
+                return { module: 'JobSearch' as const, context: { applications: data.jobApplications } };
+            case 'travel-goals':
+                return { module: 'Travel' as const, context: { travelGoals: data.travelGoals } };
+            case 'dashboard':
+            case 'goals':
+            default:
+                return { module: 'DashboardOverview' as const, context: data };
+        }
+    }
+    const aiContext = getAiContext();
+
+
   return (
     <>
     <div className="max-w-7xl mx-auto bg-card rounded-2xl shadow-lg overflow-hidden">
@@ -245,7 +267,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         )}
       </header>
 
-      <Tabs defaultValue="dashboard" className="w-full">
+      <Tabs defaultValue="dashboard" className="w-full" onValueChange={setActiveTab}>
         <div className="border-b bg-muted/50">
             <TabsList className="flex-wrap h-auto p-2 -mb-px bg-transparent w-full justify-start gap-2">
                 <TabsTrigger value="dashboard"><LayoutDashboard/>Dashboard</TabsTrigger>
@@ -258,7 +280,13 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
             </TabsList>
         </div>
         
-        <div className="p-4 md:p-8">
+        <div className="relative p-4 md:p-8">
+            <div className="absolute top-4 right-4 md:top-6 md:right-6 z-10">
+                <FloatingAiButton
+                    moduleName={aiContext.module}
+                    contextData={aiContext.context}
+                />
+            </div>
             <TabsContent value="dashboard">
                 <DashboardOverview data={data} />
             </TabsContent>

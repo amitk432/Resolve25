@@ -1,4 +1,3 @@
-
 'use client'
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -6,7 +5,6 @@ import { AppData } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ArrowRight, CheckCircle } from 'lucide-react';
-import AiSuggestionSection from './ai-suggestion-section';
 
 interface DashboardOverviewProps {
     data: AppData;
@@ -115,13 +113,6 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                     )}
                 </div>
             </div>
-
-            <AiSuggestionSection
-                moduleName="DashboardOverview"
-                title="Dashboard AI Strategist"
-                description="Get high-level suggestions based on your entire action plan—goals, tasks, and finances."
-                contextData={data}
-            />
         </div>
     )
 }

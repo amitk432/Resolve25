@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -13,7 +12,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Trash2, Plus, TrendingUp, ClipboardCheck, Mail, IndianRupee, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import AiSuggestionSection from './ai-suggestion-section';
 
 interface CarSaleTabProps {
     checklist: ChecklistItem[];
@@ -62,14 +60,6 @@ export default function CarSaleTab({ checklist, salePrice, loanPayoff, onToggleT
         <div>
             <h2 className="text-xl font-bold text-foreground mb-4">Car Sale Tracker & Checklist</h2>
             
-            <AiSuggestionSection
-                moduleName="CarSale"
-                title="Car Sale AI Advisor"
-                description="Get advice on your car sale. Is the price fair? What are the next steps? Ask a specific question below or get general advice."
-                contextData={{ salePrice, loanPayoff }}
-                showInput={true}
-            />
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mt-8">
                 <div className="space-y-8">
                     <Card key="financial-summary" className="shadow-lg hover:shadow-xl transition-shadow">
