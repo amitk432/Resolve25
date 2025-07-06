@@ -107,6 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const socialLogin = async (provider: GoogleAuthProvider | GithubAuthProvider) => {
     if (!auth) return handleAuthNotReady();
+    console.log('Please add this domain to your Firebase authorized domains:', window.location.origin);
     setLoading(true);
     try {
       await signInWithPopup(auth, provider);
