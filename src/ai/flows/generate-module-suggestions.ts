@@ -10,7 +10,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const ModuleSuggestionInputSchema = z.object({
+const ModuleSuggestionInputSchema = z.object({
   module: z.enum(['MonthlyPlan', 'CarSale', 'Finance', 'JobSearch', 'Travel']),
   context: z.any().describe('A JSON object containing the data for the specified module.'),
   userQuery: z.string().optional().describe('An optional specific question from the user.'),
