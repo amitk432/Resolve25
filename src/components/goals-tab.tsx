@@ -7,6 +7,7 @@ import AddGoalDialog from './add-goal-dialog';
 import GoalCard from './goal-card';
 import StatsCard from './stats-card';
 import MotivationalQuote from './motivational-quote';
+import { Target } from 'lucide-react';
 
 interface GoalsTabProps {
     goals: Goal[];
