@@ -25,13 +25,13 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
 
     const { overallProgress, goalsCompleted, goalsInProgress, criticalTasks } = useMemo(() => {
         const allGoals = data.goals || [];
-        const allTasks = allGoals.flatMap(g => g.steps);
+        const allTasks = allGoals.flatMap(g => g.steps || []);
         const completedTasks = allTasks.filter(t => t.completed).length;
         const totalTasks = allTasks.length;
         const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
         
-        const gCompleted = allGoals.filter(g => g.steps.length > 0 && g.steps.every(s => s.completed)).length;
-        const gInProgress = allGoals.filter(g => !g.steps.every(s => s.completed)).length;
+        const gCompleted = allGoals.filter(g => (g.steps || []).length > 0 && (g.steps || []).every(s => s.completed)).length;
+        const gInProgress = allGoals.filter(g => !(g.steps || []).every(s => s.completed)).length;
         
         const nextTasks = allTasks.filter(t => !t.completed).slice(0, 3);
         
