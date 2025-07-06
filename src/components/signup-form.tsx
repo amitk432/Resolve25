@@ -18,7 +18,7 @@ const formSchema = z.object({
 });
 
 export default function SignupForm() {
-  const { signup, loading, isFirebaseReady } = useAuth();
+  const { signup, loading, isConfigured } = useAuth();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -32,14 +32,14 @@ export default function SignupForm() {
     await signup(values.email, values.password);
   }
 
-  if (!isFirebaseReady) {
+  if (!isConfigured) {
     return (
         <Card className="w-full max-w-sm">
             <CardHeader>
                 <CardTitle>Authentication Not Configured</CardTitle>
                 <CardDescription>
                     To get started, add your Firebase credentials to the 
-                    <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold mx-1">.env</code> 
+                    <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold mx-1">src/lib/firebase.ts</code> 
                     file.
                 </CardDescription>
             </CardHeader>

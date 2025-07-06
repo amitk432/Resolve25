@@ -23,7 +23,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   loginWithGitHub: () => Promise<void>;
-  isFirebaseReady: boolean;
+  isConfigured: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,12 +33,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { toast } = useToast();
-  const isFirebaseReady = !!auth;
+  const isConfigured = !!auth;
 
   useEffect(() => {
-    if (!auth) {
+    if (!isConfigured) {
       setLoading(false);
-      console.warn("Firebase not configured. Auth features are disabled.");
+      console.warn("Firebase not configured. Auth features are disabled. Please update src/lib/firebase.ts");
       return;
     }
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -47,13 +47,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => unsubscribe();
-  }, [isFirebaseReady]);
+  }, [isConfigured]);
 
   const handleAuthNotReady = () => {
     toast({
         variant: 'destructive',
-        title: 'Authentication Not Available',
-        description: "Firebase credentials are not configured correctly. Please check your .env file.",
+        title: 'Authentication Not Configured',
+        description: "Please update your Firebase credentials in src/lib/firebase.ts.",
     });
   }
 
@@ -130,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     loginWithGoogle,
     loginWithGitHub,
-    isFirebaseReady,
+    isConfigured,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
