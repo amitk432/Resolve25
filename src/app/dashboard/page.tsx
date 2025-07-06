@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { doc, getDoc, setDoc, FirebaseError } from 'firebase/firestore';
+import { doc, getDoc, setDoc, FirestoreError } from 'firebase/firestore';
 import { produce } from 'immer';
 import { db } from '@/lib/firebase';
 import type { AppData } from '@/lib/types';
@@ -55,7 +55,7 @@ export default function DashboardPage() {
           }
         } catch (error) {
           console.error("Error fetching user data: ", error);
-          if (error instanceof FirebaseError) {
+          if (error instanceof FirestoreError) {
              if (error.code === 'unavailable') {
                 const errorMessage = "Could not connect to the database. This can happen if you are offline, or if Firestore is not enabled or has incorrect security rules in your Firebase project. Please check your project settings.";
                 setErrorState(errorMessage);
@@ -88,7 +88,7 @@ export default function DashboardPage() {
       await setDoc(planRef, updatedData, { merge: true });
     } catch (error) {
       console.error("Error updating data: ", error);
-      if (error instanceof FirebaseError && error.code === 'permission-denied') {
+      if (error instanceof FirestoreError && error.code === 'permission-denied') {
         toast({
           variant: 'destructive',
           title: 'Permission Denied',
