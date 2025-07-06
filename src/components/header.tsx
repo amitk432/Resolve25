@@ -18,9 +18,12 @@ export default function Header() {
 
   return (
     <header className="flex h-16 items-center border-b bg-card px-4 md:px-6 sticky top-0 z-10">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <Target className="h-6 w-6 text-primary" />
-        <h1 className="text-xl font-bold tracking-tight text-foreground">Resolve25</h1>
+        <div>
+            <h1 className="text-xl font-bold tracking-tight text-foreground">Personalized Action Plan: 2025</h1>
+            <p className="text-xs text-muted-foreground hidden sm:block">Your interactive dashboard to track career, financial, and skill goals.</p>
+        </div>
       </div>
       <div className="ml-auto flex items-center gap-4">
         {user && (
