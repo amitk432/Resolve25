@@ -91,9 +91,10 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         })
     }
 
-    const handleUpdateSipDetails = (source: string, platform: string) => {
+    const handleUpdateSipDetails = (amount: string, mutualFund: string, platform: string) => {
         onUpdate(draft => {
-            draft.sipSourceOfFunds = source;
+            draft.sipAmount = amount;
+            draft.sipMutualFund = mutualFund;
             draft.sipPlatform = platform;
         });
     };
@@ -186,7 +187,8 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     loans={data.loans} 
                     emergencyFund={data.emergencyFund}
                     sipStarted={data.sipStarted}
-                    sipSourceOfFunds={data.sipSourceOfFunds}
+                    sipAmount={data.sipAmount}
+                    sipMutualFund={data.sipMutualFund}
                     sipPlatform={data.sipPlatform}
                     onUpdateLoanStatus={handleUpdateLoanStatus}
                     onUpdateEmergencyFund={handleUpdateEmergencyFund}

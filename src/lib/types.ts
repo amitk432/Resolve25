@@ -50,6 +50,7 @@ export interface AppData {
     jobApplications: JobApplication[];
     emergencyFund: string;
     sipStarted: boolean;
-    sipSourceOfFunds: string;
+    sipAmount: string;
+    sipMutualFund: string;
     sipPlatform: string;
 }
