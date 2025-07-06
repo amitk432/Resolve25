@@ -40,10 +40,10 @@ export default function MotivationalQuote() {
   }
 
   return (
-    <Card className="bg-accent/10 border-accent/20">
+    <Card className="bg-yellow-50 dark:bg-yellow-900/50 border-yellow-200 dark:border-yellow-800/50">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg text-accent-foreground/80">
-          <Lightbulb className="h-5 w-5 text-accent" />
+        <CardTitle className="flex items-center gap-2 text-lg text-yellow-800 dark:text-yellow-300">
+          <Lightbulb className="h-5 w-5 text-yellow-500 dark:text-yellow-400" />
           A Spark of Motivation
         </CardTitle>
       </CardHeader>

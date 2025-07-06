@@ -66,7 +66,7 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                     </CardHeader>
                     <CardContent>
                          <p className="text-3xl font-bold text-foreground">₹{emergencyFundFormatted}</p>
-                        <p className="text-sm text-accent font-medium">Target: ₹40,000</p>
+                        <p className="text-sm text-green-600 dark:text-green-500 font-medium">Target: ₹40,000</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -76,7 +76,7 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                     <CardContent>
                         <div className="flex justify-between items-center mt-2">
                             <span className="text-sm text-foreground">Completed</span>
-                            <span className="font-bold text-accent">{goalsCompleted}</span>
+                            <span className="font-bold text-green-600 dark:text-green-500">{goalsCompleted}</span>
                         </div>
                          <div className="flex justify-between items-center mt-1">
                             <span className="text-sm text-foreground">In Progress</span>
@@ -106,7 +106,7 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                            </div>
                         ))
                     ) : (
-                         <div className="bg-accent/10 text-accent p-3 rounded-lg flex items-center">
+                         <div className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 p-3 rounded-lg flex items-center">
                             <CheckCircle className="mr-3 h-4 w-4"/>
                             <span className="text-sm font-medium">All tasks completed! Great job!</span>
                         </div>

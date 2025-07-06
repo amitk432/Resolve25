@@ -107,7 +107,7 @@ export default function CarSaleTab({ checklist, salePrice, loanPayoff, onToggleT
                             <span className="text-sm text-muted-foreground">✅ Net Cash in Hand (Estimate)</span>
                             <span className={cn(
                                 "text-3xl font-bold",
-                                netCashInHand >= 0 ? 'text-accent' : 'text-destructive'
+                                netCashInHand >= 0 ? 'text-green-600 dark:text-green-500' : 'text-destructive'
                             )}>
                                 {netCashInHand.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 })}
                             </span>
