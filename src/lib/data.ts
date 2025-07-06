@@ -92,8 +92,8 @@ export const initialData: AppData = {
         { text: 'Receive balance payment from buyer', done: false },
     ],
     loans: [
-        { name: 'Toyota Financial (Car Loan)', principal: '₹3,94,558', status: 'Active' },
-        { name: 'L&T Finance (Personal Loan)', principal: '[Enter Amount]', status: 'Active' },
+        { id: 'loan-1', name: 'Toyota Financial (Car Loan)', principal: '₹3,94,558', status: 'Active' },
+        { id: 'loan-2', name: 'L&T Finance (Personal Loan)', principal: '[Enter Amount]', status: 'Active' },
     ],
     jobApplications: [],
     emergencyFund: '0',

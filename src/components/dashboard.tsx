@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { AppData, GoalStatus, JobStatus, LoanStatus } from '@/lib/types';
+import type { AppData, GoalStatus, JobStatus, LoanStatus, Loan } from '@/lib/types';
 import { produce } from 'immer';
 import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
@@ -45,12 +45,39 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         })
     }
 
-    const handleUpdateLoanStatus = (loanName: string, status: LoanStatus) => {
+    const handleUpdateLoanStatus = (loanId: string, status: LoanStatus) => {
         onUpdate(draft => {
-            const loanToUpdate = draft.loans.find(l => l.name === loanName);
+            const loanToUpdate = draft.loans.find(l => l.id === loanId);
             if (loanToUpdate) loanToUpdate.status = status;
         })
     }
+    
+    const handleAddLoan = (name: string, principal: string) => {
+        onUpdate(draft => {
+            draft.loans.push({
+                id: `loan-${Date.now()}-${Math.random()}`,
+                name,
+                principal,
+                status: 'Active'
+            });
+        });
+    };
+
+    const handleUpdateLoan = (id: string, name: string, principal: string) => {
+        onUpdate(draft => {
+            const loan = draft.loans.find(l => l.id === id);
+            if (loan) {
+                loan.name = name;
+                loan.principal = principal;
+            }
+        });
+    };
+
+    const handleDeleteLoan = (id: string) => {
+        onUpdate(draft => {
+            draft.loans = draft.loans.filter(l => l.id !== id);
+        });
+    };
 
     const handleUpdateEmergencyFund = (amount: string) => {
         onUpdate(draft => {
@@ -155,6 +182,9 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onUpdateLoanStatus={handleUpdateLoanStatus}
                     onUpdateEmergencyFund={handleUpdateEmergencyFund}
                     onToggleSip={handleToggleSip}
+                    onAddLoan={handleAddLoan}
+                    onUpdateLoan={handleUpdateLoan}
+                    onDeleteLoan={handleDeleteLoan}
                 />
             </TabsContent>
             <TabsContent value="job-search">

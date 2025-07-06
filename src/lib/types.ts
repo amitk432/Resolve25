@@ -27,6 +27,7 @@ export interface ChecklistItem {
 export type LoanStatus = 'Active' | 'Closed';
 
 export interface Loan {
+    id: string;
     name: string;
     principal: string;
     status: LoanStatus;
