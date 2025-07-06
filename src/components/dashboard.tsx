@@ -91,6 +91,13 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         })
     }
 
+    const handleUpdateSipDetails = (source: string, platform: string) => {
+        onUpdate(draft => {
+            draft.sipSourceOfFunds = source;
+            draft.sipPlatform = platform;
+        });
+    };
+
     const handleAddApplication = (company: string, role: string) => {
         onUpdate(draft => {
             draft.jobApplications.unshift({
@@ -179,9 +186,12 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     loans={data.loans} 
                     emergencyFund={data.emergencyFund}
                     sipStarted={data.sipStarted}
+                    sipSourceOfFunds={data.sipSourceOfFunds}
+                    sipPlatform={data.sipPlatform}
                     onUpdateLoanStatus={handleUpdateLoanStatus}
                     onUpdateEmergencyFund={handleUpdateEmergencyFund}
                     onToggleSip={handleToggleSip}
+                    onUpdateSipDetails={handleUpdateSipDetails}
                     onAddLoan={handleAddLoan}
                     onUpdateLoan={handleUpdateLoan}
                     onDeleteLoan={handleDeleteLoan}

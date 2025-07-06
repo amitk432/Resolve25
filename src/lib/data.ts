@@ -92,10 +92,12 @@ export const initialData: AppData = {
         { text: 'Receive balance payment from buyer', done: false },
     ],
     loans: [
-        { id: 'loan-1', name: 'Toyota Financial (Car Loan)', principal: '₹3,94,558', status: 'Active' },
-        { id: 'loan-2', name: 'L&T Finance (Personal Loan)', principal: '[Enter Amount]', status: 'Active' },
+        { id: 'loan-1', name: 'Toyota Financial (Car Loan)', principal: '394558', status: 'Active' },
+        { id: 'loan-2', name: 'L&T Finance (Personal Loan)', principal: '0', status: 'Active' },
     ],
     jobApplications: [],
     emergencyFund: '0',
-    sipStarted: false
+    sipStarted: false,
+    sipSourceOfFunds: '',
+    sipPlatform: '',
 };

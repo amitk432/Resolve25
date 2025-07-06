@@ -20,14 +20,18 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
+import { Label } from '@/components/ui/label';
 
 interface FinanceTabProps {
     loans: Loan[];
     emergencyFund: string;
     sipStarted: boolean;
+    sipSourceOfFunds: string;
+    sipPlatform: string;
     onUpdateLoanStatus: (loanId: string, status: LoanStatus) => void;
     onUpdateEmergencyFund: (amount: string) => void;
     onToggleSip: (started: boolean) => void;
+    onUpdateSipDetails: (source: string, platform: string) => void;
     onAddLoan: (name: string, principal: string) => void;
     onUpdateLoan: (id: string, name: string, principal: string) => void;
     onDeleteLoan: (id: string) => void;
@@ -42,14 +46,19 @@ export default function FinanceTab({
     loans, 
     emergencyFund, 
     sipStarted, 
+    sipSourceOfFunds,
+    sipPlatform,
     onUpdateLoanStatus, 
     onUpdateEmergencyFund, 
     onToggleSip,
+    onUpdateSipDetails,
     onAddLoan,
     onUpdateLoan,
     onDeleteLoan
 }: FinanceTabProps) {
     const [fundInput, setFundInput] = useState(emergencyFund);
+    const [sourceInput, setSourceInput] = useState(sipSourceOfFunds);
+    const [platformInput, setPlatformInput] = useState(sipPlatform);
     const [isLoanDialogOpen, setLoanDialogOpen] = useState(false);
     const [editingLoanId, setEditingLoanId] = useState<string | null>(null);
     const { toast } = useToast();
@@ -65,7 +74,7 @@ export default function FinanceTab({
             form.reset({ name: loan.name, principal: loan.principal });
         } else {
             setEditingLoanId(null);
-            form.reset({ name: '', principal: '' });
+            form.reset({ name: '', principal: '0' });
         }
         setLoanDialogOpen(true);
     };
@@ -93,6 +102,11 @@ export default function FinanceTab({
             onUpdateEmergencyFund(fundInput);
             toast({ title: 'Emergency Fund Updated!' });
         }
+    };
+
+    const handleSipUpdate = () => {
+        onUpdateSipDetails(sourceInput, platformInput);
+        toast({ title: "SIP Details Updated!" });
     };
     
     const emergencyFundTarget = 40000;
@@ -203,7 +217,7 @@ export default function FinanceTab({
                             <div>
                                 <h4 className="font-medium text-foreground">SIP Planner</h4>
                                 <p className="text-sm text-muted-foreground mt-1">Goal: Start with ₹1,000–₹2,000/month after the car is sold.</p>
-                                <div className="mt-4 bg-muted/50 p-4 rounded-lg">
+                                <div className="mt-4 bg-muted/50 p-4 rounded-lg space-y-4">
                                     <div className="flex items-center">
                                         <Checkbox
                                           id="sip-check"
@@ -215,11 +229,27 @@ export default function FinanceTab({
                                             I have started my first SIP
                                         </label>
                                     </div>
-                                    {!sipStarted && (
-                                        <p className="text-xs text-muted-foreground mt-2 pl-7">
-                                            Platforms to consider: Groww, Zerodha Coin, or Kuvera.
-                                        </p>
-                                    )}
+                                    <div className="space-y-1">
+                                        <Label htmlFor="sip-source" className="text-xs">Source of Funds</Label>
+                                        <Input 
+                                            id="sip-source"
+                                            value={sourceInput}
+                                            onChange={(e) => setSourceInput(e.target.value)}
+                                            placeholder="e.g., Monthly Salary, Car Sale"
+                                            className="h-9"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label htmlFor="sip-platform" className="text-xs">Investment Platform</Label>
+                                        <Input 
+                                            id="sip-platform"
+                                            value={platformInput}
+                                            onChange={(e) => setPlatformInput(e.target.value)}
+                                            placeholder="e.g., Groww, Zerodha Coin"
+                                            className="h-9"
+                                        />
+                                    </div>
+                                    <Button onClick={handleSipUpdate} size="sm">Update SIP Info</Button>
                                 </div>
                             </div>
                         </CardContent>
