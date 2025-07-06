@@ -20,6 +20,7 @@ export interface MonthlyPlan {
 }
 
 export interface ChecklistItem {
+    id: string;
     text: string;
     done: boolean;
 }
@@ -46,6 +47,8 @@ export interface AppData {
     goals: Goal[];
     monthlyPlan: MonthlyPlan[];
     carSaleChecklist: ChecklistItem[];
+    carSalePrice: string;
+    carLoanPayoff: string;
     loans: Loan[];
     jobApplications: JobApplication[];
     emergencyFund: string;

@@ -39,11 +39,35 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         });
     };
     
-    const handleToggleCarSaleTask = (taskIndex: number, done: boolean) => {
+    const handleToggleCarSaleTask = (id: string, done: boolean) => {
         onUpdate(draft => {
-            draft.carSaleChecklist[taskIndex].done = done;
+            const task = draft.carSaleChecklist.find(t => t.id === id);
+            if(task) task.done = done;
         })
     }
+
+     const handleAddCarSaleTask = (text: string) => {
+        onUpdate(draft => {
+            draft.carSaleChecklist.push({
+                id: `car-task-${Date.now()}`,
+                text,
+                done: false
+            });
+        });
+    };
+
+    const handleDeleteCarSaleTask = (id: string) => {
+        onUpdate(draft => {
+            draft.carSaleChecklist = draft.carSaleChecklist.filter(t => t.id !== id);
+        });
+    };
+    
+    const handleUpdateCarSaleDetails = (price: string, payoff: string) => {
+        onUpdate(draft => {
+            draft.carSalePrice = price;
+            draft.carLoanPayoff = payoff;
+        });
+    };
 
     const handleUpdateLoanStatus = (loanId: string, status: LoanStatus) => {
         onUpdate(draft => {
@@ -180,7 +204,15 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 <MonthlyPlanTab monthlyPlan={data.monthlyPlan} onToggleTask={handleToggleMonthlyTask}/>
             </TabsContent>
             <TabsContent value="car-sale">
-                <CarSaleTab checklist={data.carSaleChecklist} onToggleTask={handleToggleCarSaleTask}/>
+                 <CarSaleTab 
+                    checklist={data.carSaleChecklist}
+                    salePrice={data.carSalePrice}
+                    loanPayoff={data.carLoanPayoff}
+                    onToggleTask={handleToggleCarSaleTask}
+                    onAddTask={handleAddCarSaleTask}
+                    onDeleteTask={handleDeleteCarSaleTask}
+                    onUpdateDetails={handleUpdateCarSaleDetails}
+                />
             </TabsContent>
             <TabsContent value="finance">
                 <FinanceTab 
