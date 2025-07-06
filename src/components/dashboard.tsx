@@ -172,6 +172,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
           if (result.imageDataUri) {
             imageUrl = result.imageDataUri;
             update({
+              id: 'image-generated',
               title: 'Image Generated!',
               description: 'Your new travel goal has been added.',
             });
@@ -181,12 +182,13 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         } catch (error) {
           console.error("Error generating travel image:", error);
           update({
+            id: 'image-failed',
             variant: 'destructive',
             title: 'Image Generation Failed',
             description: 'Using a placeholder image. The AI may be busy, please try again later.',
           });
         } finally {
-            dismiss();
+            setTimeout(() => dismiss(), 5000);
         }
     
         onUpdate((draft) => {
@@ -194,7 +196,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
             id: `travel-${Date.now()}`,
             destination: goal.destination,
             status: goal.status,
-            notes: goal.notes,
+            notes: goal.notes || '',
             travelDate: goal.travelDate ? goal.travelDate.toISOString() : null,
             image: imageUrl,
           });
