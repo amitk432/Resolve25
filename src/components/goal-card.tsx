@@ -30,8 +30,10 @@ const categoryInfo: Record<GoalCategory, { icon: React.ReactNode; className: str
 
 export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }: GoalCardProps) {
   const [newStepText, setNewStepText] = useState('');
-  const completedSteps = goal.steps.filter(step => step.completed).length;
-  const totalSteps = goal.steps.length;
+  
+  const steps = goal.steps || [];
+  const completedSteps = steps.filter(step => step.completed).length;
+  const totalSteps = steps.length;
   const progress = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
   const isCompleted = progress === 100 && totalSteps > 0;
   
@@ -90,7 +92,7 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
             <AccordionTrigger>Actionable Steps</AccordionTrigger>
             <AccordionContent>
               <div className="space-y-2">
-                {goal.steps.map(step => (
+                {steps.map(step => (
                   <div key={step.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted">
                     <Checkbox
                       id={`step-${step.id}`}
@@ -105,7 +107,7 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
                     </label>
                   </div>
                 ))}
-                {goal.steps.length === 0 && <p className="text-sm text-muted-foreground p-2 text-center">No steps yet. Add one below!</p>}
+                {steps.length === 0 && <p className="text-sm text-muted-foreground p-2 text-center">No steps yet. Add one below!</p>}
               </div>
               <div className="flex gap-2 mt-4">
                 <Input 
