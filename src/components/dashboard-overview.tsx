@@ -66,7 +66,7 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                     </CardHeader>
                     <CardContent>
                          <p className="text-3xl font-bold text-foreground">₹{emergencyFundFormatted}</p>
-                        <p className="text-sm text-green-600 font-medium">Target: ₹40,000</p>
+                        <p className="text-sm text-accent font-medium">Target: ₹40,000</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -76,11 +76,11 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                     <CardContent>
                         <div className="flex justify-between items-center mt-2">
                             <span className="text-sm text-foreground">Completed</span>
-                            <span className="font-bold text-green-600">{goalsCompleted}</span>
+                            <span className="font-bold text-accent">{goalsCompleted}</span>
                         </div>
                          <div className="flex justify-between items-center mt-1">
                             <span className="text-sm text-foreground">In Progress</span>
-                            <span className="font-bold text-yellow-600">{goalsInProgress}</span>
+                            <span className="font-bold text-chart-4">{goalsInProgress}</span>
                         </div>
                     </CardContent>
                 </Card>
@@ -106,7 +106,7 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                            </div>
                         ))
                     ) : (
-                         <div className="bg-green-100 text-green-800 p-3 rounded-lg flex items-center">
+                         <div className="bg-accent/10 text-accent p-3 rounded-lg flex items-center">
                             <CheckCircle className="mr-3 h-4 w-4"/>
                             <span className="text-sm font-medium">All tasks completed! Great job!</span>
                         </div>

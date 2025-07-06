@@ -46,7 +46,7 @@ export default function DashboardPage() {
           if (planSnap.exists()) {
             const fetchedData = planSnap.data();
             // Merge with initialData to ensure all fields are present for older user documents
-            const completeData = { ...initialData, ...fetchedData };
+            const completeData = { ...initialData, ...fetchedData, travelGoals: fetchedData.travelGoals || [] };
             setData(completeData as AppData);
           } else {
             await setDoc(planRef, initialData);
@@ -188,7 +188,7 @@ service cloud.firestore {
   }
   
   return (
-    <div className="w-full p-0 md:p-8">
+    <div className="w-full p-4 md:p-8">
       <Dashboard
         data={data}
         onUpdate={handleUpdate}

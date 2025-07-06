@@ -206,7 +206,7 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }:
               <CardContent className="pt-4 flex-grow">
                 <CardTitle>{goal.destination}</CardTitle>
                 {goal.status === 'Completed' ? (
-                  <div className="text-sm font-medium text-green-600 flex items-center mt-1">
+                  <div className="text-sm font-medium text-accent flex items-center mt-1">
                     <CheckCircle className="mr-1.5 h-4 w-4" />
                     Completed
                   </div>

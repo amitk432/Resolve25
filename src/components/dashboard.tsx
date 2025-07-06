@@ -168,7 +168,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
 
   return (
     <div className="max-w-7xl mx-auto bg-card rounded-2xl shadow-lg overflow-hidden">
-      <header className="bg-foreground text-primary-foreground p-6 flex justify-between items-center">
+      <header className="bg-primary text-primary-foreground p-6 flex justify-between items-center">
         <div>
             <h1 className="text-2xl md:text-3xl font-bold">Personalized Action Plan: 2025</h1>
             <p className="text-muted-foreground mt-1">Your interactive dashboard to track career, financial, and skill goals.</p>

@@ -20,7 +20,7 @@ const AuthIllustration = () => (
             <circle cx="80" cy="250" r="40" fill="hsl(var(--accent))" opacity="0.7" filter="url(#glow)" />
             <rect x="250" y="200" width="80" height="80" rx="15" fill="hsl(var(--primary))" opacity="0.6" transform="rotate(-30 290 240)" />
             <path d="M 100,350 L 150,300 L 200,350 Z" fill="hsl(var(--secondary))" stroke="hsl(var(--border))" strokeWidth="3" />
-            <text x="50%" y="90%" textAnchor="middle" fontFamily="Poppins, sans-serif" fontSize="24" fill="hsl(var(--primary))" fontWeight="600">Resolve25</text>
+            <text x="50%" y="90%" textAnchor="middle" fontFamily="'Inter', sans-serif" fontSize="24" fill="hsl(var(--primary))" fontWeight="600">Resolve25</text>
         </svg>
     </div>
 );
