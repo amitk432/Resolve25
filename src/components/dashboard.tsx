@@ -300,8 +300,8 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onToggleSip={handleToggleSip}
                     onUpdateSipDetails={handleUpdateSipDetails}
                     onAddLoan={handleAddLoan}
-                    onUpdateLoan={handleUpdateLoan}
-                    onDeleteLoan={handleDeleteLoan}
+                    onUpdateLoan={onUpdateLoan}
+                    onDeleteLoan={onDeleteLoan}
                 />
             </TabsContent>
             <TabsContent value="job-search">
