@@ -59,11 +59,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleAuthError = (error: any) => {
     console.error(error);
-    toast({
-      variant: 'destructive',
-      title: 'Authentication Error',
-      description: error.message || 'An unexpected error occurred.',
-    });
+    if (error.code === 'auth/unauthorized-domain') {
+      toast({
+          variant: 'destructive',
+          title: 'Unauthorized Domain',
+          description: `Please add '${window.location.origin}' to your Firebase project's authorized domains list.`,
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Authentication Error',
+        description: error.message || 'An unexpected error occurred.',
+      });
+    }
   };
   
   const login = async (email: string, pass: string) => {
@@ -107,7 +115,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const socialLogin = async (provider: GoogleAuthProvider | GithubAuthProvider) => {
     if (!auth) return handleAuthNotReady();
-    console.log('Please add this domain to your Firebase authorized domains:', window.location.origin);
     setLoading(true);
     try {
       await signInWithPopup(auth, provider);
