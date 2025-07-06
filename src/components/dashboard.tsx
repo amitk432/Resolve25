@@ -223,7 +223,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10 border-2 border-primary-foreground/50">
                   <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
-                  <AvatarFallback className="bg-primary text-primary-foreground">
+                  <AvatarFallback className="bg-primary-foreground text-primary font-semibold">
                     {user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -300,8 +300,8 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onToggleSip={handleToggleSip}
                     onUpdateSipDetails={handleUpdateSipDetails}
                     onAddLoan={handleAddLoan}
-                    onUpdateLoan={onUpdateLoan}
-                    onDeleteLoan={onDeleteLoan}
+                    onUpdateLoan={handleUpdateLoan}
+                    onDeleteLoan={handleDeleteLoan}
                 />
             </TabsContent>
             <TabsContent value="job-search">
