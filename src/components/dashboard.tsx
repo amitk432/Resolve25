@@ -1,9 +1,10 @@
 
 'use client';
 
+import { useState } from 'react';
 import type { AppData, GoalStatus, JobStatus, LoanStatus, Loan, TravelGoal } from '@/lib/types';
 import { produce } from 'immer';
-import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane } from 'lucide-react';
+import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ import CarSaleTab from './car-sale-tab';
 import FinanceTab from './finance-tab';
 import JobSearchTab from './job-search-tab';
 import TravelGoalsTab from './travel-goals-tab';
+import { EditProfileDialog } from './edit-profile-dialog';
 
 interface DashboardProps {
   data: AppData;
@@ -25,6 +27,7 @@ interface DashboardProps {
 
 export default function Dashboard({ data, onUpdate }: DashboardProps) {
     const { user, logout } = useAuth();
+    const [isProfileDialogOpen, setProfileDialogOpen] = useState(false);
     
     // Handlers for updating state
     const handleUpdateGoalStatus = (goal: string, newStatus: GoalStatus) => {
@@ -167,6 +170,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     };
 
   return (
+    <>
     <div className="max-w-7xl mx-auto bg-card rounded-2xl shadow-lg overflow-hidden">
       <header className="bg-primary text-primary-foreground p-6 flex justify-between items-center">
         <div>
@@ -179,7 +183,9 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10 border-2 border-primary-foreground/50">
                   <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
-                  <AvatarFallback>{user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                  <AvatarFallback className="bg-primary-foreground text-primary">
+                    {user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -193,8 +199,14 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+               <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
+                <Camera className="mr-2 h-4 w-4" />
+                <span>Change Picture</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={logout}>
-                Log out
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -270,5 +282,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         </div>
       </Tabs>
     </div>
+    <EditProfileDialog open={isProfileDialogOpen} onOpenChange={setProfileDialogOpen} />
+    </>
   );
 }

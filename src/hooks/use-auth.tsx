@@ -13,9 +13,11 @@ import {
   GithubAuthProvider,
   signInWithPopup,
   UserCredential,
+  updateProfile,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { auth, db, storage } from '@/lib/firebase';
 import { useToast } from './use-toast';
 import { initialData } from '@/lib/data';
 
@@ -27,6 +29,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   loginWithGitHub: () => Promise<void>;
+  updateProfilePicture: (file: File) => Promise<void>;
   isConfigured: boolean;
 }
 
@@ -149,15 +152,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginWithGoogle = () => socialLogin(new GoogleAuthProvider());
   const loginWithGitHub = () => socialLogin(new GithubAuthProvider());
 
+  const updateProfilePicture = async (file: File) => {
+    if (!auth?.currentUser || !storage) {
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'User not authenticated or storage is not configured.',
+        });
+        return;
+    }
+    setLoading(true);
+    try {
+        const userToUpdate = auth.currentUser;
+        const storageRef = ref(storage, `profile-pictures/${userToUpdate.uid}`);
+        
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        await updateProfile(userToUpdate, { photoURL: downloadURL });
+        
+        // Force a reload of the user object to get latest profile
+        await userToUpdate.reload();
+        // Update state with the reloaded user object to trigger UI updates
+        setUser(auth.currentUser);
+
+        toast({
+            title: 'Success!',
+            description: 'Your profile picture has been updated.',
+        });
+    } catch (error) {
+        handleAuthError(error);
+    } finally {
+        setLoading(false);
+    }
+  };
+
 
   const value = {
     user,
     loading,
     login,
     signup,
-logout,
+    logout,
     loginWithGoogle,
     loginWithGitHub,
+    updateProfilePicture,
     isConfigured,
   };
 
