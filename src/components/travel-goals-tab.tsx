@@ -83,7 +83,6 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }:
         notes: values.notes,
         travelDate: values.status === 'Planned' ? values.travelDate! : null
     });
-    toast({ title: "Travel Goal Added!", description: `Your trip to ${values.destination} is on the list.` });
     setDialogOpen(false);
     form.reset();
   };
@@ -182,7 +181,7 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }:
           {travelGoals.map(goal => (
             <Card key={goal.id} className="flex flex-col overflow-hidden">
               <CardHeader className="relative p-0">
-                <Image src={goal.image} alt={goal.destination} width={400} height={250} className="rounded-t-lg object-cover aspect-[16/10]" data-ai-hint={goal.destination} />
+                <Image src={goal.image} alt={goal.destination} width={400} height={250} className="rounded-t-lg object-cover aspect-[16/10]" />
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg">

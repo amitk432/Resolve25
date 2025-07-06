@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import type { AppData, GoalStatus, JobStatus, LoanStatus, Loan, TravelGoal } from '@/lib/types';
 import { produce } from 'immer';
-import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut } from 'lucide-react';
+import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,8 @@ import FinanceTab from './finance-tab';
 import JobSearchTab from './job-search-tab';
 import TravelGoalsTab from './travel-goals-tab';
 import { EditProfileDialog } from './edit-profile-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { generateTravelImage } from '@/ai/flows/generate-travel-image';
 
 interface DashboardProps {
   data: AppData;
@@ -28,6 +30,7 @@ interface DashboardProps {
 export default function Dashboard({ data, onUpdate }: DashboardProps) {
     const { user, logout } = useAuth();
     const [isProfileDialogOpen, setProfileDialogOpen] = useState(false);
+    const { toast } = useToast();
     
     // Handlers for updating state
     const handleUpdateGoalStatus = (goal: string, newStatus: GoalStatus) => {
@@ -150,18 +153,53 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         });
     }
 
-    const handleAddTravelGoal = (goal: Omit<TravelGoal, 'id' | 'image'> & { travelDate: Date | null }) => {
-        onUpdate(draft => {
-            draft.travelGoals.push({
-                id: `travel-${Date.now()}`,
-                destination: goal.destination,
-                status: goal.status,
-                notes: goal.notes,
-                travelDate: goal.travelDate ? goal.travelDate.toISOString() : null,
-                image: `https://placehold.co/400x250.png`
-            });
+    const handleAddTravelGoal = async (goal: Omit<TravelGoal, 'id' | 'image'> & { travelDate: Date | null }) => {
+        const { update, dismiss } = toast({
+          title: (
+            <div className="flex items-center gap-2">
+              <Loader2 className="animate-spin" />
+              <span>Generating Image...</span>
+            </div>
+          ),
+          description: `Creating a custom image for ${goal.destination}. Please wait.`,
+          duration: 90000,
         });
-    };
+    
+        let imageUrl = 'https://placehold.co/400x250.png';
+    
+        try {
+          const result = await generateTravelImage({ destination: goal.destination });
+          if (result.imageDataUri) {
+            imageUrl = result.imageDataUri;
+            update({
+              title: 'Image Generated!',
+              description: 'Your new travel goal has been added.',
+            });
+          } else {
+            throw new Error('No image data received from AI.');
+          }
+        } catch (error) {
+          console.error("Error generating travel image:", error);
+          update({
+            variant: 'destructive',
+            title: 'Image Generation Failed',
+            description: 'Using a placeholder image. The AI may be busy, please try again later.',
+          });
+        } finally {
+            dismiss();
+        }
+    
+        onUpdate((draft) => {
+          draft.travelGoals.push({
+            id: `travel-${Date.now()}`,
+            destination: goal.destination,
+            status: goal.status,
+            notes: goal.notes,
+            travelDate: goal.travelDate ? goal.travelDate.toISOString() : null,
+            image: imageUrl,
+          });
+        });
+      };
 
     const handleDeleteTravelGoal = (id: string) => {
         onUpdate(draft => {
@@ -183,7 +221,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10 border-2 border-primary-foreground/50">
                   <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
-                  <AvatarFallback className="bg-primary-foreground text-primary">
+                  <AvatarFallback className="bg-primary text-primary-foreground">
                     {user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
