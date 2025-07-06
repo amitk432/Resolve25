@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -5,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, Plus, Briefcase, HeartPulse, BookOpenText } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Briefcase, HeartPulse, BookOpenText, Sparkles } from 'lucide-react';
 import type { Goal, GoalCategory } from '@/lib/types';
 
 import { Button } from '@/components/ui/button';
@@ -82,11 +83,26 @@ export default function AddGoalDialog({ onGoalAdd }: AddGoalDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> Add New Goal
+      <div className="relative inline-block">
+        <DialogTrigger asChild>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" /> Add New Goal
+          </Button>
+        </DialogTrigger>
+        <Button
+            size="icon"
+            className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-primary hover:bg-primary/90 shadow-lg border-2 border-card"
+            onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toast({ title: "Coming Soon!", description: "AI-powered goal generation will be available here." });
+            }}
+        >
+            <Sparkles className="h-4 w-4" />
+            <span className="sr-only">Generate with AI</span>
         </Button>
-      </DialogTrigger>
+      </div>
+
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle>Create a New Goal</DialogTitle>
