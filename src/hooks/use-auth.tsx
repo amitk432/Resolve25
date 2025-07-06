@@ -11,8 +11,10 @@ import {
   GoogleAuthProvider,
   GithubAuthProvider,
   signInWithPopup,
+  UserCredential,
 } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 import { useToast } from './use-toast';
 
 interface AuthContextType {
@@ -27,6 +29,29 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const createInitialUserData = async (user: User) => {
+  if (!db) return;
+  const userRef = doc(db, 'users', user.uid);
+  const userDoc = await getDoc(userRef);
+
+  if (!userDoc.exists()) {
+    // Document for the user doesn't exist, create it
+    const goalsCollectionRef = doc(db, 'users', user.uid, 'goals', 'initial-goal');
+    
+    await setDoc(goalsCollectionRef, {
+      title: 'Complete your first goal!',
+      description: 'This is an example goal. You can edit or delete it.',
+      category: 'Personal',
+      deadline: Timestamp.fromDate(new Date(new Date().setDate(new Date().getDate() + 7))),
+      steps: [
+        { id: 'step1', text: 'Add another step to this goal', completed: false },
+        { id: 'step2', text: 'Create a new goal', completed: false },
+      ]
+    });
+  }
+};
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -49,6 +74,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, [isConfigured]);
 
+  const handleAuthResult = async (userCredential: UserCredential) => {
+    await createInitialUserData(userCredential.user);
+    router.push('/dashboard');
+  }
+
   const handleAuthNotReady = () => {
     toast({
         variant: 'destructive',
@@ -60,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleAuthError = (error: any) => {
     console.error(error);
     if (error.code === 'auth/unauthorized-domain') {
-      toast({
+       toast({
           variant: 'destructive',
           title: 'Action Required: Unauthorized Domain',
           description: `To fix this, go to your Firebase project > Authentication > Settings and add this domain to the 'Authorized domains' list: ${window.location.origin}`,
@@ -92,8 +122,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!auth) return handleAuthNotReady();
     setLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, email, pass);
-      router.push('/dashboard');
+      const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+      await handleAuthResult(userCredential);
     } catch (error) {
       handleAuthError(error);
     } finally {
@@ -118,8 +148,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!auth) return handleAuthNotReady();
     setLoading(true);
     try {
-      await signInWithPopup(auth, provider);
-      router.push('/dashboard');
+      const userCredential = await signInWithPopup(auth, provider);
+      await handleAuthResult(userCredential);
     } catch (error) {
       handleAuthError(error);
     } finally {
@@ -136,7 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     login,
     signup,
-    logout,
+logout,
     loginWithGoogle,
     loginWithGitHub,
     isConfigured,

@@ -1,11 +1,12 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAuZuJh1WE56n619wbCjD0PvoqWVbqTTDE",
   authDomain: "resolve25-9e336.firebaseapp.com",
   projectId: "resolve25-9e336",
-  storageBucket: "resolve25-9e336.firebasestorage.app",
+  storageBucket: "resolve25-9e336.appspot.com",
   messagingSenderId: "726995356209",
   appId: "1:726995356209:web:6cee314eac73b10b3ea310",
 };
@@ -19,3 +20,4 @@ const isFirebaseConfigValid =
 
 const app = isFirebaseConfigValid && !getApps().length ? initializeApp(firebaseConfig) : (getApps().length ? getApp() : null);
 export const auth = app ? getAuth(app) : null;
+export const db = app ? getFirestore(app) : null;

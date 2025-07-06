@@ -21,8 +21,8 @@ export default function Header() {
       <div className="flex items-center gap-3">
         <Target className="h-6 w-6 text-primary" />
         <div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">Personalized Action Plan: 2025</h1>
-            <p className="text-xs text-muted-foreground hidden sm:block">Your interactive dashboard to track career, financial, and skill goals.</p>
+            <h1 className="text-xl font-bold tracking-tight text-foreground">Resolve25</h1>
+            <p className="text-xs text-muted-foreground hidden sm:block">Your personal dashboard for achieving your goals.</p>
         </div>
       </div>
       <div className="ml-auto flex items-center gap-4">
