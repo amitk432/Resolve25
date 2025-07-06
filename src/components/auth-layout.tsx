@@ -27,7 +27,7 @@ const AuthIllustration = () => (
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="w-full min-h-screen lg:grid lg:grid-cols-2 bg-background">
+    <div className="w-full h-full lg:grid lg:grid-cols-2 bg-background">
       <div className="flex items-center justify-center p-6 lg:p-12">
         {children}
       </div>
