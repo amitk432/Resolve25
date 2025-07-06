@@ -1,4 +1,3 @@
-
 'use client'
 
 import React, { useState, useEffect } from 'react';
@@ -18,6 +17,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Pencil, Trash2, PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 
 interface FinanceTabProps {
     loans: Loan[];
@@ -89,9 +90,14 @@ export default function FinanceTab({
     const handleUpdateClick = () => {
         if (fundInput && !isNaN(parseFloat(fundInput))) {
             onUpdateEmergencyFund(fundInput);
+            toast({ title: 'Emergency Fund Updated!' });
         }
     };
     
+    const emergencyFundTarget = 40000;
+    const emergencyFundCurrent = parseFloat(emergencyFund) || 0;
+    const emergencyFundProgress = Math.min((emergencyFundCurrent / emergencyFundTarget) * 100, 100);
+
     return (
         <div>
             <h2 className="text-xl font-bold text-foreground mb-4">Loan & Investment Tracker</h2>
@@ -172,33 +178,47 @@ export default function FinanceTab({
                 <div>
                     <Card>
                         <CardHeader><CardTitle className="text-lg">Investment Growth</CardTitle></CardHeader>
-                        <CardContent>
-                             <label htmlFor="emergency-fund-input" className="font-medium text-sm text-foreground">Update Emergency Fund (₹)</label>
-                            <div className="flex items-center mt-2 gap-2">
-                                <Input 
-                                  type="number" 
-                                  id="emergency-fund-input" 
-                                  value={fundInput}
-                                  onChange={(e) => setFundInput(e.target.value)}
-                                  placeholder="Enter current amount"
-                                />
-                                <Button onClick={handleUpdateClick}>Update</Button>
+                        <CardContent className="space-y-6">
+                            <div>
+                                <h4 className="font-medium text-foreground mb-2">Emergency Fund</h4>
+                                <div className="flex justify-between items-baseline mb-1">
+                                    <span className="text-2xl font-bold text-primary">₹{emergencyFundCurrent.toLocaleString('en-IN')}</span>
+                                    <span className="text-sm text-muted-foreground">/ ₹{emergencyFundTarget.toLocaleString('en-IN')}</span>
+                                </div>
+                                <Progress value={emergencyFundProgress} className="h-2" />
+                                <div className="flex items-center mt-4 gap-2">
+                                    <Input 
+                                      type="number" 
+                                      id="emergency-fund-input" 
+                                      value={fundInput}
+                                      onChange={(e) => setFundInput(e.target.value)}
+                                      placeholder="Update amount"
+                                      className="h-9"
+                                    />
+                                    <Button onClick={handleUpdateClick} size="sm">Update</Button>
+                                </div>
                             </div>
-                            <div className="mt-4">
+                            <Separator />
+                            <div>
                                 <h4 className="font-medium text-foreground">SIP Planner</h4>
-                                <p className="text-sm text-muted-foreground mt-1">Start with ₹1,000–₹2,000/month after car sale.</p>
-                                <div className="mt-2 space-y-2">
+                                <p className="text-sm text-muted-foreground mt-1">Goal: Start with ₹1,000–₹2,000/month after the car is sold.</p>
+                                <div className="mt-4 bg-muted/50 p-4 rounded-lg">
                                     <div className="flex items-center">
                                         <Checkbox
                                           id="sip-check"
-                                          className="mr-2"
+                                          className="mr-3"
                                           checked={sipStarted}
                                           onCheckedChange={(checked) => onToggleSip(!!checked)}
                                          />
-                                        <label htmlFor="sip-check" className={cn("text-sm text-foreground", sipStarted && "line-through text-muted-foreground")}>
-                                            Started first SIP
+                                        <label htmlFor="sip-check" className={cn("text-sm font-medium", sipStarted && "line-through text-muted-foreground")}>
+                                            I have started my first SIP
                                         </label>
                                     </div>
+                                    {!sipStarted && (
+                                        <p className="text-xs text-muted-foreground mt-2 pl-7">
+                                            Platforms to consider: Groww, Zerodha Coin, or Kuvera.
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </CardContent>
