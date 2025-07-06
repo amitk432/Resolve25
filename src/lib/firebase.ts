@@ -2,12 +2,12 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyAuZuJh1WE56n619wbCjD0PvoqWVbqTTDE",
+  authDomain: "resolve25-9e336.firebaseapp.com",
+  projectId: "resolve25-9e336",
+  storageBucket: "resolve25-9e336.appspot.com",
+  messagingSenderId: "726995356209",
+  appId: "1:726995356209:web:6cee314eac73b10b3ea310",
 };
 
 // Check if all required Firebase config values are present and not placeholders
