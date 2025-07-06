@@ -38,7 +38,8 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
   const progress = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
   const isCompleted = progress === 100 && totalSteps > 0;
   
-  const deadlineDate = new Date(goal.deadline);
+  const deadlineDate = goal.deadline ? new Date(goal.deadline) : null;
+  const isValidDate = deadlineDate && !isNaN(deadlineDate.getTime());
 
   const info = categoryInfo[goal.category] || categoryInfo['Personal'];
 
@@ -128,7 +129,11 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
       <CardFooter className="border-t pt-4">
         <div className="flex items-center text-sm text-muted-foreground">
           <Calendar className="mr-2 h-4 w-4" />
-          <span>Deadline: {format(deadlineDate, 'PPP')} ({formatDistanceToNow(deadlineDate, { addSuffix: true })})</span>
+            {isValidDate && deadlineDate ? (
+                <span>Deadline: {format(deadlineDate, 'PPP')} ({formatDistanceToNow(deadlineDate, { addSuffix: true })})</span>
+            ) : (
+                <span>No deadline set</span>
+            )}
         </div>
       </CardFooter>
     </Card>
