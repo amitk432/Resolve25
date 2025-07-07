@@ -1,3 +1,4 @@
+
 'use client'
 
 import React, { useState, useEffect } from 'react';
@@ -133,16 +134,16 @@ export default function FinanceTab({
 
     return (
         <div>
-            <h2 className="text-xl font-bold text-foreground mb-4">Loan & Investment Tracker</h2>
+            <div className="flex justify-center items-center mb-6 gap-4">
+                <h2 className="text-xl font-bold text-foreground">Loan & Investment Tracker</h2>
+                <Button size="sm" onClick={() => handleOpenDialog(null)}><PlusCircle className="mr-2 h-4 w-4"/> Add Loan</Button>
+            </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
                 <div>
                     <Card>
                         <CardHeader>
-                            <div className="flex justify-between items-center">
-                                <CardTitle className="text-lg">Loan Repayment Status</CardTitle>
-                                <Button size="sm" onClick={() => handleOpenDialog(null)}><PlusCircle /> Add Loan</Button>
-                            </div>
+                            <CardTitle className="text-lg">Loan Repayment Status</CardTitle>
                         </CardHeader>
                         <CardContent>
                              <div className="overflow-x-auto rounded-lg border">

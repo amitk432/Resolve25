@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Edit, CalendarIcon, Briefcase, User, ShoppingCart, AlertTriangle, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { Plus, Trash2, Edit, CalendarIcon, Briefcase, User, ShoppingCart, AlertTriangle, ChevronDown, ChevronUp, Check, ListTodo } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 
@@ -176,21 +176,31 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
     );
   }, [tasks]);
 
+  const totalTasks = tasks.length;
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-center items-center mb-6 gap-4">
         <h2 className="text-xl font-bold text-foreground">Daily To-Do List</h2>
         <Button onClick={() => handleOpenDialog(null)}>
           <Plus className="mr-2 h-4 w-4" /> Add Task
         </Button>
       </div>
       
-      <div className="space-y-6">
-        <TaskSection title="Overdue" tasks={overdue} icon={<AlertTriangle className="text-destructive"/>} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
-        <TaskSection title="Today" tasks={today} icon={<User className="text-primary"/>} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
-        <TaskSection title="Upcoming" tasks={upcoming} icon={<CalendarIcon className="text-muted-foreground"/>} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
-        <TaskSection title="Completed" tasks={completed} icon={<Check className="text-green-500"/>} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
-      </div>
+      {totalTasks > 0 ? (
+        <div className="space-y-6">
+          <TaskSection title="Overdue" tasks={overdue} icon={<AlertTriangle className="text-destructive"/>} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
+          <TaskSection title="Today" tasks={today} icon={<User className="text-primary"/>} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
+          <TaskSection title="Upcoming" tasks={upcoming} icon={<CalendarIcon className="text-muted-foreground"/>} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
+          <TaskSection title="Completed" tasks={completed} icon={<Check className="text-green-500"/>} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
+        </div>
+      ) : (
+        <div className="text-center py-16 border-2 border-dashed rounded-lg">
+            <ListTodo className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-2 text-lg font-medium">No Tasks Yet</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Click "Add Task" above to get started.</p>
+        </div>
+      )}
 
       <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-[480px]">

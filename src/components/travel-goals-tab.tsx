@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -89,7 +90,7 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }:
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-center items-center mb-6 gap-4">
         <h2 className="text-xl font-bold text-foreground">Travel Goals & Wishlist</h2>
         <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
