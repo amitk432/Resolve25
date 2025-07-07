@@ -11,7 +11,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ModuleSuggestionInputSchema = z.object({
-  module: z.enum(['DashboardOverview', 'MonthlyPlan', 'CarSale', 'Finance', 'JobSearch', 'Travel']),
+  module: z.enum(['DashboardOverview', 'MonthlyPlan', 'CarSale', 'Finance', 'JobSearch', 'Travel', 'DailyTodo']),
   context: z.any().describe('A JSON object containing the data for the specified module.'),
   userQuery: z.string().optional().describe('An optional specific question from the user.'),
 });
@@ -60,6 +60,9 @@ const prompt = ai.definePrompt({
 
     - **If the module is 'Travel':**
       Look at their planned and completed travel goals. For planned trips, suggest 1-2 interesting activities. For completed trips, suggest a similar destination they might enjoy next. The context data is a list of travel goals.
+      
+    - **If the module is 'DailyTodo':**
+      Analyze the user's to-do list provided in the context. Identify overdue tasks and suggest prioritizing them. Look for days with a heavy workload and suggest balancing tasks across different days. If tasks seem large or vague (e.g., "Work on project"), suggest breaking them down into smaller, more concrete steps. Provide 2-3 encouraging and actionable tips to improve their daily productivity.
 
     **User's Data Context:**
     \`\`\`json

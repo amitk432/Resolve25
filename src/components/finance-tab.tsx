@@ -12,15 +12,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Pencil, Trash2, PlusCircle } from 'lucide-react';
+import { Pencil, Trash2, PlusCircle, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
+import AiSuggestionSection from './ai-suggestion-section';
 
 interface FinanceTabProps {
     loans: Loan[];
@@ -136,7 +137,7 @@ export default function FinanceTab({
         <div>
             <div className="flex justify-center items-center mb-6 gap-4">
                 <h2 className="text-xl font-bold text-foreground">Loan & Investment Tracker</h2>
-                <Button size="sm" onClick={() => handleOpenDialog(null)}><PlusCircle className="mr-2 h-4 w-4"/> Add Loan</Button>
+                <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4"/> Add Loan</Button>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
@@ -356,6 +357,12 @@ export default function FinanceTab({
                     </Form>
                 </DialogContent>
             </Dialog>
+            <AiSuggestionSection
+                moduleName="Finance"
+                title="AI Financial Advisor"
+                description="Receive tips on managing loans, building your emergency fund, and starting investments."
+                contextData={{ loans, emergencyFund, sipStarted }}
+            />
         </div>
     )
 }

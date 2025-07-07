@@ -12,6 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Trash2, Plus, TrendingUp, ClipboardCheck, Mail, IndianRupee, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import AiSuggestionSection from './ai-suggestion-section';
 
 interface CarSaleTabProps {
     checklist: ChecklistItem[];
@@ -195,6 +196,13 @@ export default function CarSaleTab({ checklist, salePrice, loanPayoff, onToggleT
                     </Card>
                 </div>
             </div>
+             <AiSuggestionSection
+                moduleName="CarSale"
+                title="AI Negotiation & Sale Tips"
+                description="Get AI-powered advice on your car sale, from pricing to negotiation."
+                contextData={{ salePrice, loanPayoff }}
+                showInput={true}
+            />
         </div>
     )
 }

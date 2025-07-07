@@ -5,6 +5,7 @@ import { AppData } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ArrowRight, CheckCircle } from 'lucide-react';
+import AiSuggestionSection from './ai-suggestion-section';
 
 interface DashboardOverviewProps {
     data: AppData;
@@ -113,6 +114,13 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                     )}
                 </div>
             </div>
+
+            <AiSuggestionSection
+                moduleName="DashboardOverview"
+                title="AI Insights for your Dashboard"
+                description="Get personalized suggestions based on your overall progress and goals."
+                contextData={data}
+            />
         </div>
     )
 }

@@ -21,6 +21,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import AiSuggestionSection from './ai-suggestion-section';
 
 interface TravelGoalsTabProps {
   travelGoals: TravelGoal[];
@@ -223,6 +224,13 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }:
             </div>
         </>
       )}
+      <AiSuggestionSection
+          moduleName="Travel"
+          title="AI Travel Assistant"
+          description="Discover new destinations or get tips for your planned trips."
+          contextData={{ travelGoals }}
+          showInput={true}
+      />
     </div>
   );
 }

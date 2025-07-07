@@ -4,6 +4,7 @@ import type { MonthlyPlan } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import AiSuggestionSection from './ai-suggestion-section';
 
 interface MonthlyPlanTabProps {
     monthlyPlan: MonthlyPlan[];
@@ -45,6 +46,12 @@ export default function MonthlyPlanTab({ monthlyPlan, onToggleTask }: MonthlyPla
                     </Card>
                 ))}
             </div>
+            <AiSuggestionSection
+                moduleName="MonthlyPlan"
+                title="AI Plan Optimizer"
+                description="Get suggestions on how to improve your monthly plan and stay on track."
+                contextData={{ monthlyPlan }}
+            />
         </div>
     )
 }

@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Trash2, Plus } from 'lucide-react';
+import AiSuggestionSection from './ai-suggestion-section';
 
 interface JobSearchTabProps {
     applications: JobApplication[];
@@ -136,6 +137,12 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                     </TableBody>
                 </Table>
             </div>
+            <AiSuggestionSection
+                moduleName="JobSearch"
+                title="AI Career Coach"
+                description="Get suggestions for your job search strategy, from networking to interview prep."
+                contextData={{ applications }}
+            />
         </div>
     )
 }

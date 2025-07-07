@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Edit, CalendarIcon, Briefcase, User, ShoppingCart, AlertTriangle, ChevronDown, ChevronUp, Check, ListTodo } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
+import AiSuggestionSection from './ai-suggestion-section';
 
 const taskSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters long.'),
@@ -298,6 +299,12 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
           </Form>
         </DialogContent>
       </Dialog>
+      <AiSuggestionSection
+          moduleName="DailyTodo"
+          title="AI Productivity Assistant"
+          description="Get smart suggestions to organize your day and tackle your to-do list efficiently."
+          contextData={{ tasks }}
+      />
     </div>
   );
 }
