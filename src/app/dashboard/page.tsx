@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, ReactNode } from 'react';
@@ -74,7 +75,7 @@ export default function DashboardPage() {
                     <ol className="list-decimal list-inside space-y-3 pl-2">
                         <li>
                             Go to the <strong>Rules</strong> tab in your Firestore Database settings.
-                            <a href="https://console.firebase.google.com/project/resolve25-9e336/firestore/rules" target="_blank" rel="noopener noreferrer" className="text-primary underline ml-2">Open Rules Editor</a>
+                            <a href="https://console.firebase.google.com/project/resolve25/firestore/rules" target="_blank" rel="noopener noreferrer" className="text-primary underline ml-2">Open Rules Editor</a>
                         </li>
                         <li>
                             Replace the entire content of the rules editor with the following code:
@@ -103,7 +104,7 @@ service cloud.firestore {
                         <li>
                             Open the Firebase Console for your project:
                             <br/>
-                             <a href="https://console.firebase.google.com/project/resolve25-9e336/firestore" target="_blank" rel="noopener noreferrer" className="text-primary underline font-mono bg-muted/50 px-1.5 py-1 rounded my-1 inline-block">{`console.firebase.google.com`}</a>
+                             <a href="https://console.firebase.google.com/project/resolve25/firestore" target="_blank" rel="noopener noreferrer" className="text-primary underline font-mono bg-muted/50 px-1.5 py-1 rounded my-1 inline-block">{`console.firebase.google.com`}</a>
                         </li>
                          <li>In the console, go to <strong>Build &gt; Firestore Database</strong> (the link above should take you there).</li>
                          <li>Click the large blue <strong className="text-primary">Create database</strong> button.</li>
