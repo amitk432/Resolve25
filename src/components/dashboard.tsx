@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useState } from 'react';
-import type { AppData, JobStatus, LoanStatus, TravelGoal } from '@/lib/types';
-import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, Loader2 } from 'lucide-react';
+import type { AppData, DailyTask, JobStatus, LoanStatus, TravelGoal } from '@/lib/types';
+import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, Loader2, ListTodo } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ import CarSaleTab from './car-sale-tab';
 import FinanceTab from './finance-tab';
 import JobSearchTab from './job-search-tab';
 import TravelGoalsTab from './travel-goals-tab';
+import DailyTodoTab from './daily-todo-tab';
 import { EditProfileDialog } from './edit-profile-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { generateTravelImage } from '@/ai/flows/generate-travel-image';
@@ -202,6 +204,40 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         });
     };
 
+    const handleAddDailyTask = (task: Omit<DailyTask, 'id' | 'completed'>) => {
+        onUpdate(draft => {
+            draft.dailyTasks.push({
+                ...task,
+                id: `task-${Date.now()}`,
+                completed: false,
+            });
+        });
+    };
+
+    const handleUpdateDailyTask = (updatedTask: DailyTask) => {
+        onUpdate(draft => {
+            const index = draft.dailyTasks.findIndex(t => t.id === updatedTask.id);
+            if (index !== -1) {
+                draft.dailyTasks[index] = updatedTask;
+            }
+        });
+    };
+
+    const handleDeleteDailyTask = (taskId: string) => {
+        onUpdate(draft => {
+            draft.dailyTasks = draft.dailyTasks.filter(t => t.id !== taskId);
+        });
+    };
+
+    const handleToggleDailyTask = (taskId: string, completed: boolean) => {
+        onUpdate(draft => {
+            const task = draft.dailyTasks.find(t => t.id === taskId);
+            if (task) {
+                task.completed = completed;
+            }
+        });
+    };
+
     const getAiContext = () => {
         switch (activeTab) {
             case 'monthly-plan':
@@ -272,6 +308,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
             <TabsList className="flex-wrap h-auto p-2 -mb-px bg-transparent w-full justify-start gap-2">
                 <TabsTrigger value="dashboard"><LayoutDashboard/>Dashboard</TabsTrigger>
                 <TabsTrigger value="goals"><Target/>Goals</TabsTrigger>
+                <TabsTrigger value="daily-todo"><ListTodo />Daily To-Do</TabsTrigger>
                 <TabsTrigger value="monthly-plan"><CalendarDays/>Monthly Plan</TabsTrigger>
                 <TabsTrigger value="car-sale"><Car/>Car Sale</TabsTrigger>
                 <TabsTrigger value="finance"><PiggyBank/>Finance Tracker</TabsTrigger>
@@ -292,6 +329,15 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
             </TabsContent>
             <TabsContent value="goals">
                 <GoalsTab goals={data.goals} onUpdate={onUpdate} />
+            </TabsContent>
+            <TabsContent value="daily-todo">
+                <DailyTodoTab 
+                  tasks={data.dailyTasks}
+                  onAddTask={handleAddDailyTask}
+                  onUpdateTask={handleUpdateDailyTask}
+                  onDeleteTask={handleDeleteDailyTask}
+                  onToggleTask={handleToggleDailyTask}
+                />
             </TabsContent>
             <TabsContent value="monthly-plan">
                 <MonthlyPlanTab monthlyPlan={data.monthlyPlan} onToggleTask={handleToggleMonthlyTask}/>

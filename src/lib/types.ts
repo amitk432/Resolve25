@@ -62,6 +62,19 @@ export interface TravelGoal {
   image: string;
 }
 
+export type DailyTaskPriority = 'Low' | 'Medium' | 'High';
+export type DailyTaskCategory = 'Work' | 'Personal' | 'Errands';
+
+export interface DailyTask {
+    id: string;
+    title: string;
+    description?: string;
+    dueDate: string; // ISO string
+    priority: DailyTaskPriority;
+    category: DailyTaskCategory;
+    completed: boolean;
+}
+
 
 export interface AppData {
     goals: Goal[];
@@ -77,4 +90,5 @@ export interface AppData {
     sipMutualFund: string;
     sipPlatform: string;
     travelGoals: TravelGoal[];
+    dailyTasks: DailyTask[];
 }

@@ -83,4 +83,5 @@ export const initialData: AppData = {
     sipMutualFund: '',
     sipPlatform: '',
     travelGoals: [],
+    dailyTasks: [],
 };
