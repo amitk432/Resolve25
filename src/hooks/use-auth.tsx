@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
@@ -24,6 +23,7 @@ import { initialData } from '@/lib/data';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  authError: ReactNode | null;
   login: (email: string, pass: string) => Promise<void>;
   signup: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -49,6 +49,7 @@ const createInitialUserData = async (user: User) => {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState<ReactNode | null>(null);
   const router = useRouter();
   const { toast } = useToast();
   const isConfigured = !!auth;
@@ -82,12 +83,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleAuthError = (error: any) => {
     console.error(error);
     if (error.code === 'auth/unauthorized-domain') {
-       toast({
-          variant: 'destructive',
-          title: 'Action Required: Unauthorized Domain',
-          description: `To fix this, go to your Firebase project > Authentication > Settings and add this domain to the 'Authorized domains' list: ${window.location.origin}`,
-          duration: 20000,
-      });
+       const hostname = typeof window !== 'undefined' ? new URL(window.location.href).hostname : 'your-app-domain.com';
+       const unauthorizedDomainFix = (
+         <div className="text-left space-y-2 text-sm">
+            <p className="font-semibold text-base">Action Required: Unauthorized Domain</p>
+            <p>To fix this, you need to authorize your application's domain in the Firebase Console.</p>
+            <ol className="list-decimal list-inside space-y-2 mt-2">
+                <li>
+                    Go to your Firebase project's <strong>Authentication &gt; Settings</strong> tab.
+                </li>
+                <li>
+                    Under the <strong>Authorized domains</strong> section, click <strong>Add domain</strong>.
+                </li>
+                <li>
+                    Enter: <code className="bg-muted px-1 py-0.5 rounded font-mono">{hostname}</code>
+                </li>
+                <li>
+                    Click <strong>Add</strong>, then return here and try again.
+                </li>
+            </ol>
+         </div>
+       );
+       setAuthError(unauthorizedDomainFix);
     } else {
       toast({
         variant: 'destructive',
@@ -96,10 +113,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     }
   };
+
+  const startAuthAction = () => {
+    setLoading(true);
+    setAuthError(null);
+  }
   
   const login = async (email: string, pass: string) => {
     if (!auth) return handleAuthNotReady();
-    setLoading(true);
+    startAuthAction();
     try {
       await signInWithEmailAndPassword(auth, email, pass);
       router.push('/dashboard');
@@ -112,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = async (email: string, pass: string) => {
     if (!auth) return handleAuthNotReady();
-    setLoading(true);
+    startAuthAction();
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
       await handleAuthResult(userCredential);
@@ -125,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     if (!auth) return handleAuthNotReady();
-    setLoading(true);
+    startAuthAction();
     try {
       await signOut(auth);
       router.push('/');
@@ -138,7 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const socialLogin = async (provider: GoogleAuthProvider | GithubAuthProvider) => {
     if (!auth) return handleAuthNotReady();
-    setLoading(true);
+    startAuthAction();
     try {
       const userCredential = await signInWithPopup(auth, provider);
       await handleAuthResult(userCredential);
@@ -191,6 +213,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = {
     user,
     loading,
+    authError,
     login,
     signup,
     logout,
