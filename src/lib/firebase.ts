@@ -4,20 +4,18 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyALUFXWH9rJlAuIfDqO6MrrsmIBU_9Yskg",
-  authDomain: "resolve25.firebaseapp.com",
-  projectId: "resolve25",
-  storageBucket: "resolve25.appspot.com",
-  messagingSenderId: "952241091470",
-  appId: "1:952241091470:web:3958e7a92db164ddd5aadf"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Check if all required Firebase config values are present and not placeholders
+// Check if all required Firebase config values are present
 const isFirebaseConfigValid =
   firebaseConfig.apiKey &&
-  firebaseConfig.apiKey !== 'YOUR_API_KEY' &&
-  firebaseConfig.authDomain &&
-  firebaseConfig.authDomain !== 'YOUR_AUTH_DOMAIN';
+  firebaseConfig.authDomain;
 
 const app = isFirebaseConfigValid && !getApps().length ? initializeApp(firebaseConfig) : (getApps().length ? getApp() : null);
 export const auth = app ? getAuth(app) : null;

@@ -47,7 +47,7 @@ export default function LoginForm() {
                 <CardTitle>Authentication Not Configured</CardTitle>
                 <CardDescription>
                     To get started, add your Firebase credentials to the 
-                    <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold mx-1">src/lib/firebase.ts</code> 
+                    <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold mx-1">.env</code> 
                     file.
                 </CardDescription>
             </CardHeader>
