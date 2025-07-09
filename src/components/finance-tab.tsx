@@ -163,8 +163,8 @@ export default function FinanceTab({
     return (
         <div className="space-y-8">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold text-foreground">Loan & Investment Tracker</h2>
-              <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4"/> Add Loan</Button>
+                <h2 className="text-xl font-bold text-foreground">Loan & Investment Tracker</h2>
+                <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4"/> Add Loan</Button>
             </div>
             
             <Card>
@@ -759,9 +759,10 @@ function SavingsAndInvestmentsCard({
                             {sips.length > 0 && (
                                 <>
                                 <Separator className="my-2" />
-                                <div className="flex justify-end pt-2 text-lg">
-                                    <span className="font-bold">
-                                        Total Monthly SIP: <span className="font-mono">{isSipVisible ? `₹${totalSipInvestment.toLocaleString('en-IN')}` : '₹ ••••••'}</span>
+                                <div className="flex justify-between items-center pt-2">
+                                    <span className="text-lg font-bold">Total Monthly SIP</span>
+                                    <span className="text-xl font-bold font-mono text-primary">
+                                        {isSipVisible ? `₹${totalSipInvestment.toLocaleString('en-IN')}` : '₹ ••••••'}
                                     </span>
                                 </div>
                                 </>
