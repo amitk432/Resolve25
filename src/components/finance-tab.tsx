@@ -219,12 +219,8 @@ export default function FinanceTab({
     };
 
     const handleUpdateFundDetails = () => {
-        if (fundInput && !isNaN(parseFloat(fundInput))) {
-            onUpdateEmergencyFund(fundInput);
-        }
-        if (targetInput && !isNaN(parseFloat(targetInput))) {
-            onUpdateEmergencyFundTarget(targetInput);
-        }
+        onUpdateEmergencyFund(fundInput);
+        onUpdateEmergencyFundTarget(targetInput);
         toast({ title: 'Emergency Fund Details Updated!' });
     };
 
@@ -242,7 +238,7 @@ export default function FinanceTab({
     };
     
     const emergencyFundCurrent = parseFloat(emergencyFund) || 0;
-    const emergencyFundTargetValue = parseFloat(targetInput) || 0;
+    const emergencyFundTargetValue = parseFloat(emergencyFundTarget) || 0;
     const emergencyFundProgress = emergencyFundTargetValue > 0 ? Math.min((emergencyFundCurrent / emergencyFundTargetValue) * 100, 100) : 0;
 
     return (
