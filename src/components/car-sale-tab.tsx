@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -59,7 +60,12 @@ export default function CarSaleTab({ checklist, salePrice, loanPayoff, onToggleT
 
     return (
         <div>
-            <h2 className="text-xl font-bold text-foreground mb-4">Car Sale Tracker & Checklist</h2>
+            <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground">Car Sale Tracker</h2>
+                  <p className="mt-1 text-muted-foreground">Manage the finances and checklist for selling your car.</p>
+                </div>
+            </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mt-8">
                 <div className="space-y-8">

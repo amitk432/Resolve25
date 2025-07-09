@@ -84,7 +84,7 @@ export default function AddGoalDialog({ onGoalAdd }: AddGoalDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" /> Add New Goal
         </Button>
       </DialogTrigger>
@@ -124,7 +124,7 @@ export default function AddGoalDialog({ onGoalAdd }: AddGoalDialogProps) {
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="deadline"

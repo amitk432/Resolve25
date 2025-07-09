@@ -21,6 +21,7 @@ import DailyTodoTab from './daily-todo-tab';
 import { EditProfileDialog } from './edit-profile-dialog';
 import { useToast } from '@/hooks/use-toast';
 import type { SuggestedMonthlyPlan } from '@/ai/flows/generate-monthly-plan-suggestions';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 
 interface DashboardProps {
@@ -294,11 +295,11 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
 
   return (
     <>
-    <div className="max-w-7xl mx-auto bg-card rounded-2xl shadow-lg overflow-hidden">
-      <header className="bg-primary text-primary-foreground p-6 flex justify-between items-center">
+    <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-card shadow-lg">
+      <header className="flex flex-col items-center gap-4 bg-primary p-4 text-center text-primary-foreground sm:flex-row sm:justify-between sm:p-6 sm:text-left">
         <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Personalized Action Plan: 2025</h1>
-            <p className="text-muted-foreground mt-1">Your interactive dashboard to track career, financial, and skill goals.</p>
+            <h1 className="text-2xl font-bold md:text-3xl">Personalized Action Plan: 2025</h1>
+            <p className="mt-1 text-muted-foreground">Your interactive dashboard to track career, financial, and skill goals.</p>
         </div>
         {user && (
            <DropdownMenu>
@@ -306,7 +307,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10 border-2 border-primary-foreground/50">
                   <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
-                  <AvatarFallback className="bg-primary-foreground text-primary font-semibold">
+                  <AvatarFallback className="bg-primary-foreground font-semibold text-primary">
                     {user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -338,16 +339,19 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
 
       <Tabs defaultValue="dashboard" className="w-full" onValueChange={setActiveTab}>
         <div className="border-b bg-muted/50">
-            <TabsList className="flex-wrap h-auto p-2 -mb-px bg-transparent w-full justify-start gap-2">
-                <TabsTrigger value="dashboard"><LayoutDashboard/>Dashboard</TabsTrigger>
-                <TabsTrigger value="goals"><Target/>Goals</TabsTrigger>
-                <TabsTrigger value="daily-todo"><ListTodo />Daily To-Do</TabsTrigger>
-                <TabsTrigger value="monthly-plan"><CalendarDays/>Monthly Plan</TabsTrigger>
-                <TabsTrigger value="car-sale"><Car/>Car Sale</TabsTrigger>
-                <TabsTrigger value="finance"><PiggyBank/>Finance Tracker</TabsTrigger>
-                <TabsTrigger value="job-search"><Briefcase/>Job Search</TabsTrigger>
-                <TabsTrigger value="travel-goals"><Plane/>Travel Goals</TabsTrigger>
-            </TabsList>
+            <ScrollArea className="w-full whitespace-nowrap">
+                <TabsList className="-mb-px inline-flex h-auto gap-1 bg-transparent p-2 sm:gap-2">
+                    <TabsTrigger value="dashboard"><LayoutDashboard/>Dashboard</TabsTrigger>
+                    <TabsTrigger value="goals"><Target/>Goals</TabsTrigger>
+                    <TabsTrigger value="daily-todo"><ListTodo />Daily To-Do</TabsTrigger>
+                    <TabsTrigger value="monthly-plan"><CalendarDays/>Monthly Plan</TabsTrigger>
+                    <TabsTrigger value="car-sale"><Car/>Car Sale</TabsTrigger>
+                    <TabsTrigger value="finance"><PiggyBank/>Finance Tracker</TabsTrigger>
+                    <TabsTrigger value="job-search"><Briefcase/>Job Search</TabsTrigger>
+                    <TabsTrigger value="travel-goals"><Plane/>Travel Goals</TabsTrigger>
+                </TabsList>
+                <ScrollBar orientation="horizontal" className="invisible" />
+            </ScrollArea>
         </div>
         
         <div className="relative p-4 md:p-8">

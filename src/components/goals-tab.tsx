@@ -82,13 +82,14 @@ export default function GoalsTab({ data, onUpdate }: GoalsTabProps) {
     
     return (
         <div className="space-y-8">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 className="text-xl font-bold text-foreground">Your Goals for 2025</h2>
+                    <h2 className="text-2xl font-bold text-foreground">Your Goals for 2025</h2>
+                    <p className="mt-1 text-muted-foreground">Set, track, and conquer your personal and professional goals.</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex w-full shrink-0 gap-2 sm:w-auto">
                     <AiGoalGeneratorDialog data={data} onGoalAdd={handleAiGoalAdd}>
-                        <Button variant="outline">
+                        <Button variant="outline" className="w-full justify-center sm:w-auto">
                             <Sparkles className="mr-2 h-4 w-4" />
                             Generate with AI
                         </Button>

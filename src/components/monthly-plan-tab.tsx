@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState } from 'react';
@@ -94,14 +95,14 @@ const MonthCard = ({ monthData, monthIndex, data, onToggleTask, onAddTask, onDel
 export default function MonthlyPlanTab({ monthlyPlan, onToggleTask, onAddTask, onDeleteTask, onAddPlan, onManualAddPlan, data }: MonthlyPlanTabProps) {
     return (
          <div>
-            <div className="flex justify-between items-center mb-6">
+            <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-foreground">Monthly Action Plan</h2>
-                  <p className="text-muted-foreground mt-1">Break down your year into manageable monthly chunks.</p>
+                  <h2 className="text-2xl font-bold text-foreground">Monthly Action Plan</h2>
+                  <p className="mt-1 text-muted-foreground">Break down your year into manageable monthly chunks.</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex w-full shrink-0 gap-2 sm:w-auto">
                     <AiMonthlyPlanGeneratorDialog data={data} onPlanAdd={onAddPlan}>
-                        <Button>
+                        <Button className="w-full justify-center sm:w-auto">
                             <Sparkles className="mr-2 h-4 w-4" />
                             Generate with AI
                         </Button>

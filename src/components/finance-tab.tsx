@@ -162,9 +162,12 @@ export default function FinanceTab({
 
     return (
         <div className="space-y-8">
-            <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-foreground">Loan & Investment Tracker</h2>
-                <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4"/> Add Loan</Button>
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h2 className="text-2xl font-bold text-foreground">Loan & Investment Tracker</h2>
+                    <p className="mt-1 text-muted-foreground">Manage your debts and grow your wealth.</p>
+                </div>
+                <Button onClick={() => handleOpenDialog(null)} className="w-full sm:w-auto"><Plus className="mr-2 h-4 w-4"/> Add Loan</Button>
             </div>
             
             <Card>
@@ -322,7 +325,7 @@ export default function FinanceTab({
                                     </FormItem>
                                 )}
                             />
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <FormField
                                     control={form.control}
                                     name="rate"

@@ -68,7 +68,7 @@ const TaskItem = ({ task, onToggleTask, onEdit, onDelete }: { task: DailyTask, o
         <label htmlFor={`task-${task.id}`} className={cn('font-medium', task.completed && 'line-through text-muted-foreground')}>
           {task.title}
         </label>
-        <div className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
+        <div className="text-sm text-muted-foreground flex items-center gap-x-4 gap-y-1 mt-1 flex-wrap">
           <div className="flex items-center gap-1">
             <CalendarIcon className="h-3 w-3" />
             {format(parseISO(task.dueDate), 'dd-MMMM-yyyy')}
@@ -192,16 +192,19 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-foreground">Daily To-Do List</h2>
-        <div className="flex items-center gap-2">
+      <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground">Daily To-Do List</h2>
+          <p className="mt-1 text-muted-foreground">Organize your day and stay on top of your tasks.</p>
+        </div>
+        <div className="flex w-full shrink-0 gap-2 sm:w-auto">
             <AiTaskGeneratorDialog data={data} onTaskAdd={handleAiTaskAdd}>
-                <Button variant="outline">
+                <Button variant="outline" className="w-full justify-center sm:w-auto">
                     <Sparkles className="mr-2 h-4 w-4" />
                     Generate with AI
                 </Button>
             </AiTaskGeneratorDialog>
-            <Button onClick={() => handleOpenDialog(null)}>
+            <Button onClick={() => handleOpenDialog(null)} className="w-full sm:w-auto">
                 <Plus className="mr-2 h-4 w-4" /> Add Task
             </Button>
         </div>
@@ -253,7 +256,7 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
                   </FormItem>
                 )}
               />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="dueDate"

@@ -55,7 +55,10 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
 
     return (
         <div>
-            <h2 className="text-xl font-bold text-foreground mb-4">Dashboard Overview</h2>
+            <div className="mb-6">
+                <h2 className="text-2xl font-bold text-foreground">Dashboard Overview</h2>
+                <p className="mt-1 text-muted-foreground">A high-level look at your progress and key metrics.</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card>
                     <CardHeader>

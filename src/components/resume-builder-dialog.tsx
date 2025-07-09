@@ -191,7 +191,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-5xl h-[90vh] flex flex-col">
+      <DialogContent className="flex h-[90vh] max-w-5xl flex-col">
         <DialogHeader>
           <DialogTitle>Resume Details</DialogTitle>
           <DialogDescription>
@@ -202,17 +202,17 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} id="resume-form" className="h-full flex flex-col">
                 <ScrollArea className="flex-grow">
-                  <div className="max-w-3xl mx-auto space-y-8 px-6 py-4">
+                  <div className="mx-auto max-w-3xl space-y-8 px-6 py-4">
                     {/* Contact Info */}
                     <div className="space-y-4">
                       <h4 className="font-medium text-lg">Contact Information</h4>
                       <FormField name="contactInfo.name" control={form.control} render={({ field }) => (<FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                           <FormField name="contactInfo.email" control={form.control} render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                           <FormField name="contactInfo.phone" control={form.control} render={({ field }) => (<FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                       </div>
                       <FormField name="contactInfo.location" control={form.control} render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="City, Country" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                           <FormField name="contactInfo.linkedin" control={form.control} render={({ field }) => (<FormItem><FormLabel>LinkedIn URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                           <FormField name="contactInfo.github" control={form.control} render={({ field }) => (<FormItem><FormLabel>GitHub URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                       </div>
@@ -261,7 +261,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                 <FormField name={`workExperience.${index}.role`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Role</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField name={`workExperience.${index}.location`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <FormField control={form.control} name={`workExperience.${index}.startDate`} render={({ field }) => (
                                         <FormItem className="flex flex-col"><FormLabel>Start Date</FormLabel>
                                             <Popover><PopoverTrigger asChild><FormControl>
@@ -317,7 +317,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                               <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => removeProject(index)}><Trash2 className="text-destructive h-4 w-4"/></Button>
                               <FormField name={`projects.${index}.name`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Project Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                               
-                               <div className="grid grid-cols-2 gap-4">
+                               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <FormField control={form.control} name={`projects.${index}.startDate`} render={({ field }) => (
                                         <FormItem className="flex flex-col"><FormLabel>Start Date</FormLabel>
                                             <Popover><PopoverTrigger asChild><FormControl>
@@ -373,7 +373,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                 <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => removeEducation(index)}><Trash2 className="text-destructive h-4 w-4"/></Button>
                                 <FormField name={`education.${index}.institution`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Institution</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField name={`education.${index}.degree`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Degree/Course</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                   <FormField name={`education.${index}.location`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                   <FormField name={`education.${index}.gpa`} control={form.control} render={({ field }) => (<FormItem><FormLabel>GPA / %</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 </div>
@@ -397,7 +397,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
 
                   </div>
                 </ScrollArea>
-                <DialogFooter className="pt-4 mt-auto border-t">
+                <DialogFooter className="mt-auto border-t pt-4">
                   <Button variant="outline" onClick={() => setOpen(false)}>Close</Button>
                   <Button type="submit" form="resume-form" disabled={form.formState.isSubmitting || (Object.keys(form.formState.errors).length > 0 && form.formState.isSubmitted)}>Save Details</Button>
                 </DialogFooter>

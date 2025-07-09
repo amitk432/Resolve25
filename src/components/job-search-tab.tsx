@@ -144,18 +144,21 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-foreground">Job Application Tracker</h2>
-              <div className="flex items-center gap-2">
+            <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">Job Application Tracker</h2>
+                <p className="mt-1 text-muted-foreground">Manage your job search pipeline from start to finish.</p>
+              </div>
+              <div className="flex w-full shrink-0 gap-2 sm:w-auto">
                 <AiJobSuggestionDialog resumeData={data.resume} onAddApplication={onAddApplication}>
-                  <Button variant="outline"><Sparkles className="mr-2 h-4 w-4"/> Generate with AI</Button>
+                  <Button variant="outline" className="w-full justify-center sm:w-auto"><Sparkles className="mr-2 h-4 w-4"/> Generate with AI</Button>
                 </AiJobSuggestionDialog>
                 <ResumeBuilderDialog data={data} onUpdate={onUpdate}>
-                    <Button variant="outline"><FileText className="mr-2"/> Add Details</Button>
+                    <Button variant="outline" className="w-full justify-center sm:w-auto"><FileText className="mr-2"/> Add Details</Button>
                 </ResumeBuilderDialog>
                 <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button><Plus className="mr-2 h-4 w-4"/>Add Application</Button>
+                        <Button className="w-full justify-center sm:w-auto"><Plus className="mr-2 h-4 w-4"/>Add Application</Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl">
                         <DialogHeader>
@@ -180,7 +183,7 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                                     <FormField control={form.control} name="applyLink" render={({ field }) => (
                                         <FormItem><FormLabel>Application Link (Optional)</FormLabel><FormControl><Input placeholder="https://careers.example.com/job/123" {...field} /></FormControl><FormMessage /></FormItem>
                                     )} />
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <FormField control={form.control} name="jobType" render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Job Type</FormLabel>
@@ -225,7 +228,7 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                             <TableHead className="w-12"></TableHead>
                             <TableHead>Company</TableHead>
                             <TableHead>Role</TableHead>
-                            <TableHead>Date Applied</TableHead>
+                            <TableHead className="hidden sm:table-cell">Date Applied</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead className="text-center">Actions</TableHead>
                         </TableRow>
@@ -270,7 +273,7 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                                             </TooltipProvider>
                                         </TableCell>
                                         <TableCell>{app.role}</TableCell>
-                                        <TableCell>
+                                        <TableCell className="hidden sm:table-cell">
                                             {app.status === 'Need to Apply' ? (
                                                 <span className="text-muted-foreground italic">Pending</span>
                                             ) : (
