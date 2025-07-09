@@ -3,6 +3,7 @@
 
 import type { ResumeData } from '@/lib/types';
 import { Mail, Phone, MapPin, Linkedin, Github } from 'lucide-react';
+import { format } from 'date-fns';
 
 const SectionHeader = ({ title }: { title: string }) => (
   <h2 className="text-sm font-bold text-teal-600 uppercase tracking-wider border-b-2 border-gray-200 pb-1 mb-3">{title}</h2>
@@ -11,15 +12,15 @@ const SectionHeader = ({ title }: { title: string }) => (
 function formatDate(dateStr: string | null): string {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short' };
-    return date.toLocaleDateString('en-US', options);
+    if (isNaN(date.getTime())) return '';
+    return format(date, 'dd-MMMM-yyyy');
 }
 
 function formatDateRange(startDateStr: string | null, endDateStr: string | null, isCurrent: boolean): string {
   const startFormatted = formatDate(startDateStr);
 
   if (isCurrent) {
-    return `${startFormatted} - Present`;
+    return startFormatted ? `${startFormatted} - Present` : 'Present';
   }
 
   const endFormatted = formatDate(endDateStr);
@@ -80,7 +81,7 @@ export default function ResumeTemplate({ resume }: { resume: ResumeData }) {
       {Object.keys(skills).length > 0 && (
         <section className="mb-6">
           <SectionHeader title="Skills" />
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-0.5">
             {Object.entries(skills).map(([category, skillList]) => (
               <div key={category} className="flex text-sm py-0.5">
                 <p className="w-1/3 font-bold text-gray-900 pr-4">{category}</p>
@@ -134,7 +135,7 @@ export default function ResumeTemplate({ resume }: { resume: ResumeData }) {
       {education.length > 0 && (
         <section>
           <SectionHeader title="Education" />
-          <div className="space-y-2">
+          <div className="space-y-3">
             {education.map((edu, index) => (
               <div key={index}>
                 <div className="flex justify-between items-start">

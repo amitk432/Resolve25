@@ -142,7 +142,7 @@ export default function AddGoalDialog({ onGoalAdd }: AddGoalDialogProps) {
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                            {field.value ? format(field.value, 'dd-MMMM-yyyy') : <span>Pick a date</span>}
                           </Button>
                         </FormControl>
                       </PopoverTrigger>

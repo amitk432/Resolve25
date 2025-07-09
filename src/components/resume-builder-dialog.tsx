@@ -267,10 +267,10 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                             <Popover><PopoverTrigger asChild><FormControl>
                                                 <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !field.value && 'text-muted-foreground')}>
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                                                    {field.value ? format(field.value, 'dd-MMMM-yyyy') : <span>Pick a date</span>}
                                                 </Button>
                                             </FormControl></PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0">
+                                            <PopoverContent className="w-auto p-0" aign="start">
                                                 <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value ?? undefined} onSelect={field.onChange} initialFocus />
                                             </PopoverContent>
                                             </Popover><FormMessage />
@@ -283,10 +283,10 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                             <Popover><PopoverTrigger asChild><FormControl>
                                                 <Button variant="outline" disabled={isCurrent} className={cn('w-full justify-start text-left font-normal', !field.value && 'text-muted-foreground')}>
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {isCurrent ? 'Present' : field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                                                    {isCurrent ? 'Present' : field.value ? format(field.value, 'dd-MMMM-yyyy') : <span>Pick a date</span>}
                                                 </Button>
                                             </FormControl></PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0">
+                                            <PopoverContent className="w-auto p-0" align="start">
                                                 <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value ?? undefined} onSelect={field.onChange} initialFocus />
                                             </PopoverContent>
                                             </Popover><FormMessage />
@@ -323,10 +323,10 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                             <Popover><PopoverTrigger asChild><FormControl>
                                                 <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !field.value && 'text-muted-foreground')}>
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                                                    {field.value ? format(field.value, 'dd-MMMM-yyyy') : <span>Pick a date</span>}
                                                 </Button>
                                             </FormControl></PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0">
+                                            <PopoverContent className="w-auto p-0" align="start">
                                                 <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value ?? undefined} onSelect={field.onChange} initialFocus />
                                             </PopoverContent>
                                             </Popover><FormMessage />
@@ -339,10 +339,10 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                             <Popover><PopoverTrigger asChild><FormControl>
                                                 <Button variant="outline" disabled={isCurrent} className={cn('w-full justify-start text-left font-normal', !field.value && 'text-muted-foreground')}>
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {isCurrent ? 'Present' : field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                                                    {isCurrent ? 'Present' : field.value ? format(field.value, 'dd-MMMM-yyyy') : <span>Pick a date</span>}
                                                 </Button>
                                             </FormControl></PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0">
+                                            <PopoverContent className="w-auto p-0" align="start">
                                                 <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value ?? undefined} onSelect={field.onChange} initialFocus />
                                             </PopoverContent>
                                             </Popover><FormMessage />
@@ -382,10 +382,10 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                         <Popover><PopoverTrigger asChild><FormControl>
                                             <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !field.value && 'text-muted-foreground')}>
                                                 <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                                                {field.value ? format(field.value, 'dd-MMMM-yyyy') : <span>Pick a date</span>}
                                             </Button>
                                         </FormControl></PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0">
+                                        <PopoverContent className="w-auto p-0" align="start">
                                             <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value ?? undefined} onSelect={field.onChange} initialFocus />
                                         </PopoverContent>
                                         </Popover><FormMessage />
@@ -399,7 +399,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                 </ScrollArea>
                 <DialogFooter className="pt-4 mt-auto border-t">
                   <Button variant="outline" onClick={() => setOpen(false)}>Close</Button>
-                  <Button type="submit" form="resume-form" disabled={!form.formState.isDirty && !form.formState.isValid}>Save Details</Button>
+                  <Button type="submit" form="resume-form" disabled={form.formState.isSubmitting || (Object.keys(form.formState.errors).length > 0 && form.formState.isSubmitted)}>Save Details</Button>
                 </DialogFooter>
               </form>
             </Form>

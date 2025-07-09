@@ -71,7 +71,7 @@ const TaskItem = ({ task, onToggleTask, onEdit, onDelete }: { task: DailyTask, o
         <div className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
           <div className="flex items-center gap-1">
             <CalendarIcon className="h-3 w-3" />
-            {format(parseISO(task.dueDate), 'MMM d')}
+            {format(parseISO(task.dueDate), 'dd-MMMM-yyyy')}
           </div>
           <Badge variant="outline" className={cn('text-xs', priorityConfig[task.priority].className)}>
             {task.priority}
@@ -265,7 +265,7 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
                           <FormControl>
                             <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !field.value && 'text-muted-foreground')}>
                               <CalendarIcon className="mr-2 h-4 w-4" />
-                              {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                              {field.value ? format(field.value, 'dd-MMMM-yyyy') : <span>Pick a date</span>}
                             </Button>
                           </FormControl>
                         </PopoverTrigger>

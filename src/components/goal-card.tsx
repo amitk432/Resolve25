@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -130,7 +131,7 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
         <div className="flex items-center text-sm text-muted-foreground">
           <Calendar className="mr-2 h-4 w-4" />
             {isValidDate && deadlineDate ? (
-                <span>Deadline: {format(deadlineDate, 'PPP')} ({formatDistanceToNow(deadlineDate, { addSuffix: true })})</span>
+                <span>Deadline: {format(deadlineDate, 'dd-MMMM-yyyy')} ({formatDistanceToNow(deadlineDate, { addSuffix: true })})</span>
             ) : (
                 <span>No deadline set</span>
             )}

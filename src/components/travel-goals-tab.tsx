@@ -141,7 +141,7 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }:
                           <FormControl>
                             <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
                               <CalendarIcon className="mr-2 h-4 w-4" />
-                              {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                              {field.value ? format(field.value, "dd-MMMM-yyyy") : <span>Pick a date</span>}
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
@@ -214,7 +214,7 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }:
                     </div>
                     ) : (
                     goal.travelDate && <div className="text-sm text-muted-foreground mt-1">
-                        <span className="font-semibold text-primary">Planned for:</span> {format(new Date(goal.travelDate), 'PPP')}
+                        <span className="font-semibold text-primary">Planned for:</span> {format(new Date(goal.travelDate), 'dd-MMMM-yyyy')}
                     </div>
                     )}
                     {goal.notes && <CardDescription className="mt-2 text-sm">{goal.notes}</CardDescription>}

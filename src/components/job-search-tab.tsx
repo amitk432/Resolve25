@@ -5,6 +5,7 @@ import React, { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { format, parseISO } from 'date-fns';
 import type { JobApplication, JobStatus, AppData } from '@/lib/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -168,7 +169,7 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                         ) : (
                             applications.map((app, index) => (
                                 <TableRow key={index}>
-                                    <TableCell>{app.date}</TableCell>
+                                    <TableCell>{format(parseISO(app.date), 'dd-MMMM-yyyy')}</TableCell>
                                     <TableCell className="font-medium">{app.company}</TableCell>
                                     <TableCell>{app.role}</TableCell>
                                     <TableCell>

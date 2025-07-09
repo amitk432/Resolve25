@@ -216,7 +216,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 company,
                 role,
                 status: 'Applied',
-                date: new Date().toLocaleDateString('en-CA'), // YYYY-MM-DD
+                date: new Date().toISOString(),
             });
         });
     }
