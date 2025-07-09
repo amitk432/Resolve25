@@ -73,7 +73,9 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     const handleUpdateLoanStatus = (loanId: string, status: LoanStatus) => {
         onUpdate(draft => {
             const loanToUpdate = draft.loans.find(l => l.id === loanId);
-            if (loanToUpdate) loanToUpdate.status = status;
+            if (loanToUpdate) {
+                loanToUpdate.status = status;
+            }
         })
     }
     
@@ -351,6 +353,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                   onUpdateTask={handleUpdateDailyTask}
                   onDeleteTask={handleDeleteDailyTask}
                   onToggleTask={handleToggleDailyTask}
+                  data={data}
                 />
             </TabsContent>
             <TabsContent value="monthly-plan">

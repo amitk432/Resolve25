@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format, isToday, isFuture, isPast, parseISO, startOfDay } from 'date-fns';
-import { DailyTask, DailyTaskCategory, DailyTaskPriority } from '@/lib/types';
+import { DailyTask, DailyTaskCategory, DailyTaskPriority, AppData } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -17,10 +17,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Edit, CalendarIcon, Briefcase, User, ShoppingCart, AlertTriangle, ChevronDown, ChevronUp, Check, ListTodo } from 'lucide-react';
+import { Plus, Trash2, Edit, CalendarIcon, Briefcase, User, ShoppingCart, AlertTriangle, ChevronDown, ChevronUp, Check, ListTodo, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import AiSuggestionSection from './ai-suggestion-section';
+import AiTaskGeneratorDialog from './ai-task-generator-dialog';
+import type { SuggestedTask } from '@/ai/flows/generate-task-suggestions';
 
 const taskSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters long.'),
@@ -50,6 +52,7 @@ interface DailyTodoTabProps {
   onUpdateTask: (task: DailyTask) => void;
   onDeleteTask: (taskId: string) => void;
   onToggleTask: (taskId: string, completed: boolean) => void;
+  data: AppData;
 }
 
 const TaskItem = ({ task, onToggleTask, onEdit, onDelete }: { task: DailyTask, onToggleTask: (id: string, completed: boolean) => void, onEdit: (task: DailyTask) => void, onDelete: (id: string) => void }) => {
@@ -112,7 +115,7 @@ const TaskSection = ({ title, tasks, icon, onToggleTask, onEdit, onDelete }: { t
 }
 
 
-export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteTask, onToggleTask }: DailyTodoTabProps) {
+export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteTask, onToggleTask, data }: DailyTodoTabProps) {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<DailyTask | null>(null);
 
@@ -179,13 +182,29 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
 
   const totalTasks = tasks.length;
 
+  const handleAiTaskAdd = (suggestedTask: SuggestedTask) => {
+    const newTask = {
+      ...suggestedTask,
+      dueDate: new Date().toISOString(),
+    };
+    onAddTask(newTask);
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-foreground">Daily To-Do List</h2>
-        <Button onClick={() => handleOpenDialog(null)}>
-          <Plus className="mr-2 h-4 w-4" /> Add Task
-        </Button>
+        <div className="flex items-center gap-2">
+            <AiTaskGeneratorDialog data={data} onTaskAdd={handleAiTaskAdd}>
+                <Button variant="outline">
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Generate with AI
+                </Button>
+            </AiTaskGeneratorDialog>
+            <Button onClick={() => handleOpenDialog(null)}>
+                <Plus className="mr-2 h-4 w-4" /> Add Task
+            </Button>
+        </div>
       </div>
       
       {totalTasks > 0 ? (
