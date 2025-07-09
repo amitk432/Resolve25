@@ -373,7 +373,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     sips={data.sips}
                     incomeSources={data.incomeSources}
                     onUpdateLoanStatus={handleUpdateLoanStatus}
-                    onUpdateEmergencyFund={onUpdateEmergencyFund}
+                    onUpdateEmergencyFund={handleUpdateEmergencyFund}
                     onUpdateEmergencyFundTarget={handleUpdateEmergencyFundTarget}
                     onAddSip={handleAddSip}
                     onUpdateSip={handleUpdateSip}
