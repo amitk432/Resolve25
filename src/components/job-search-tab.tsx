@@ -299,16 +299,16 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                                                 <div className="flex items-center justify-center gap-1">
                                                     {app.status === 'Need to Apply' && (
                                                         <AlertDialog>
-                                                            <AlertDialogTrigger asChild>
-                                                                <Tooltip>
-                                                                    <TooltipTrigger asChild>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <AlertDialogTrigger asChild>
                                                                         <Button variant="outline" size="icon" className="h-8 w-8">
                                                                             <Rocket className="h-4 w-4" />
                                                                         </Button>
-                                                                    </TooltipTrigger>
-                                                                    <TooltipContent><p>Mark as Applied</p></TooltipContent>
-                                                                </Tooltip>
-                                                            </AlertDialogTrigger>
+                                                                    </AlertDialogTrigger>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent><p>Mark as Applied</p></TooltipContent>
+                                                            </Tooltip>
                                                             <AlertDialogContent>
                                                                 <AlertDialogHeader>
                                                                     <AlertDialogTitle>Confirm Application</AlertDialogTitle>
@@ -347,14 +347,30 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                                                             <TooltipContent><p>Generate Email</p></TooltipContent>
                                                         </Tooltip>
                                                     )}
-                                                    <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => onDelete(index)}>
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </Button>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent><p>Delete Application</p></TooltipContent>
-                                                    </Tooltip>
+                                                     <AlertDialog>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <AlertDialogTrigger asChild>
+                                                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8">
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </AlertDialogTrigger>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent><p>Delete Application</p></TooltipContent>
+                                                        </Tooltip>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                                <AlertDialogDescription>
+                                                                    This will permanently delete the application for "{app.role}" at {app.company}.
+                                                                </AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => onDelete(index)}>Delete</AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
                                                 </div>
                                             </TooltipProvider>
                                         </TableCell>
