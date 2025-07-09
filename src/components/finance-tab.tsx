@@ -180,7 +180,7 @@ export default function FinanceTab({
                 principal: loan.principal,
                 rate: loan.rate || '',
                 tenure: loan.tenure || '',
-                emisPaid: loan.emisPaid || ''
+                emisPaid: loan.emisPaid || '0'
             });
         } else {
             form.reset({ name: '', principal: '', rate: '', tenure: '', emisPaid: '0' });
@@ -223,20 +223,18 @@ export default function FinanceTab({
                         <div className="space-y-6">
                             {loans.map(loan => (
                                 <div key={loan.id} className="p-4 border rounded-lg bg-background">
-                                    <div className="flex justify-between items-start">
-                                        <div>
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex items-center gap-4">
                                             <h4 className="font-semibold text-lg">{loan.name}</h4>
-                                            <div className="mt-2">
-                                                <Select value={loan.status} onValueChange={(value: LoanStatus) => onUpdateLoanStatus(loan.id, value)}>
-                                                    <SelectTrigger className="w-[120px] h-8 text-xs">
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="Active">Active</SelectItem>
-                                                        <SelectItem value="Closed">Closed</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
+                                            <Select value={loan.status} onValueChange={(value: LoanStatus) => onUpdateLoanStatus(loan.id, value)}>
+                                                <SelectTrigger className="w-[120px] h-8 text-xs">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="Active">Active</SelectItem>
+                                                    <SelectItem value="Closed">Closed</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                         <div className="flex gap-1">
                                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenDialog(loan)}>
