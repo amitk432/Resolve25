@@ -143,7 +143,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} id="resume-form" className="h-full flex flex-col">
                 <ScrollArea className="flex-grow pr-4">
-                  <div className="space-y-8">
+                  <div className="space-y-8 p-1">
                     {/* Contact Info */}
                     <div className="space-y-4">
                       <h4 className="font-medium text-lg">Contact Information</h4>
