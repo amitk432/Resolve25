@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Trash2, Plus, FileText, Download, Sparkles, ChevronDown, Clock, IndianRupee, Star, ListChecks, LinkIcon, MapPin, Rocket, Mail } from 'lucide-react';
+import { Trash2, Plus, FileText, Download, Sparkles, ChevronDown, Clock, IndianRupee, Star, ListChecks, LinkIcon, MapPin, Rocket, Mail, CheckCircle } from 'lucide-react';
 import AiSuggestionSection from './ai-suggestion-section';
 import ResumeBuilderDialog from './resume-builder-dialog';
 import ResumeTemplate from './resume-template';
@@ -248,10 +248,27 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                                              )}
                                         </TableCell>
                                         <TableCell className="font-medium">
-                                            <div className="flex items-center gap-2">
-                                                {app.source === 'AI' && <Sparkles className="h-4 w-4 text-primary" />}
-                                                {app.company}
-                                            </div>
+                                            <TooltipProvider>
+                                                <div className="flex items-center gap-2">
+                                                    {app.source === 'AI' && (
+                                                        <Tooltip>
+                                                            <TooltipTrigger><Sparkles className="h-4 w-4 text-primary" /></TooltipTrigger>
+                                                            <TooltipContent><p>Suggested by AI</p></TooltipContent>
+                                                        </Tooltip>
+                                                    )}
+                                                     {app.status !== 'Need to Apply' && (
+                                                        <Tooltip>
+                                                            <TooltipTrigger>
+                                                                <CheckCircle className="h-4 w-4 text-green-500" />
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>Applied on {format(parseISO(app.date), 'dd-MMMM-yyyy')}</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    )}
+                                                    {app.company}
+                                                </div>
+                                            </TooltipProvider>
                                         </TableCell>
                                         <TableCell>{app.role}</TableCell>
                                         <TableCell>
