@@ -10,6 +10,7 @@ import { Sparkles, Plus, Trash2 } from 'lucide-react';
 import { Input } from './ui/input';
 import AiMonthlyPlanGeneratorDialog from './ai-monthly-plan-generator-dialog';
 import type { SuggestedMonthlyPlan } from '@/ai/flows/generate-monthly-plan-suggestions';
+import AddMonthlyPlanDialog from './add-monthly-plan-dialog';
 
 interface MonthlyPlanTabProps {
     monthlyPlan: MonthlyPlan[];
@@ -17,6 +18,7 @@ interface MonthlyPlanTabProps {
     onAddTask: (monthIndex: number, taskText: string) => void;
     onDeleteTask: (monthIndex: number, taskIndex: number) => void;
     onAddPlan: (plan: SuggestedMonthlyPlan) => void;
+    onManualAddPlan: (plan: { month: string; theme: string; }) => void;
     data: AppData;
 }
 
@@ -79,7 +81,7 @@ const MonthCard = ({ monthData, monthIndex, onToggleTask, onAddTask, onDeleteTas
     )
 }
 
-export default function MonthlyPlanTab({ monthlyPlan, onToggleTask, onAddTask, onDeleteTask, onAddPlan, data }: MonthlyPlanTabProps) {
+export default function MonthlyPlanTab({ monthlyPlan, onToggleTask, onAddTask, onDeleteTask, onAddPlan, onManualAddPlan, data }: MonthlyPlanTabProps) {
     return (
          <div>
             <div className="flex justify-between items-center mb-6">
@@ -87,12 +89,15 @@ export default function MonthlyPlanTab({ monthlyPlan, onToggleTask, onAddTask, o
                   <h2 className="text-xl font-bold text-foreground">Monthly Action Plan</h2>
                   <p className="text-muted-foreground mt-1">Break down your year into manageable monthly chunks.</p>
                 </div>
-                <AiMonthlyPlanGeneratorDialog data={data} onPlanAdd={onAddPlan}>
-                    <Button>
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        Generate with AI
-                    </Button>
-                </AiMonthlyPlanGeneratorDialog>
+                <div className="flex items-center gap-2">
+                    <AiMonthlyPlanGeneratorDialog data={data} onPlanAdd={onAddPlan}>
+                        <Button>
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            Generate with AI
+                        </Button>
+                    </AiMonthlyPlanGeneratorDialog>
+                    <AddMonthlyPlanDialog onPlanAdd={onManualAddPlan} />
+                </div>
             </div>
             
             <div className="space-y-8 mt-8">

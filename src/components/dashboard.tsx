@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { AppData, DailyTask, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP } from '@/lib/types';
+import type { AppData, DailyTask, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP, Task } from '@/lib/types';
 import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, Loader2, ListTodo } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -66,6 +66,17 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
             draft.monthlyPlan.sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
         });
     }
+
+    const handleManualAddMonthlyPlan = (plan: { month: string, theme: string }) => {
+        onUpdate(draft => {
+            const newPlan = {
+                ...plan,
+                tasks: [] as Task[],
+            };
+            draft.monthlyPlan.push(newPlan);
+            draft.monthlyPlan.sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
+        });
+    };
 
 
     // Car Sale handlers
@@ -396,6 +407,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onAddTask={handleAddMonthlyTask}
                     onDeleteTask={handleDeleteMonthlyTask}
                     onAddPlan={handleAddMonthlyPlan}
+                    onManualAddPlan={handleManualAddMonthlyPlan}
                     data={data}
                 />
             </TabsContent>
