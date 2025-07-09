@@ -174,7 +174,13 @@ export default function FinanceTab({
     const handleOpenDialog = (loan: Loan | null) => {
         setEditingLoan(loan);
         if (loan) {
-            form.reset({ name: loan.name, principal: loan.principal, rate: loan.rate, tenure: loan.tenure, emisPaid: loan.emisPaid });
+            form.reset({
+                name: loan.name,
+                principal: loan.principal,
+                rate: loan.rate || '',
+                tenure: loan.tenure || '',
+                emisPaid: loan.emisPaid || ''
+            });
         } else {
             form.reset({ name: '', principal: '', rate: '', tenure: '', emisPaid: '0' });
         }
