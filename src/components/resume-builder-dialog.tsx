@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useState, useEffect } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import type { AppData, ResumeData } from '@/lib/types';
@@ -20,10 +20,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Download, Plus, Trash2 } from 'lucide-react';
-import ResumeTemplate from './resume-template';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { Plus, Trash2 } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 
@@ -75,9 +72,7 @@ type ResumeFormValues = z.infer<typeof resumeFormSchema>;
 
 export default function ResumeBuilderDialog({ data, onUpdate, children }: ResumeBuilderDialogProps) {
   const [open, setOpen] = useState(false);
-  const [parsedData, setParsedData] = useState<ResumeData | null>(data.resume || null);
   const { toast } = useToast();
-  const resumePreviewRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<ResumeFormValues>({
     resolver: zodResolver(resumeFormSchema),
@@ -104,12 +99,12 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
       form.reset({
         ...data.resume,
         skills: skillsArray,
-        workExperience: workExperienceArray
+        workExperience: workExperienceArray,
+        projects: data.resume.projects || [],
+        education: data.resume.education || [],
       });
-      setParsedData(data.resume);
     } else if (open) {
         form.reset();
-        setParsedData(null);
     }
   }, [open, data.resume, form]);
 
@@ -130,142 +125,140 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
     onUpdate(draft => {
         draft.resume = finalResumeData;
     });
-    setParsedData(finalResumeData);
-    toast({ title: "Resume updated!", description: "Your changes have been saved and the preview is updated." });
-  };
-  
-  const handleDownloadPdf = async () => {
-    const element = resumePreviewRef.current;
-    if (!element) return;
-
-    toast({ title: 'Generating PDF...', description: 'Please wait a moment.' });
-
-    const canvas = await html2canvas(element, { scale: 2, useCORS: true, logging: false });
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save('resume.pdf');
+    toast({ title: "Resume Details Saved!", description: "Your resume information has been updated." });
+    setOpen(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-5xl h-[90vh] flex flex-col">
+      <DialogContent className="max-w-3xl h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Resume Details</DialogTitle>
           <DialogDescription>
             Fill out the form to build your resume. The preview will update when you save.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow overflow-hidden">
-          {/* Form Area */}
-          <div className="flex flex-col gap-4 overflow-hidden">
-            <h3 className="font-semibold">Resume Content</h3>
+        <div className="flex-grow overflow-hidden">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} id="resume-form" className="space-y-6">
-                <ScrollArea className="h-[calc(90vh-250px)] pr-4">
-                  
-                  {/* Contact Info */}
-                  <div className="space-y-4">
-                    <h4 className="font-medium text-lg">Contact Information</h4>
-                    <FormField name="contactInfo.name" control={form.control} render={({ field }) => (<FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormField name="contactInfo.email" control={form.control} render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField name="contactInfo.phone" control={form.control} render={({ field }) => (<FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    </div>
-                    <FormField name="contactInfo.location" control={form.control} render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="City, Country" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormField name="contactInfo.linkedin" control={form.control} render={({ field }) => (<FormItem><FormLabel>LinkedIn URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField name="contactInfo.github" control={form.control} render={({ field }) => (<FormItem><FormLabel>GitHub URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    </div>
-                  </div>
-                  
-                  <Separator className="my-6" />
-
-                  {/* Summary */}
-                  <div className="space-y-4">
-                      <h4 className="font-medium text-lg">Professional Summary</h4>
-                      <FormField name="summary.title" control={form.control} render={({ field }) => (<FormItem><FormLabel>Headline</FormLabel><FormControl><Input placeholder="e.g., Software Quality Analyst" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <FormField name="summary.text" control={form.control} render={({ field }) => (<FormItem><FormLabel>Summary Text</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  </div>
-
-                  <Separator className="my-6" />
-
-                  {/* Skills */}
-                  <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                          <h4 className="font-medium text-lg">Skills</h4>
-                          <Button type="button" size="sm" onClick={() => appendSkill({ category: '', skillList: '' })}><Plus className="mr-2"/>Add Skill Category</Button>
+              <form onSubmit={form.handleSubmit(onSubmit)} id="resume-form" className="h-full flex flex-col">
+                <ScrollArea className="flex-grow pr-4">
+                  <div className="space-y-8">
+                    {/* Contact Info */}
+                    <div className="space-y-4">
+                      <h4 className="font-medium text-lg">Contact Information</h4>
+                      <FormField name="contactInfo.name" control={form.control} render={({ field }) => (<FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                      <div className="grid grid-cols-2 gap-4">
+                          <FormField name="contactInfo.email" control={form.control} render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                          <FormField name="contactInfo.phone" control={form.control} render={({ field }) => (<FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                       </div>
-                      {skillFields.map((field, index) => (
-                          <div key={field.id} className="flex gap-2 items-start p-3 border rounded-md">
-                              <div className="flex-grow space-y-2">
-                                  <FormField name={`skills.${index}.category`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Category</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                  <FormField name={`skills.${index}.skillList`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Skills (comma-separated)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                              </div>
-                              <Button type="button" variant="ghost" size="icon" className="mt-6" onClick={() => removeSkill(index)}><Trash2 className="text-destructive"/></Button>
-                          </div>
-                      ))}
-                  </div>
-
-                  <Separator className="my-6" />
-
-                  {/* Work Experience */}
-                  <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                          <h4 className="font-medium text-lg">Work Experience</h4>
-                          <Button type="button" size="sm" onClick={() => appendWork({ company: '', location: '', role: '', dates: '', descriptionPoints: '' })}><Plus className="mr-2"/>Add Experience</Button>
+                      <FormField name="contactInfo.location" control={form.control} render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="City, Country" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                      <div className="grid grid-cols-2 gap-4">
+                          <FormField name="contactInfo.linkedin" control={form.control} render={({ field }) => (<FormItem><FormLabel>LinkedIn URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                          <FormField name="contactInfo.github" control={form.control} render={({ field }) => (<FormItem><FormLabel>GitHub URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                       </div>
-                      {workFields.map((field, index) => (
+                    </div>
+                    
+                    <Separator/>
+
+                    {/* Summary */}
+                    <div className="space-y-4">
+                        <h4 className="font-medium text-lg">Professional Summary</h4>
+                        <FormField name="summary.title" control={form.control} render={({ field }) => (<FormItem><FormLabel>Headline</FormLabel><FormControl><Input placeholder="e.g., Software Quality Analyst" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField name="summary.text" control={form.control} render={({ field }) => (<FormItem><FormLabel>Summary Text</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    </div>
+
+                    <Separator/>
+
+                    {/* Skills */}
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <h4 className="font-medium text-lg">Skills</h4>
+                            <Button type="button" size="sm" onClick={() => appendSkill({ category: '', skillList: '' })}><Plus className="mr-2 h-4 w-4"/>Add Skill Category</Button>
+                        </div>
+                        {skillFields.map((field, index) => (
+                            <div key={field.id} className="flex gap-2 items-start p-3 border rounded-md">
+                                <div className="flex-grow space-y-2">
+                                    <FormField name={`skills.${index}.category`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Category</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                    <FormField name={`skills.${index}.skillList`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Skills (comma-separated)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                </div>
+                                <Button type="button" variant="ghost" size="icon" className="mt-6" onClick={() => removeSkill(index)}><Trash2 className="text-destructive h-4 w-4"/></Button>
+                            </div>
+                        ))}
+                    </div>
+
+                    <Separator/>
+
+                    {/* Work Experience */}
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <h4 className="font-medium text-lg">Work Experience</h4>
+                            <Button type="button" size="sm" onClick={() => appendWork({ company: '', location: '', role: '', dates: '', descriptionPoints: '' })}><Plus className="mr-2 h-4 w-4"/>Add Experience</Button>
+                        </div>
+                        {workFields.map((field, index) => (
+                            <div key={field.id} className="space-y-2 p-3 border rounded-md relative">
+                                <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => removeWork(index)}><Trash2 className="text-destructive h-4 w-4"/></Button>
+                                <FormField name={`workExperience.${index}.company`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Company</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField name={`workExperience.${index}.role`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Role</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <div className="grid grid-cols-2 gap-4">
+                                  <FormField name={`workExperience.${index}.location`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                  <FormField name={`workExperience.${index}.dates`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Dates</FormLabel><FormControl><Input placeholder="e.g., Oct 2021 - Present" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                </div>
+                                <FormField name={`workExperience.${index}.descriptionPoints`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Description (one point per line)</FormLabel><FormControl><Textarea className="min-h-[100px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            </div>
+                        ))}
+                    </div>
+                    
+                    <Separator/>
+                    
+                    {/* Projects */}
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                          <h4 className="font-medium text-lg">Projects</h4>
+                          <Button type="button" size="sm" onClick={() => appendProject({ name: '', dates: '', description: '' })}><Plus className="mr-2 h-4 w-4"/>Add Project</Button>
+                      </div>
+                      {projectFields.map((field, index) => (
                           <div key={field.id} className="space-y-2 p-3 border rounded-md relative">
-                              <FormField name={`workExperience.${index}.company`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Company</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                              <FormField name={`workExperience.${index}.role`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Role</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                              <div className="grid grid-cols-2 gap-4">
-                                <FormField name={`workExperience.${index}.location`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField name={`workExperience.${index}.dates`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Dates</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                              </div>
-                              <FormField name={`workExperience.${index}.descriptionPoints`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Description (one point per line)</FormLabel><FormControl><Textarea className="min-h-[100px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                              <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => removeWork(index)}><Trash2 className="text-destructive"/></Button>
+                              <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => removeProject(index)}><Trash2 className="text-destructive h-4 w-4"/></Button>
+                              <FormField name={`projects.${index}.name`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Project Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                              <FormField name={`projects.${index}.dates`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Dates</FormLabel><FormControl><Input placeholder="e.g., Apr 2024 - Present" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                              <FormField name={`projects.${index}.description`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)} />
                           </div>
                       ))}
+                    </div>
+
+                    <Separator/>
+
+                    {/* Education */}
+                     <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <h4 className="font-medium text-lg">Education</h4>
+                            <Button type="button" size="sm" onClick={() => appendEducation({ institution: '', degree: '', location: '', gpa: '', date: '' })}><Plus className="mr-2 h-4 w-4"/>Add Education</Button>
+                        </div>
+                        {educationFields.map((field, index) => (
+                            <div key={field.id} className="space-y-2 p-3 border rounded-md relative">
+                                <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => removeEducation(index)}><Trash2 className="text-destructive h-4 w-4"/></Button>
+                                <FormField name={`education.${index}.institution`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Institution</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField name={`education.${index}.degree`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Degree/Course</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <div className="grid grid-cols-2 gap-4">
+                                  <FormField name={`education.${index}.location`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                  <FormField name={`education.${index}.gpa`} control={form.control} render={({ field }) => (<FormItem><FormLabel>GPA / %</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                </div>
+                                <FormField name={`education.${index}.date`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Completion Date</FormLabel><FormControl><Input placeholder="e.g., May 2021" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                            </div>
+                        ))}
+                    </div>
+
                   </div>
-                  
-                  {/* Other sections would go here (Projects, Education) following a similar pattern */}
-                  
                 </ScrollArea>
+                <DialogFooter className="pt-4 mt-auto border-t">
+                  <Button variant="outline" onClick={() => setOpen(false)}>Close</Button>
+                  <Button type="submit" form="resume-form">Save Details</Button>
+                </DialogFooter>
               </form>
             </Form>
-          </div>
-
-          {/* Preview Area */}
-          <div className="flex flex-col gap-4 overflow-hidden">
-             <div className="flex justify-between items-center">
-                <h3 className="font-semibold">Generated Preview</h3>
-                <Button onClick={handleDownloadPdf} disabled={!parsedData}>
-                    <Download className="mr-2" /> Download PDF
-                </Button>
-            </div>
-            <div ref={resumePreviewRef} className="flex-grow overflow-y-auto bg-gray-50 p-2 rounded-md border">
-                {parsedData ? (
-                    <ResumeTemplate resume={parsedData} />
-                ) : (
-                    <div className="flex items-center justify-center h-full text-center text-muted-foreground">
-                        <p>Fill out the form and click "Generate Preview" to see your resume here.</p>
-                    </div>
-                )}
-            </div>
-          </div>
         </div>
-        <DialogFooter className="pt-4 border-t">
-          <Button variant="outline" onClick={() => setOpen(false)}>Close</Button>
-          <Button type="submit" form="resume-form">Generate Preview & Save</Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-
-    
