@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format, isToday, isPast, parseISO, startOfDay } from 'date-fns';
+import { format, isToday, isPast, parseISO, startOfDay, isTomorrow, isFuture } from 'date-fns';
 import { DailyTask, DailyTaskCategory, DailyTaskPriority, AppData } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -22,6 +21,7 @@ import { cn } from '@/lib/utils';
 import AiSuggestionSection from './ai-suggestion-section';
 import AiTaskGeneratorDialog from './ai-task-generator-dialog';
 import type { SuggestedTask } from '@/ai/flows/generate-task-suggestions';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const taskSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters long.'),
@@ -135,23 +135,31 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
     setDialogOpen(false);
   };
 
-  const sortedTasks = useMemo(() => {
-    return [...tasks].sort((a, b) => {
-      const dateA = startOfDay(parseISO(a.dueDate)).getTime();
-      const dateB = startOfDay(parseISO(b.dueDate)).getTime();
-      
-      // Primary sort: due date
-      if (dateA !== dateB) {
-        return dateA - dateB;
-      }
-      
-      // Secondary sort: completed tasks go to the bottom for that day
-      if (a.completed !== b.completed) {
-        return a.completed ? 1 : -1;
-      }
-      
-      return 0;
-    });
+  const groupedTasks = useMemo(() => {
+    const groups: { title: string; tasks: DailyTask[], defaultOpen?: boolean }[] = [];
+
+    const sortTasks = (taskArray: DailyTask[]) => {
+        return taskArray.sort((a, b) => {
+            if (a.completed !== b.completed) {
+                return a.completed ? 1 : -1; // Incomplete tasks first
+            }
+            return parseISO(a.dueDate).getTime() - parseISO(b.dueDate).getTime(); // Then by due date
+        });
+    }
+
+    const overdue = sortTasks(tasks.filter(t => !t.completed && isPast(startOfDay(parseISO(t.dueDate))) && !isToday(startOfDay(parseISO(t.dueDate)))));
+    const today = sortTasks(tasks.filter(t => isToday(startOfDay(parseISO(t.dueDate)))));
+    const tomorrow = sortTasks(tasks.filter(t => !t.completed && isTomorrow(startOfDay(parseISO(t.dueDate)))));
+    const upcoming = sortTasks(tasks.filter(t => !t.completed && isFuture(startOfDay(parseISO(t.dueDate))) && !isTomorrow(startOfDay(parseISO(t.dueDate)))));
+    const completed = tasks.filter(t => t.completed).sort((a,b) => parseISO(b.dueDate).getTime() - parseISO(a.dueDate).getTime());
+
+    if (overdue.length > 0) groups.push({ title: 'Overdue', tasks: overdue, defaultOpen: true });
+    if (today.length > 0) groups.push({ title: 'Today', tasks: today, defaultOpen: true });
+    if (tomorrow.length > 0) groups.push({ title: 'Tomorrow', tasks: tomorrow, defaultOpen: true });
+    if (upcoming.length > 0) groups.push({ title: 'Upcoming', tasks: upcoming, defaultOpen: false });
+    if (completed.length > 0) groups.push({ title: 'Completed', tasks: completed, defaultOpen: false });
+
+    return groups;
   }, [tasks]);
 
   const handleAiTaskAdd = (suggestedTask: SuggestedTask) => {
@@ -161,6 +169,11 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
     };
     onAddTask(newTask);
   };
+  
+  const defaultOpenGroups = useMemo(() => {
+    return groupedTasks.filter(g => g.defaultOpen).map(g => g.title);
+  }, [groupedTasks]);
+
 
   return (
     <div>
@@ -184,9 +197,23 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
       
       <div className="space-y-2">
         {tasks.length > 0 ? (
-          sortedTasks.map(task => (
-            <TaskItem key={task.id} task={task} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
-          ))
+            <Accordion type="multiple" defaultValue={defaultOpenGroups} className="w-full space-y-2">
+                {groupedTasks.map(group => (
+                    <AccordionItem value={group.title} key={group.title} className="border rounded-lg px-4 bg-muted/30">
+                        <AccordionTrigger className="py-3 hover:no-underline">
+                             <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-lg">{group.title}</h3>
+                                <Badge variant="secondary">{group.tasks.length}</Badge>
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="pt-2 pb-4 space-y-2">
+                            {group.tasks.map(task => (
+                                <TaskItem key={task.id} task={task} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
+                            ))}
+                        </AccordionContent>
+                    </AccordionItem>
+                ))}
+            </Accordion>
         ) : (
           <div className="text-center py-16 border-2 border-dashed rounded-lg">
               <ListTodo className="mx-auto h-12 w-12 text-muted-foreground" />
