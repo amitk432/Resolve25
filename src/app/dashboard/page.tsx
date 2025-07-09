@@ -57,7 +57,9 @@ export default function DashboardPage() {
             completeData.jobApplications = completeData.jobApplications || [];
             completeData.dailyTasks = completeData.dailyTasks || [];
             completeData.sipTotalInvestment = completeData.sipTotalInvestment || '0';
-            completeData.monthlyIncome = completeData.monthlyIncome || '50000';
+            completeData.incomeSources = completeData.incomeSources && completeData.incomeSources.length > 0
+              ? completeData.incomeSources
+              : [{ id: 'income-1', name: 'Primary Job', amount: '50000' }];
             
             setData(completeData as AppData);
           } else {

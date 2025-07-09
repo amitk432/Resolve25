@@ -86,5 +86,7 @@ export const initialData: AppData = {
     travelGoals: [],
     dailyTasks: [],
     sipTotalInvestment: '0',
-    monthlyIncome: '50000',
+    incomeSources: [
+        { id: 'income-1', name: 'Primary Job', amount: '50000' }
+    ],
 };

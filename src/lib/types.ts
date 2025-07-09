@@ -78,6 +78,11 @@ export interface DailyTask {
     completed: boolean;
 }
 
+export interface IncomeSource {
+    id: string;
+    name: string;
+    amount: string;
+}
 
 export interface AppData {
     goals: Goal[];
@@ -96,5 +101,5 @@ export interface AppData {
     travelGoals: TravelGoal[];
     dailyTasks: DailyTask[];
     sipTotalInvestment: string;
-    monthlyIncome: string;
+    incomeSources: IncomeSource[];
 }

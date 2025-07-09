@@ -5,8 +5,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import type { Loan, LoanStatus } from '@/lib/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import type { Loan, LoanStatus, IncomeSource } from '@/lib/types';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -29,9 +29,10 @@ interface FinanceTabProps {
     sipStarted: boolean;
     sipAmount: string;
     sipMutualFund: string;
+
     sipPlatform: string;
     sipTotalInvestment: string;
-    monthlyIncome: string;
+    incomeSources: IncomeSource[];
     onUpdateLoanStatus: (loanId: string, status: LoanStatus) => void;
     onUpdateEmergencyFund: (amount: string) => void;
     onUpdateEmergencyFundTarget: (target: string) => void;
@@ -41,7 +42,9 @@ interface FinanceTabProps {
     onUpdateLoan: (id: string, name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => void;
     onDeleteLoan: (id: string) => void;
     onUpdateSipTotalInvestment: (amount: string) => void;
-    onUpdateMonthlyIncome: (amount: string) => void;
+    onAddIncomeSource: (source: Omit<IncomeSource, 'id'>) => void;
+    onUpdateIncomeSource: (source: IncomeSource) => void;
+    onDeleteIncomeSource: (sourceId: string) => void;
 }
 
 const loanSchema = z.object({
@@ -149,7 +152,7 @@ export default function FinanceTab({
     sipMutualFund,
     sipPlatform,
     sipTotalInvestment,
-    monthlyIncome,
+    incomeSources,
     onUpdateLoanStatus, 
     onUpdateEmergencyFund, 
     onUpdateEmergencyFundTarget,
@@ -159,7 +162,9 @@ export default function FinanceTab({
     onUpdateLoan,
     onDeleteLoan,
     onUpdateSipTotalInvestment,
-    onUpdateMonthlyIncome
+    onAddIncomeSource,
+    onUpdateIncomeSource,
+    onDeleteIncomeSource,
 }: FinanceTabProps) {
     const [isLoanDialogOpen, setLoanDialogOpen] = useState(false);
     const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
@@ -286,11 +291,6 @@ export default function FinanceTab({
                  )}
             </div>
 
-            <MonthlyIncomeCard
-                monthlyIncome={monthlyIncome}
-                onUpdateMonthlyIncome={onUpdateMonthlyIncome}
-            />
-
             <SavingsAndInvestmentsCard
               emergencyFund={emergencyFund}
               emergencyFundTarget={emergencyFundTarget}
@@ -304,6 +304,13 @@ export default function FinanceTab({
               onToggleSip={onToggleSip}
               onUpdateSipDetails={onUpdateSipDetails}
               onUpdateSipTotalInvestment={onUpdateSipTotalInvestment}
+            />
+            
+            <MonthlyIncomeCard
+                incomeSources={incomeSources}
+                onAddSource={onAddIncomeSource}
+                onUpdateSource={onUpdateIncomeSource}
+                onDeleteSource={onDeleteIncomeSource}
             />
 
             <Dialog open={isLoanDialogOpen} onOpenChange={handleDialogChange}>
@@ -401,52 +408,164 @@ export default function FinanceTab({
     )
 }
 
-function MonthlyIncomeCard({ monthlyIncome, onUpdateMonthlyIncome }: { monthlyIncome: string; onUpdateMonthlyIncome: (amount: string) => void; }) {
+const incomeSourceSchema = z.object({
+    name: z.string().min(2, { message: 'Source name must be at least 2 characters.' }),
+    amount: z.string().min(1, { message: 'Amount is required.' }),
+});
+
+function MonthlyIncomeCard({ 
+    incomeSources, 
+    onAddSource, 
+    onUpdateSource, 
+    onDeleteSource 
+}: { 
+    incomeSources: IncomeSource[];
+    onAddSource: (source: Omit<IncomeSource, 'id'>) => void;
+    onUpdateSource: (source: IncomeSource) => void;
+    onDeleteSource: (sourceId: string) => void;
+}) {
     const { toast } = useToast();
-    const [incomeInput, setIncomeInput] = useState(monthlyIncome || '');
-    const [isIncomeVisible, setIsIncomeVisible] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
+    const [isDialogOpen, setDialogOpen] = useState(false);
+    const [editingSource, setEditingSource] = useState<IncomeSource | null>(null);
 
-    useEffect(() => {
-        setIncomeInput(monthlyIncome || '');
-    }, [monthlyIncome]);
+    const form = useForm<z.infer<typeof incomeSourceSchema>>({
+        resolver: zodResolver(incomeSourceSchema),
+        defaultValues: { name: '', amount: '' },
+    });
 
-    const handleUpdate = () => {
-        onUpdateMonthlyIncome(incomeInput);
-        toast({ title: "Monthly income updated!" });
+    const totalIncome = useMemo(() => {
+        return incomeSources.reduce((sum, source) => sum + (parseFloat(source.amount) || 0), 0);
+    }, [incomeSources]);
+
+    const handleOpenDialog = (source: IncomeSource | null) => {
+        setEditingSource(source);
+        if (source) {
+            form.reset({ name: source.name, amount: source.amount });
+        } else {
+            form.reset({ name: '', amount: '' });
+        }
+        setDialogOpen(true);
+    };
+
+    const onSubmit = (values: z.infer<typeof incomeSourceSchema>) => {
+        if (editingSource) {
+            onUpdateSource({ ...editingSource, ...values });
+            toast({ title: "Income source updated!" });
+        } else {
+            onAddSource(values);
+            toast({ title: "Income source added!" });
+        }
+        setIsVisible(false);
+        setDialogOpen(false);
     };
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Monthly Income</CardTitle>
-                <CardDescription>Keep track of your monthly earnings to better manage your budget.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="flex items-center gap-4">
-                    <div className="flex-grow space-y-1">
-                        <Label htmlFor="monthly-income">Your take-home income (₹)</Label>
-                        <div className="relative">
-                            <Input
-                                id="monthly-income"
-                                type={isIncomeVisible ? 'number' : 'password'}
-                                value={incomeInput}
-                                onChange={(e) => setIncomeInput(e.target.value)}
-                                placeholder="Enter your income"
-                            />
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                                onClick={() => setIsIncomeVisible(!isIncomeVisible)}
-                            >
-                                {isIncomeVisible ? <EyeOff /> : <Eye />}
+        <>
+            <Card>
+                <CardHeader>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <CardTitle>Monthly Income</CardTitle>
+                            <CardDescription>Track all your sources of income.</CardDescription>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="icon" onClick={() => setIsVisible(!isVisible)}>
+                                {isVisible ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                            </Button>
+                            <Button size="sm" onClick={() => handleOpenDialog(null)}>
+                                <Plus className="mr-2 h-4 w-4" /> Add Source
                             </Button>
                         </div>
                     </div>
-                    <Button onClick={handleUpdate} className="self-end">Save</Button>
-                </div>
-            </CardContent>
-        </Card>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-3">
+                        {incomeSources.map(source => (
+                            <div key={source.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                                <span className="font-medium">{source.name}</span>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-lg font-mono">
+                                        {isVisible ? `₹${parseFloat(source.amount || '0').toLocaleString('en-IN')}` : '₹ ••••••'}
+                                    </span>
+                                    <div className="flex gap-1">
+                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenDialog(source)}>
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Delete income source?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This will permanently delete "{source.name}". This action cannot be undone.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => onDeleteSource(source.id)}>Delete</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+                <CardContent>
+                    <Separator />
+                    <div className="flex justify-between items-center pt-4">
+                        <span className="text-lg font-bold">Total Monthly Income</span>
+                        <span className="text-xl font-bold font-mono text-primary">
+                            {isVisible ? `₹${totalIncome.toLocaleString('en-IN')}` : '₹ ••••••'}
+                        </span>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{editingSource ? 'Edit Income Source' : 'Add New Income Source'}</DialogTitle>
+                    </DialogHeader>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Source Name</FormLabel>
+                                        <FormControl><Input placeholder="e.g., Freelance Project" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="amount"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Amount (₹)</FormLabel>
+                                        <FormControl><Input type="number" placeholder="e.g., 15000" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <DialogFooter>
+                                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                                <Button type="submit">Save Source</Button>
+                            </DialogFooter>
+                        </form>
+                    </Form>
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }
 
@@ -463,30 +582,30 @@ function SavingsAndInvestmentsCard({
     onToggleSip,
     onUpdateSipDetails,
     onUpdateSipTotalInvestment
-}: Omit<FinanceTabProps, 'loans' | 'monthlyIncome' | 'onUpdateLoanStatus' | 'onAddLoan' | 'onUpdateLoan' | 'onDeleteLoan' | 'onUpdateMonthlyIncome'>) {
+}: Omit<FinanceTabProps, 'loans' | 'incomeSources' | 'onUpdateLoanStatus' | 'onAddLoan' | 'onUpdateLoan' | 'onDeleteLoan' | 'onAddIncomeSource' | 'onUpdateIncomeSource' | 'onDeleteIncomeSource'>) {
     const { toast } = useToast();
     
     // State for local inputs
-    const [manualFundInput, setManualFundInput] = useState(emergencyFund || '');
-    const [sipTotalInput, setSipTotalInput] = useState(sipTotalInvestment || '');
-    const [targetInput, setTargetInput] = useState(emergencyFundTarget || '');
+    const [manualFundInput, setManualFundInput] = useState(emergencyFund);
+    const [sipTotalInput, setSipTotalInput] = useState(sipTotalInvestment);
+    const [targetInput, setTargetInput] = useState(emergencyFundTarget);
     const [isSipEditing, setIsSipEditing] = useState(false);
     const [isTargetEditing, setIsTargetEditing] = useState(false);
     const [sipAmountInput, setSipAmountInput] = useState(sipAmount);
     const [sipFundInput, setSipFundInput] = useState(sipMutualFund);
     const [sipPlatformInput, setSipPlatformInput] = useState(sipPlatform);
 
-    // Sync local state with props
-    useEffect(() => setManualFundInput(emergencyFund || ''), [emergencyFund]);
-    useEffect(() => setSipTotalInput(sipTotalInvestment || ''), [sipTotalInvestment]);
-    useEffect(() => setTargetInput(emergencyFundTarget || ''), [emergencyFundTarget]);
+    // Sync local state with props to reflect external changes
+    useEffect(() => setManualFundInput(emergencyFund), [emergencyFund]);
+    useEffect(() => setSipTotalInput(sipTotalInvestment), [sipTotalInvestment]);
+    useEffect(() => setTargetInput(emergencyFundTarget), [emergencyFundTarget]);
     useEffect(() => {
         setSipAmountInput(sipAmount);
         setSipFundInput(sipMutualFund);
         setSipPlatformInput(sipPlatform);
     }, [sipAmount, sipMutualFund, sipPlatform]);
 
-    // Derived values for display and calculations
+    // Derived values for display and calculations, always based on props for consistency
     const totalEmergencyFund = useMemo(() => {
         return (parseFloat(emergencyFund) || 0) + (parseFloat(sipTotalInvestment) || 0);
     }, [emergencyFund, sipTotalInvestment]);
@@ -495,13 +614,13 @@ function SavingsAndInvestmentsCard({
     const emergencyFundProgress = emergencyFundTargetValue > 0 ? Math.min((totalEmergencyFund / emergencyFundTargetValue) * 100, 100) : 0;
 
     const handleUpdateSavings = () => {
-        onUpdateEmergencyFund(manualFundInput);
-        onUpdateSipTotalInvestment(sipTotalInput);
+        onUpdateEmergencyFund(manualFundInput || '0');
+        onUpdateSipTotalInvestment(sipTotalInput || '0');
         toast({ title: 'Emergency savings updated!' });
     };
 
     const handleUpdateTarget = () => {
-        onUpdateEmergencyFundTarget(targetInput);
+        onUpdateEmergencyFundTarget(targetInput || '0');
         setIsTargetEditing(false);
         toast({ title: 'Emergency fund target updated!' });
     };
@@ -548,7 +667,7 @@ function SavingsAndInvestmentsCard({
                                 <Input
                                     id="manual-fund-input"
                                     type="number"
-                                    value={manualFundInput}
+                                    value={manualFundInput || ''}
                                     onChange={(e) => setManualFundInput(e.target.value)}
                                     placeholder="e.g., 10000"
                                 />
@@ -558,7 +677,7 @@ function SavingsAndInvestmentsCard({
                                 <Input
                                     id="sip-total-input"
                                     type="number"
-                                    value={sipTotalInput}
+                                    value={sipTotalInput || ''}
                                     onChange={(e) => setSipTotalInput(e.target.value)}
                                     placeholder="e.g., 5000"
                                 />
@@ -571,7 +690,7 @@ function SavingsAndInvestmentsCard({
                                 <div className="flex items-center gap-2">
                                      <Input
                                         type="number"
-                                        value={targetInput}
+                                        value={targetInput || ''}
                                         onChange={(e) => setTargetInput(e.target.value)}
                                         placeholder="Set your target"
                                     />
