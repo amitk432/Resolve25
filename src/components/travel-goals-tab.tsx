@@ -91,11 +91,11 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }:
 
   return (
     <div>
-      <div className="text-center mb-6">
+      <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-foreground">Travel Goals & Wishlist</h2>
         <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="mt-2"><Plus className="mr-2" /> Add Travel Goal</Button>
+            <Button><Plus className="mr-2" /> Add Travel Goal</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>

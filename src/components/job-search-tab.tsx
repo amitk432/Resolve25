@@ -44,11 +44,11 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
 
     return (
         <div>
-            <div className="text-center mb-6">
+            <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-foreground">Job Application Tracker</h2>
               <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
-                      <Button className="mt-2"><Plus className="mr-2 h-4 w-4"/>Add Application</Button>
+                      <Button><Plus className="mr-2 h-4 w-4"/>Add Application</Button>
                   </DialogTrigger>
                   <DialogContent>
                       <DialogHeader>

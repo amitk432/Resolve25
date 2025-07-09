@@ -163,9 +163,9 @@ export default function FinanceTab({
 
     return (
         <div className="space-y-8">
-            <div className="text-center mb-6">
+            <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-foreground">Loan & Investment Tracker</h2>
-                <Button className="mt-2" onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4"/> Add Loan</Button>
+                <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4"/> Add Loan</Button>
             </div>
             
             <Card>

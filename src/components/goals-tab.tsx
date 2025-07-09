@@ -61,8 +61,8 @@ export default function GoalsTab({ goals, onUpdate }: GoalsTabProps) {
     
     return (
         <div className="space-y-8">
-            <div className="text-center">
-                <h2 className="text-xl font-bold text-foreground mb-2">Your Goals for 2025</h2>
+            <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold text-foreground">Your Goals for 2025</h2>
                 <AddGoalDialog onGoalAdd={handleGoalAdd} />
             </div>
             
