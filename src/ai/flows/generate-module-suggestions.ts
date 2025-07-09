@@ -14,6 +14,7 @@ const ModuleSuggestionInputSchema = z.object({
   module: z.enum(['DashboardOverview', 'MonthlyPlan', 'CarSale', 'Finance', 'JobSearch', 'Travel', 'DailyTodo']),
   context: z.any().describe('A JSON object containing the data for the specified module.'),
   userQuery: z.string().optional().describe('An optional specific question from the user.'),
+  focusedMonth: z.string().optional().describe('The specific month (e.g., "July 2025") to generate tasks for within the MonthlyPlan module.'),
 });
 export type ModuleSuggestionInput = z.infer<typeof ModuleSuggestionInputSchema>;
 
@@ -34,6 +35,7 @@ const prompt = ai.definePrompt({
         context: z.string(), // Pass stringified JSON
         userQuery: ModuleSuggestionInputSchema.shape.userQuery,
         currentDate: z.string(),
+        focusedMonth: ModuleSuggestionInputSchema.shape.focusedMonth,
     })
   },
   output: {schema: ModuleSuggestionOutputSchema},
@@ -47,7 +49,11 @@ const prompt = ai.definePrompt({
       Analyze the user's entire action plan (provided in the JSON context). Look at goals, tasks, and finances. Provide 2-3 high-level, encouraging suggestions. For example, identify a goal that's falling behind and suggest a relevant task, or congratulate them on their financial progress and suggest the next step.
     
     - **If the module is 'MonthlyPlan':**
+      {{#if focusedMonth}}
+      Analyze the user's overall goals and data from the provided context. Based on this, suggest 2-3 new, relevant, and actionable tasks specifically for the month of **{{focusedMonth}}**. These tasks should help the user make progress on their broader goals (e.g., financial, career). Do not suggest tasks that are already in the plan for this month.
+      {{else}}
       Analyze the provided monthly plan data. Focus on the current and next month. Identify potential gaps or suggest new, relevant tasks that align with their overall goals. Do not repeat existing tasks. The context data will be an array of months with tasks.
+      {{/if}}
 
     - **If the module is 'CarSale':**
       Analyze the car sale financials. The user is selling a car for the specified sale price and has a loan payoff amount. Calculate the net cash. Provide advice on whether this is a good deal and suggest negotiation points or next steps. If the user provides a specific query, address it.

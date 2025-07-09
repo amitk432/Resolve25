@@ -11,6 +11,7 @@ import { Input } from './ui/input';
 import AiMonthlyPlanGeneratorDialog from './ai-monthly-plan-generator-dialog';
 import type { SuggestedMonthlyPlan } from '@/ai/flows/generate-monthly-plan-suggestions';
 import AddMonthlyPlanDialog from './add-monthly-plan-dialog';
+import AiMonthlyTaskSuggestionDialog from './ai-monthly-task-suggestion-dialog';
 
 interface MonthlyPlanTabProps {
     monthlyPlan: MonthlyPlan[];
@@ -22,7 +23,7 @@ interface MonthlyPlanTabProps {
     data: AppData;
 }
 
-const MonthCard = ({ monthData, monthIndex, onToggleTask, onAddTask, onDeleteTask }: { monthData: MonthlyPlan, monthIndex: number, onToggleTask: (monthIndex: number, taskIndex: number, done: boolean) => void, onAddTask: (monthIndex: number, taskText: string) => void, onDeleteTask: (monthIndex: number, taskIndex: number) => void }) => {
+const MonthCard = ({ monthData, monthIndex, data, onToggleTask, onAddTask, onDeleteTask }: { monthData: MonthlyPlan, monthIndex: number, data: AppData, onToggleTask: (monthIndex: number, taskIndex: number, done: boolean) => void, onAddTask: (monthIndex: number, taskText: string) => void, onDeleteTask: (monthIndex: number, taskIndex: number) => void }) => {
     const [newTaskText, setNewTaskText] = useState('');
 
     const handleAddTask = () => {
@@ -31,6 +32,10 @@ const MonthCard = ({ monthData, monthIndex, onToggleTask, onAddTask, onDeleteTas
             setNewTaskText('');
         }
     }
+
+    const handleAiTaskAdd = (taskText: string) => {
+        onAddTask(monthIndex, taskText);
+    };
 
     return (
         <Card>
@@ -65,16 +70,21 @@ const MonthCard = ({ monthData, monthIndex, onToggleTask, onAddTask, onDeleteTas
                         </div>
                     ))}
                  </div>
-                 <div className="flex gap-2 mt-4 pt-4 border-t">
-                    <Input 
-                      placeholder="Add a new task..." 
+                 <div className="flex items-center gap-2 mt-4 pt-4 border-t">
+                    <Input
+                      placeholder="Add a new task..."
                       value={newTaskText}
                       onChange={(e) => setNewTaskText(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
                     />
-                    <Button onClick={handleAddTask}>
-                        <Plus className="mr-2 h-4 w-4"/> Add Task
+                    <Button size="icon" onClick={handleAddTask}>
+                        <Plus className="h-4 w-4"/>
                     </Button>
+                    <AiMonthlyTaskSuggestionDialog
+                        monthData={monthData}
+                        data={data}
+                        onTaskAdd={handleAiTaskAdd}
+                    />
                 </div>
             </CardContent>
         </Card>
@@ -106,6 +116,7 @@ export default function MonthlyPlanTab({ monthlyPlan, onToggleTask, onAddTask, o
                         key={monthIndex}
                         monthData={monthData}
                         monthIndex={monthIndex}
+                        data={data}
                         onToggleTask={onToggleTask}
                         onAddTask={onAddTask}
                         onDeleteTask={onDeleteTask}
