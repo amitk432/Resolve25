@@ -64,7 +64,7 @@ const LoanCalculations = ({ loan }: { loan: Loan }) => {
     const totalInterest = totalPayable > 0 ? totalPayable - p : 0;
     
     const remainingEmis = (n || 0) - paidCount;
-    const remainingAmount = emi * remainingEmis;
+    const remainingAmount = loan.status === 'Closed' ? 0 : emi * remainingEmis;
         
     return (
         <div className="space-y-2">
@@ -177,16 +177,20 @@ export default function FinanceTab({
                     {loans.length > 0 ? (
                         <div className="space-y-6">
                             {loans.map(loan => {
+                                const isClosed = loan.status === 'Closed';
                                 const n = loan.tenure ? parseInt(loan.tenure, 10) : 0;
                                 const paidCount = loan.emisPaid ? parseInt(loan.emisPaid, 10) : 0;
                                 const emiProgress = n > 0 ? (paidCount / n) * 100 : 0;
                                 const hasTenure = n > 0;
                                 
                                 return (
-                                <div key={loan.id} className="p-4 border rounded-lg bg-background">
+                                <div key={loan.id} className={cn(
+                                    "p-4 border rounded-lg transition-colors",
+                                    isClosed ? 'bg-muted/50 text-muted-foreground' : 'bg-background'
+                                )}>
                                     <div className="flex justify-between items-start">
                                         <div className="flex items-center gap-4">
-                                            <h4 className="font-semibold text-lg">{loan.name}</h4>
+                                            <h4 className={cn("font-semibold text-lg", !isClosed && "text-card-foreground")}>{loan.name}</h4>
                                             <Select value={loan.status} onValueChange={(value: LoanStatus) => onUpdateLoanStatus(loan.id, value)}>
                                                 <SelectTrigger className="w-[120px] h-9 text-sm">
                                                     <SelectValue />
@@ -247,10 +251,10 @@ export default function FinanceTab({
                                      {hasTenure && (
                                         <div className="mt-4 pt-4 border-t">
                                             <h6 className="text-sm font-medium text-muted-foreground mb-2">EMI Repayment Progress</h6>
-                                            <Progress value={emiProgress} />
+                                            <Progress value={isClosed ? 100 : emiProgress} />
                                             <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                                                <span>{paidCount} / {n} EMIs Paid</span>
-                                                <span>{Math.round(emiProgress)}% Complete</span>
+                                                <span>{isClosed ? n : paidCount} / {n} EMIs Paid</span>
+                                                <span>{isClosed ? 100 : Math.round(emiProgress)}% Complete</span>
                                             </div>
                                         </div>
                                     )}
@@ -823,5 +827,6 @@ function SavingsAndInvestmentsCard({
         </>
     )
 }
+
 
 
