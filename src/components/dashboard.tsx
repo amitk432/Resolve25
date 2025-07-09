@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { AppData, DailyTask, JobStatus, LoanStatus, TravelGoal } from '@/lib/types';
+import type { AppData, DailyTask, JobStatus, Loan, LoanStatus, TravelGoal } from '@/lib/types';
 import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, Loader2, ListTodo } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -77,23 +77,27 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         })
     }
     
-    const handleAddLoan = (name: string, principal: string) => {
+    const handleAddLoan = (name: string, principal: string, rate?: string, tenure?: string) => {
         onUpdate(draft => {
             draft.loans.push({
                 id: `loan-${Date.now()}-${Math.random()}`,
                 name,
                 principal,
+                rate,
+                tenure,
                 status: 'Active'
             });
         });
     };
 
-    const handleUpdateLoan = (id: string, name: string, principal: string) => {
+    const handleUpdateLoan = (id: string, name: string, principal: string, rate?: string, tenure?: string) => {
         onUpdate(draft => {
             const loan = draft.loans.find(l => l.id === id);
             if (loan) {
                 loan.name = name;
                 loan.principal = principal;
+                loan.rate = rate;
+                loan.tenure = tenure;
             }
         });
     };

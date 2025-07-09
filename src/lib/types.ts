@@ -39,6 +39,8 @@ export interface Loan {
     id: string;
     name: string;
     principal: string;
+    rate?: string; // Annual interest rate in %
+    tenure?: string; // Tenure in months
     status: LoanStatus;
 }
 
