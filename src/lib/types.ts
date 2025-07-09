@@ -53,6 +53,7 @@ export interface JobApplication {
     company: string;
     role: string;
     status: JobStatus;
+    source?: 'AI';
 }
 
 export type TravelGoalStatus = 'Completed' | 'Planned';

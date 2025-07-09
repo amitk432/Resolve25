@@ -13,16 +13,17 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Trash2, Plus, FileText, Download } from 'lucide-react';
+import { Trash2, Plus, FileText, Download, Sparkles } from 'lucide-react';
 import AiSuggestionSection from './ai-suggestion-section';
 import ResumeBuilderDialog from './resume-builder-dialog';
 import ResumeTemplate from './resume-template';
 import html2canvas from 'html2canvas';
 import jspdf from 'jspdf';
+import AiJobSuggestionDialog from './ai-job-suggestion-dialog';
 
 interface JobSearchTabProps {
     applications: JobApplication[];
-    onAddApplication: (company: string, role: string) => void;
+    onAddApplication: (application: Omit<JobApplication, 'date' | 'status'>) => void;
     onUpdateStatus: (index: number, status: JobStatus) => void;
     onDelete: (index: number) => void;
     data: AppData;
@@ -45,7 +46,7 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
     });
 
     const onSubmit = (values: z.infer<typeof appSchema>) => {
-        onAddApplication(values.company, values.role);
+        onAddApplication({ company: values.company, role: values.role });
         setDialogOpen(false);
         form.reset();
     }
@@ -101,6 +102,9 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-foreground">Job Application Tracker</h2>
               <div className="flex items-center gap-2">
+                <AiJobSuggestionDialog resumeData={data.resume} onAddApplication={onAddApplication}>
+                  <Button variant="outline"><Sparkles className="mr-2 h-4 w-4"/> Generate from AI</Button>
+                </AiJobSuggestionDialog>
                 <ResumeBuilderDialog data={data} onUpdate={onUpdate}>
                     <Button variant="outline"><FileText className="mr-2"/> Add Details</Button>
                 </ResumeBuilderDialog>
@@ -154,9 +158,9 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Date</TableHead>
                             <TableHead>Company</TableHead>
                             <TableHead>Role</TableHead>
+                            <TableHead>Date Applied</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead className="text-center">Actions</TableHead>
                         </TableRow>
@@ -169,9 +173,14 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                         ) : (
                             applications.map((app, index) => (
                                 <TableRow key={index}>
-                                    <TableCell>{format(parseISO(app.date), 'dd-MMMM-yyyy')}</TableCell>
-                                    <TableCell className="font-medium">{app.company}</TableCell>
+                                    <TableCell className="font-medium">
+                                        <div className="flex items-center gap-2">
+                                            {app.source === 'AI' && <Sparkles className="h-4 w-4 text-primary" />}
+                                            {app.company}
+                                        </div>
+                                    </TableCell>
                                     <TableCell>{app.role}</TableCell>
+                                    <TableCell>{format(parseISO(app.date), 'dd-MMMM-yyyy')}</TableCell>
                                     <TableCell>
                                          <Select value={app.status} onValueChange={(value: JobStatus) => onUpdateStatus(index, value)}>
                                             <SelectTrigger className="w-[130px]">

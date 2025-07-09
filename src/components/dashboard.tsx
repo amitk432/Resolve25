@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { AppData, DailyTask, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP, Task } from '@/lib/types';
+import type { AppData, DailyTask, JobApplication, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP, Task } from '@/lib/types';
 import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, Loader2, ListTodo } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -210,16 +210,15 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     };
 
     // Job Search handlers
-    const handleAddApplication = (company: string, role: string) => {
+    const handleAddApplication = (application: Omit<JobApplication, 'date' | 'status'>) => {
         onUpdate(draft => {
             draft.jobApplications.unshift({
-                company,
-                role,
+                ...application,
                 status: 'Applied',
                 date: new Date().toISOString(),
             });
         });
-    }
+    };
 
     const handleUpdateJobStatus = (index: number, status: JobStatus) => {
         onUpdate(draft => {
