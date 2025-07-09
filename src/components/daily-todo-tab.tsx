@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format, isToday, isFuture, isPast, parseISO, startOfDay } from 'date-fns';
+import { format, isToday, isPast, parseISO, startOfDay } from 'date-fns';
 import { DailyTask, DailyTaskCategory, DailyTaskPriority, AppData } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -56,6 +56,8 @@ interface DailyTodoTabProps {
 }
 
 const TaskItem = ({ task, onToggleTask, onEdit, onDelete }: { task: DailyTask, onToggleTask: (id: string, completed: boolean) => void, onEdit: (task: DailyTask) => void, onDelete: (id: string) => void }) => {
+  const isOverdue = !task.completed && isPast(startOfDay(parseISO(task.dueDate))) && !isToday(startOfDay(parseISO(task.dueDate)));
+
   return (
     <div className="flex items-center p-3 rounded-lg bg-background hover:bg-muted/50 border transition-all group">
       <Checkbox
@@ -69,7 +71,8 @@ const TaskItem = ({ task, onToggleTask, onEdit, onDelete }: { task: DailyTask, o
           {task.title}
         </label>
         <div className="text-sm text-muted-foreground flex items-center gap-x-4 gap-y-1 mt-1 flex-wrap">
-          <div className="flex items-center gap-1">
+          <div className={cn("flex items-center gap-1", isOverdue && "text-destructive font-medium")}>
+            {isOverdue && <AlertTriangle className="h-3 w-3" />}
             <CalendarIcon className="h-3 w-3" />
             {format(parseISO(task.dueDate), 'dd-MMMM-yyyy')}
           </div>
@@ -94,7 +97,7 @@ const TaskSection = ({ title, tasks, icon, onToggleTask, onEdit, onDelete }: { t
   if (tasks.length === 0) return null;
 
   return (
-    <Accordion type="single" collapsible defaultValue="item-1">
+    <Accordion type="single" collapsible>
       <AccordionItem value="item-1">
         <AccordionTrigger>
           <div className="flex items-center gap-2 text-lg font-semibold">
@@ -158,26 +161,25 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
     setDialogOpen(false);
   };
 
-  const { overdue, today, upcoming, completed } = useMemo(() => {
-    const now = startOfDay(new Date());
-    return tasks.reduce(
-      (acc, task) => {
-        if (task.completed) {
-          acc.completed.push(task);
-        } else {
-          const dueDate = startOfDay(parseISO(task.dueDate));
-          if (isPast(dueDate) && !isToday(dueDate)) {
-            acc.overdue.push(task);
-          } else if (isToday(dueDate)) {
-            acc.today.push(task);
-          } else if (isFuture(dueDate)) {
-            acc.upcoming.push(task);
-          }
-        }
-        return acc;
-      },
-      { overdue: [] as DailyTask[], today: [] as DailyTask[], upcoming: [] as DailyTask[], completed: [] as DailyTask[] }
-    );
+  const { pending, completed } = useMemo(() => {
+    const pendingTasks: DailyTask[] = [];
+    const completedTasks: DailyTask[] = [];
+
+    tasks.forEach(task => {
+      if (task.completed) {
+        completedTasks.push(task);
+      } else {
+        pendingTasks.push(task);
+      }
+    });
+
+    // Sort pending tasks by due date (ascending)
+    pendingTasks.sort((a, b) => parseISO(a.dueDate).getTime() - parseISO(b.dueDate).getTime());
+
+    // Sort completed tasks by due date (descending, so recent ones are first)
+    completedTasks.sort((a, b) => parseISO(b.dueDate).getTime() - parseISO(a.dueDate).getTime());
+
+    return { pending: pendingTasks, completed: completedTasks };
   }, [tasks]);
 
   const totalTasks = tasks.length;
@@ -212,9 +214,19 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
       
       {totalTasks > 0 ? (
         <div className="space-y-6">
-          <TaskSection title="Overdue" tasks={overdue} icon={<AlertTriangle className="text-destructive"/>} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
-          <TaskSection title="Today" tasks={today} icon={<User className="text-primary"/>} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
-          <TaskSection title="Upcoming" tasks={upcoming} icon={<CalendarIcon className="text-muted-foreground"/>} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
+          <div className="space-y-2">
+            {pending.length > 0 ? (
+              pending.map(task => (
+                <TaskItem key={task.id} task={task} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
+              ))
+            ) : (
+              <div className="text-center py-8 border-2 border-dashed rounded-lg bg-muted/20">
+                <Check className="mx-auto h-12 w-12 text-green-500" />
+                <h3 className="mt-2 text-lg font-medium">All tasks completed!</h3>
+                <p className="mt-1 text-sm text-muted-foreground">Great job staying on top of things.</p>
+              </div>
+            )}
+          </div>
           <TaskSection title="Completed" tasks={completed} icon={<Check className="text-green-500"/>} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
         </div>
       ) : (
