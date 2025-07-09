@@ -17,9 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Edit, CalendarIcon, Briefcase, User, ShoppingCart, AlertTriangle, ChevronDown, ChevronUp, Check, ListTodo, Sparkles } from 'lucide-react';
+import { Plus, Trash2, Edit, CalendarIcon, Briefcase, User, ShoppingCart, AlertTriangle, ListTodo, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import AiSuggestionSection from './ai-suggestion-section';
 import AiTaskGeneratorDialog from './ai-task-generator-dialog';
 import type { SuggestedTask } from '@/ai/flows/generate-task-suggestions';
@@ -93,31 +92,6 @@ const TaskItem = ({ task, onToggleTask, onEdit, onDelete }: { task: DailyTask, o
   )
 }
 
-const TaskSection = ({ title, tasks, icon, onToggleTask, onEdit, onDelete }: { title: string, tasks: DailyTask[], icon: React.ReactNode, onToggleTask: (id: string, completed: boolean) => void, onEdit: (task: DailyTask) => void, onDelete: (id: string) => void }) => {
-  if (tasks.length === 0) return null;
-
-  return (
-    <Accordion type="single" collapsible>
-      <AccordionItem value="item-1">
-        <AccordionTrigger>
-          <div className="flex items-center gap-2 text-lg font-semibold">
-            {icon}
-            {title} ({tasks.length})
-          </div>
-        </AccordionTrigger>
-        <AccordionContent>
-          <div className="space-y-2">
-            {tasks.map(task => (
-              <TaskItem key={task.id} task={task} onToggleTask={onToggleTask} onEdit={onEdit} onDelete={onDelete} />
-            ))}
-          </div>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
-  )
-}
-
-
 export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteTask, onToggleTask, data }: DailyTodoTabProps) {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<DailyTask | null>(null);
@@ -161,28 +135,24 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
     setDialogOpen(false);
   };
 
-  const { pending, completed } = useMemo(() => {
-    const pendingTasks: DailyTask[] = [];
-    const completedTasks: DailyTask[] = [];
-
-    tasks.forEach(task => {
-      if (task.completed) {
-        completedTasks.push(task);
-      } else {
-        pendingTasks.push(task);
+  const sortedTasks = useMemo(() => {
+    return [...tasks].sort((a, b) => {
+      const dateA = startOfDay(parseISO(a.dueDate)).getTime();
+      const dateB = startOfDay(parseISO(b.dueDate)).getTime();
+      
+      // Primary sort: due date
+      if (dateA !== dateB) {
+        return dateA - dateB;
       }
+      
+      // Secondary sort: completed tasks go to the bottom for that day
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1;
+      }
+      
+      return 0;
     });
-
-    // Sort pending tasks by due date (ascending)
-    pendingTasks.sort((a, b) => parseISO(a.dueDate).getTime() - parseISO(b.dueDate).getTime());
-
-    // Sort completed tasks by due date (descending, so recent ones are first)
-    completedTasks.sort((a, b) => parseISO(b.dueDate).getTime() - parseISO(a.dueDate).getTime());
-
-    return { pending: pendingTasks, completed: completedTasks };
   }, [tasks]);
-
-  const totalTasks = tasks.length;
 
   const handleAiTaskAdd = (suggestedTask: SuggestedTask) => {
     const newTask = {
@@ -212,30 +182,19 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
         </div>
       </div>
       
-      {totalTasks > 0 ? (
-        <div className="space-y-6">
-          <div className="space-y-2">
-            {pending.length > 0 ? (
-              pending.map(task => (
-                <TaskItem key={task.id} task={task} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
-              ))
-            ) : (
-              <div className="text-center py-8 border-2 border-dashed rounded-lg bg-muted/20">
-                <Check className="mx-auto h-12 w-12 text-green-500" />
-                <h3 className="mt-2 text-lg font-medium">All tasks completed!</h3>
-                <p className="mt-1 text-sm text-muted-foreground">Great job staying on top of things.</p>
-              </div>
-            )}
+      <div className="space-y-2">
+        {tasks.length > 0 ? (
+          sortedTasks.map(task => (
+            <TaskItem key={task.id} task={task} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
+          ))
+        ) : (
+          <div className="text-center py-16 border-2 border-dashed rounded-lg">
+              <ListTodo className="mx-auto h-12 w-12 text-muted-foreground" />
+              <h3 className="mt-2 text-lg font-medium">No Tasks Yet</h3>
+              <p className="mt-1 text-sm text-muted-foreground">Click "Add Task" above to get started.</p>
           </div>
-          <TaskSection title="Completed" tasks={completed} icon={<Check className="text-green-500"/>} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
-        </div>
-      ) : (
-        <div className="text-center py-16 border-2 border-dashed rounded-lg">
-            <ListTodo className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-2 text-lg font-medium">No Tasks Yet</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Click "Add Task" above to get started.</p>
-        </div>
-      )}
+        )}
+      </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-[480px]">
