@@ -17,7 +17,7 @@ const GenerateGoalSuggestionsInputSchema = z.object({
 });
 export type GenerateGoalSuggestionsInput = z.infer<typeof GenerateGoalSuggestionsInputSchema>;
 
-export const SuggestedGoalSchema = z.object({
+const SuggestedGoalSchema = z.object({
     title: z.string().describe('A clear, concise title for the suggested goal.'),
     description: z.string().describe('A brief, motivating description of the goal and why it is relevant to the user.'),
     category: z.enum(['Health', 'Career', 'Personal']).describe('The category for the goal.'),
