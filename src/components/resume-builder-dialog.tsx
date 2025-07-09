@@ -136,7 +136,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
         <DialogHeader>
           <DialogTitle>Resume Details</DialogTitle>
           <DialogDescription>
-            Fill out the form to build your resume. The preview will update when you save.
+            Add your resume details here. This information will help the AI provide better suggestions.
           </DialogDescription>
         </DialogHeader>
         <div className="flex-grow overflow-hidden">
