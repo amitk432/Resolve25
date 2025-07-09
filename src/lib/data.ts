@@ -78,6 +78,7 @@ export const initialData: AppData = {
     ],
     jobApplications: [],
     emergencyFund: '0',
+    emergencyFundTarget: '40000',
     sipStarted: false,
     sipAmount: '',
     sipMutualFund: '',

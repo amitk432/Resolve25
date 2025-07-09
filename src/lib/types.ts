@@ -88,6 +88,7 @@ export interface AppData {
     loans: Loan[];
     jobApplications: JobApplication[];
     emergencyFund: string;
+    emergencyFundTarget: string;
     sipStarted: boolean;
     sipAmount: string;
     sipMutualFund: string;

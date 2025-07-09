@@ -26,12 +26,14 @@ import { Badge } from './ui/badge';
 interface FinanceTabProps {
     loans: Loan[];
     emergencyFund: string;
+    emergencyFundTarget: string;
     sipStarted: boolean;
     sipAmount: string;
     sipMutualFund: string;
     sipPlatform: string;
     onUpdateLoanStatus: (loanId: string, status: LoanStatus) => void;
     onUpdateEmergencyFund: (amount: string) => void;
+    onUpdateEmergencyFundTarget: (target: string) => void;
     onToggleSip: (started: boolean) => void;
     onUpdateSipDetails: (amount: string, mutualFund: string, platform: string) => void;
     onAddLoan: (name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => void;
@@ -138,12 +140,14 @@ const LoanCalculations = ({ loan, onUpdateLoan }: { loan: Loan, onUpdateLoan: Fi
 export default function FinanceTab({ 
     loans, 
     emergencyFund, 
+    emergencyFundTarget,
     sipStarted,
     sipAmount,
     sipMutualFund,
     sipPlatform,
     onUpdateLoanStatus, 
     onUpdateEmergencyFund, 
+    onUpdateEmergencyFundTarget,
     onToggleSip,
     onUpdateSipDetails,
     onAddLoan,
@@ -151,6 +155,7 @@ export default function FinanceTab({
     onDeleteLoan
 }: FinanceTabProps) {
     const [fundInput, setFundInput] = useState(emergencyFund);
+    const [targetInput, setTargetInput] = useState(emergencyFundTarget);
     const [isLoanDialogOpen, setLoanDialogOpen] = useState(false);
     const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
     const { toast } = useToast();
@@ -160,6 +165,14 @@ export default function FinanceTab({
     const [sipFundInput, setSipFundInput] = useState(sipMutualFund);
     const [sipPlatformInput, setSipPlatformInput] = useState(sipPlatform);
     
+    useEffect(() => {
+      setFundInput(emergencyFund);
+    }, [emergencyFund]);
+    
+    useEffect(() => {
+      setTargetInput(emergencyFundTarget);
+    }, [emergencyFundTarget]);
+
     useEffect(() => {
         setSipAmountInput(sipAmount);
         setSipFundInput(sipMutualFund);
@@ -205,11 +218,14 @@ export default function FinanceTab({
         handleDialogChange(false);
     };
 
-    const handleUpdateClick = () => {
+    const handleUpdateFundDetails = () => {
         if (fundInput && !isNaN(parseFloat(fundInput))) {
             onUpdateEmergencyFund(fundInput);
-            toast({ title: 'Emergency Fund Updated!' });
         }
+        if (targetInput && !isNaN(parseFloat(targetInput))) {
+            onUpdateEmergencyFundTarget(targetInput);
+        }
+        toast({ title: 'Emergency Fund Details Updated!' });
     };
 
     const handleSaveSip = () => {
@@ -225,9 +241,9 @@ export default function FinanceTab({
         setIsSipEditing(false);
     };
     
-    const emergencyFundTarget = 40000;
     const emergencyFundCurrent = parseFloat(emergencyFund) || 0;
-    const emergencyFundProgress = Math.min((emergencyFundCurrent / emergencyFundTarget) * 100, 100);
+    const emergencyFundTargetValue = parseFloat(targetInput) || 0;
+    const emergencyFundProgress = emergencyFundTargetValue > 0 ? Math.min((emergencyFundCurrent / emergencyFundTargetValue) * 100, 100) : 0;
 
     return (
         <div>
@@ -236,11 +252,11 @@ export default function FinanceTab({
                 <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4"/> Add Loan</Button>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-                <div className="space-y-4">
-                     <h3 className="text-lg font-semibold">Your Loans</h3>
-                     {loans.length > 0 ? (
-                        loans.map(loan => (
+            <div className="mt-8">
+                <h3 className="text-lg font-semibold mb-4">Your Loans</h3>
+                {loans.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {loans.map(loan => (
                             <Card key={loan.id}>
                                 <CardHeader className="flex flex-row items-start justify-between">
                                     <div>
@@ -300,116 +316,129 @@ export default function FinanceTab({
                                     <LoanCalculations loan={loan} onUpdateLoan={onUpdateLoan} />
                                 </CardContent>
                             </Card>
-                        ))
-                     ) : (
-                        <Card>
-                            <CardContent className="text-center text-muted-foreground p-8">
-                                No loans added yet. Click "Add Loan" to get started.
-                            </CardContent>
-                        </Card>
-                     )}
-                </div>
-                <div>
+                        ))}
+                    </div>
+                 ) : (
                     <Card>
-                        <CardHeader><CardTitle className="text-lg">Investment Growth</CardTitle></CardHeader>
-                        <CardContent className="space-y-6">
-                            <div>
-                                <h4 className="font-medium text-foreground mb-2">Emergency Fund</h4>
-                                <div className="flex justify-between items-baseline mb-1">
-                                    <span className="text-2xl font-bold text-primary">₹{emergencyFundCurrent.toLocaleString('en-IN')}</span>
-                                    <span className="text-sm text-muted-foreground">/ ₹{emergencyFundTarget.toLocaleString('en-IN')}</span>
-                                </div>
-                                <Progress value={emergencyFundProgress} className="h-2" />
-                                <div className="flex items-center mt-4 gap-2">
-                                    <Input 
-                                      type="number" 
-                                      id="emergency-fund-input" 
-                                      value={fundInput}
-                                      onChange={(e) => setFundInput(e.target.value)}
-                                      placeholder="Update amount"
-                                      className="h-9"
-                                    />
-                                    <Button onClick={handleUpdateClick} size="sm">Update</Button>
-                                </div>
-                            </div>
-                            <Separator />
-                            <div>
-                                <div className="flex justify-between items-center">
-                                    <h4 className="font-medium text-foreground">SIP Planner</h4>
-                                    {!isSipEditing && sipStarted && (
-                                        <Button variant="outline" size="sm" onClick={() => setIsSipEditing(true)}>
-                                            <Pencil className="mr-2 h-3 w-3" /> Edit
-                                        </Button>
-                                    )}
-                                </div>
-                                <p className="text-sm text-muted-foreground mt-1">Goal: Start with ₹1,000–₹2,000/month after the car is sold.</p>
-                                <div className="mt-4 bg-muted/50 p-4 rounded-lg space-y-4">
-                                    <div className="flex items-center">
-                                        <Checkbox
-                                          id="sip-check"
-                                          className="mr-3"
-                                          checked={sipStarted}
-                                          onCheckedChange={(checked) => {
-                                              onToggleSip(!!checked);
-                                              if (!checked) setIsSipEditing(false);
-                                            }}
-                                         />
-                                        <label htmlFor="sip-check" className={cn("text-sm font-medium", sipStarted && "line-through text-muted-foreground")}>
-                                            I have started my first SIP
-                                        </label>
-                                    </div>
-
-                                    {sipStarted && (
-                                        isSipEditing ? (
-                                            <div className="space-y-4 pt-2">
-                                                <div className="space-y-1">
-                                                    <Label htmlFor="sip-amount" className="text-xs">Monthly Amount (₹)</Label>
-                                                    <Input id="sip-amount" type="number" value={sipAmountInput} onChange={(e) => setSipAmountInput(e.target.value)} placeholder="e.g., 2000" className="h-9" />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <Label htmlFor="sip-fund" className="text-xs">Mutual Fund Name</Label>
-                                                    <Input id="sip-fund" value={sipFundInput} onChange={(e) => setSipFundInput(e.target.value)} placeholder="e.g., Parag Parikh Flexi Cap" className="h-9" />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <Label htmlFor="sip-platform" className="text-xs">Investment Platform</Label>
-                                                    <Input id="sip-platform" value={sipPlatformInput} onChange={(e) => setSipPlatformInput(e.target.value)} placeholder="e.g., Groww, Zerodha Coin" className="h-9" />
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <Button onClick={handleSaveSip} size="sm">Save</Button>
-                                                    <Button variant="ghost" size="sm" onClick={handleCancelSipEdit}>Cancel</Button>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="space-y-3 text-sm pt-2">
-                                                { (sipAmount || sipMutualFund || sipPlatform) ? (
-                                                    <>
-                                                        <div className="flex justify-between">
-                                                            <span className="text-muted-foreground">Monthly Amount:</span>
-                                                            <span className="font-medium">₹{parseFloat(sipAmount || '0').toLocaleString('en-IN')}</span>
-                                                        </div>
-                                                        <div className="flex justify-between">
-                                                            <span className="text-muted-foreground">Fund Name:</span>
-                                                            <span className="font-medium">{sipMutualFund || 'Not set'}</span>
-                                                        </div>
-                                                        <div className="flex justify-between">
-                                                            <span className="text-muted-foreground">Platform:</span>
-                                                            <span className="font-medium">{sipPlatform || 'Not set'}</span>
-                                                        </div>
-                                                    </>
-                                                ) : (
-                                                     <div className="text-center text-muted-foreground py-2">
-                                                        <p>Click "Edit" to add your SIP details.</p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )
-                                    )}
-                                </div>
-                            </div>
+                        <CardContent className="text-center text-muted-foreground p-8">
+                            No loans added yet. Click "Add Loan" to get started.
                         </CardContent>
                     </Card>
-                </div>
+                 )}
             </div>
+
+            <Card className="mt-8">
+                <CardHeader><CardTitle className="text-lg">Investment Growth</CardTitle></CardHeader>
+                <CardContent className="space-y-6">
+                    <div>
+                        <h4 className="font-medium text-foreground mb-2">Emergency Fund</h4>
+                        <div className="flex justify-between items-baseline mb-1">
+                            <span className="text-2xl font-bold text-primary">₹{emergencyFundCurrent.toLocaleString('en-IN')}</span>
+                            <span className="text-sm text-muted-foreground">/ ₹{emergencyFundTargetValue.toLocaleString('en-IN')}</span>
+                        </div>
+                        <Progress value={emergencyFundProgress} className="h-2" />
+                        <div className="flex items-end mt-4 gap-4">
+                            <div className="flex-1 space-y-1">
+                                <Label htmlFor="emergency-fund-input" className="text-xs">Current Amount (₹)</Label>
+                                <Input 
+                                  type="number" 
+                                  id="emergency-fund-input" 
+                                  value={fundInput}
+                                  onChange={(e) => setFundInput(e.target.value)}
+                                  placeholder="Update amount"
+                                  className="h-9"
+                                />
+                            </div>
+                             <div className="flex-1 space-y-1">
+                                <Label htmlFor="emergency-fund-target-input" className="text-xs">Target Amount (₹)</Label>
+                                <Input 
+                                  type="number" 
+                                  id="emergency-fund-target-input" 
+                                  value={targetInput}
+                                  onChange={(e) => setTargetInput(e.target.value)}
+                                  placeholder="Update target"
+                                  className="h-9"
+                                />
+                            </div>
+                            <Button onClick={handleUpdateFundDetails} size="sm">Update</Button>
+                        </div>
+                    </div>
+                    <Separator />
+                    <div>
+                        <div className="flex justify-between items-center">
+                            <h4 className="font-medium text-foreground">SIP Planner</h4>
+                            {!isSipEditing && sipStarted && (
+                                <Button variant="outline" size="sm" onClick={() => setIsSipEditing(true)}>
+                                    <Pencil className="mr-2 h-3 w-3" /> Edit
+                                </Button>
+                            )}
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">Goal: Start with ₹1,000–₹2,000/month after the car is sold.</p>
+                        <div className="mt-4 bg-muted/50 p-4 rounded-lg space-y-4">
+                            <div className="flex items-center">
+                                <Checkbox
+                                  id="sip-check"
+                                  className="mr-3"
+                                  checked={sipStarted}
+                                  onCheckedChange={(checked) => {
+                                      onToggleSip(!!checked);
+                                      if (!checked) setIsSipEditing(false);
+                                    }}
+                                 />
+                                <label htmlFor="sip-check" className={cn("text-sm font-medium", sipStarted && "line-through text-muted-foreground")}>
+                                    I have started my first SIP
+                                </label>
+                            </div>
+
+                            {sipStarted && (
+                                isSipEditing ? (
+                                    <div className="space-y-4 pt-2">
+                                        <div className="space-y-1">
+                                            <Label htmlFor="sip-amount" className="text-xs">Monthly Amount (₹)</Label>
+                                            <Input id="sip-amount" type="number" value={sipAmountInput} onChange={(e) => setSipAmountInput(e.target.value)} placeholder="e.g., 2000" className="h-9" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label htmlFor="sip-fund" className="text-xs">Mutual Fund Name</Label>
+                                            <Input id="sip-fund" value={sipFundInput} onChange={(e) => setSipFundInput(e.target.value)} placeholder="e.g., Parag Parikh Flexi Cap" className="h-9" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label htmlFor="sip-platform" className="text-xs">Investment Platform</Label>
+                                            <Input id="sip-platform" value={sipPlatformInput} onChange={(e) => setSipPlatformInput(e.target.value)} placeholder="e.g., Groww, Zerodha Coin" className="h-9" />
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Button onClick={handleSaveSip} size="sm">Save</Button>
+                                            <Button variant="ghost" size="sm" onClick={handleCancelSipEdit}>Cancel</Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3 text-sm pt-2">
+                                        { (sipAmount || sipMutualFund || sipPlatform) ? (
+                                            <>
+                                                <div className="flex justify-between">
+                                                    <span className="text-muted-foreground">Monthly Amount:</span>
+                                                    <span className="font-medium">₹{parseFloat(sipAmount || '0').toLocaleString('en-IN')}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-muted-foreground">Fund Name:</span>
+                                                    <span className="font-medium">{sipMutualFund || 'Not set'}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-muted-foreground">Platform:</span>
+                                                    <span className="font-medium">{sipPlatform || 'Not set'}</span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                             <div className="text-center text-muted-foreground py-2">
+                                                <p>Click "Edit" to add your SIP details.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
 
             <Dialog open={isLoanDialogOpen} onOpenChange={handleDialogChange}>
                 <DialogContent>

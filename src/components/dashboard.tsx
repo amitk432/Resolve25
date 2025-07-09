@@ -116,6 +116,12 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         })
     }
     
+    const handleUpdateEmergencyFundTarget = (target: string) => {
+        onUpdate(draft => {
+            draft.emergencyFundTarget = target;
+        });
+    };
+    
     const handleToggleSip = (started: boolean) => {
         onUpdate(draft => {
             draft.sipStarted = started;
@@ -335,12 +341,14 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 <FinanceTab 
                     loans={data.loans} 
                     emergencyFund={data.emergencyFund}
+                    emergencyFundTarget={data.emergencyFundTarget}
                     sipStarted={data.sipStarted}
                     sipAmount={data.sipAmount}
                     sipMutualFund={data.sipMutualFund}
                     sipPlatform={data.sipPlatform}
                     onUpdateLoanStatus={handleUpdateLoanStatus}
                     onUpdateEmergencyFund={handleUpdateEmergencyFund}
+                    onUpdateEmergencyFundTarget={handleUpdateEmergencyFundTarget}
                     onToggleSip={handleToggleSip}
                     onUpdateSipDetails={handleUpdateSipDetails}
                     onAddLoan={handleAddLoan}
