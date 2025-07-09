@@ -42,12 +42,40 @@ Ready to take control of your year? Follow these simple steps:
     *   Get a Google AI API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
     *   Add your API key to your `apphosting.yaml` file and `.env` for local development: `GOOGLE_API_KEY="YOUR_API_KEY"`
 
-5.  **Run the app:**
+5.  **Run the app locally:**
     ```bash
     npm run dev
     ```
 
     Open [http://localhost:9002](http://localhost:9002) in your browser and start resolving!
+
+## ☁️ Deployment
+
+This application is configured for deployment with **Firebase App Hosting**.
+
+1.  **Install the Firebase CLI:** If you don't have it installed, run this command in your terminal:
+    ```bash
+    npm install -g firebase-tools
+    ```
+
+2.  **Log in to Firebase:**
+    ```bash
+    firebase login
+    ```
+    This will open a browser window for you to sign in with your Google account.
+
+3.  **Connect your project:** If you haven't already, link your local directory to your Firebase project:
+    ```bash
+    firebase use --add
+    ```
+    Then select the Firebase project you created earlier.
+
+4.  **Deploy!** Run the following command to build and deploy your application:
+    ```bash
+    firebase deploy
+    ```
+
+After a few moments, the CLI will provide you with the URL of your live application.
 
 ## 🛠️ Tech Stack
 
