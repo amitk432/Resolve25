@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow that generates personalized daily task suggestions based on user data.
@@ -26,7 +27,7 @@ const SuggestedTaskSchema = z.object({
 export type SuggestedTask = z.infer<typeof SuggestedTaskSchema>;
 
 const GenerateTaskSuggestionsOutputSchema = z.object({
-  suggestions: z.array(SuggestedTaskSchema).describe('A list of 2-3 personalized daily task suggestions.'),
+  suggestions: z.array(SuggestedTaskSchema).describe('A list of 3-5 personalized daily task suggestions.'),
 });
 export type GenerateTaskSuggestionsOutput = z.infer<typeof GenerateTaskSuggestionsOutputSchema>;
 
@@ -43,7 +44,7 @@ const prompt = ai.definePrompt({
       })
     },
   output: {schema: GenerateTaskSuggestionsOutputSchema},
-  prompt: `You are a productivity coach AI. Your task is to suggest 2-3 specific, actionable daily tasks for the user based on their overall dashboard data. The goal is to help them make progress on their larger goals.
+  prompt: `You are a productivity coach AI. Your task is to suggest 3-5 specific, actionable daily tasks for the user based on their overall dashboard data. The goal is to help them make progress on their larger goals.
 
 The current date is {{currentDate}}. The tasks you suggest should be for today.
 
@@ -53,7 +54,7 @@ Analyze the user's data, focusing on:
 - **Financials:** If they have a goal to build an emergency fund but haven't started, suggest a task like "Research and open a high-yield savings account".
 - **Existing Daily Tasks:** Avoid suggesting tasks that are already on their to-do list for today.
 
-Based on your analysis, generate 2-3 highly relevant daily tasks. For each task, provide a clear title, a brief description of its relevance, a suitable category ('Work', 'Personal', or 'Errands'), and a priority ('Low', 'Medium', 'High').
+Based on your analysis, generate 3-5 highly relevant daily tasks. For each task, provide a clear title, a brief description of its relevance, a suitable category ('Work', 'Personal', or 'Errands'), and a priority ('Low', 'Medium', 'High').
 
 **User's Data Context:**
 \`\`\`json

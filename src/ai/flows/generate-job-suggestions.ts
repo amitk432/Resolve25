@@ -32,7 +32,7 @@ const SuggestedJobApplicationSchema = z.object({
 export type SuggestedJobApplication = z.infer<typeof SuggestedJobApplicationSchema>;
 
 const GenerateJobSuggestionsOutputSchema = z.object({
-  suggestions: z.array(SuggestedJobApplicationSchema).describe('A list of 3-5 relevant job suggestions.'),
+  suggestions: z.array(SuggestedJobApplicationSchema).describe('A list of 5-7 relevant job suggestions.'),
 });
 export type GenerateJobSuggestionsOutput = z.infer<typeof GenerateJobSuggestionsOutputSchema>;
 
@@ -50,7 +50,7 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateJobSuggestionsOutputSchema},
   prompt: `You are an expert career advisor and recruitment specialist. Your task is to analyze the user's resume and suggest highly relevant job opportunities.
 
-Analyze the user's work experience (especially roles and responsibilities) and their skills. Based on this, generate 3-5 realistic and suitable job suggestions.
+Analyze the user's work experience (especially roles and responsibilities) and their skills. Based on this, generate 5-7 realistic and suitable job suggestions.
 
 For each suggestion, provide:
 1.  **Company Name:** A plausible, well-known company in the relevant industry.

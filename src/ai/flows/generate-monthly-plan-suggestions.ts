@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow that generates personalized monthly plan suggestions.
@@ -25,7 +26,7 @@ const SuggestedMonthlyPlanSchema = z.object({
 export type SuggestedMonthlyPlan = z.infer<typeof SuggestedMonthlyPlanSchema>;
 
 const GenerateMonthlyPlanSuggestionsOutputSchema = z.object({
-  suggestions: z.array(SuggestedMonthlyPlanSchema).describe('A list of 1-2 new monthly plan suggestions.'),
+  suggestions: z.array(SuggestedMonthlyPlanSchema).describe('A list of 2-3 new monthly plan suggestions.'),
 });
 export type GenerateMonthlyPlanSuggestionsOutput = z.infer<typeof GenerateMonthlyPlanSuggestionsOutputSchema>;
 
@@ -48,7 +49,7 @@ The current date is {{currentDate}}.
 
 Analyze the user's data, focusing on their goals, job search, and financial situation. Identify the next logical upcoming month that is not already in their plan.
 
-Based on your analysis, generate 1-2 suggestions for a new monthly plan. Each plan should be for a future month not already present in the user's \`monthlyPlan\` data. Each plan must include:
+Based on your analysis, generate 2-3 suggestions for a new monthly plan. Each plan should be for a future month not already present in the user's \`monthlyPlan\` data. Each plan must include:
 1. A month and year (e.g., "September 2025").
 2. An inspiring theme for that month.
 3. A list of 2-3 specific, actionable tasks that help the user make progress on their main goals.

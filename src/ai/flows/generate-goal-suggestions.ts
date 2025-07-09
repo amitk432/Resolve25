@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow that generates personalized goal suggestions based on user data.
@@ -26,7 +27,7 @@ const SuggestedGoalSchema = z.object({
 export type SuggestedGoal = z.infer<typeof SuggestedGoalSchema>;
 
 const GenerateGoalSuggestionsOutputSchema = z.object({
-  suggestions: z.array(SuggestedGoalSchema).describe('A list of 2-3 personalized goal suggestions.'),
+  suggestions: z.array(SuggestedGoalSchema).describe('A list of 3-5 personalized goal suggestions.'),
 });
 export type GenerateGoalSuggestionsOutput = z.infer<typeof GenerateGoalSuggestionsOutputSchema>;
 
@@ -56,7 +57,7 @@ Analyze all sections of the user's data, including their existing goals, finance
 - **Monthly Plan/Daily-Todo:** Are they consistently missing tasks in a certain area? This could indicate a need for a new goal to address the root cause.
 - **Travel:** If they have planned trips, suggest a goal like "Learn Basic Phrases in [Language of Destination]".
 
-Based on your analysis, generate 2-3 new, distinct, and highly relevant goal suggestions. Do not suggest goals they already have. For each suggestion, provide a clear title, a motivating description, a suitable category ('Health', 'Career', or 'Personal'), and 2-3 concrete initial steps to get them started.
+Based on your analysis, generate 3-5 new, distinct, and highly relevant goal suggestions. Do not suggest goals they already have. For each suggestion, provide a clear title, a motivating description, a suitable category ('Health', 'Career', or 'Personal'), and 2-3 concrete initial steps to get them started.
 
 **User's Data Context:**
 \`\`\`json
