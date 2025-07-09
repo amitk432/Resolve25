@@ -28,3 +28,5 @@ env:
     value: "952241091470"
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
     value: "1:952241091470:web:3958e7a92db164ddd5aadf"
+  - variable: GOOGLE_API_KEY
+    value: "AIzaSyALUFXWH9rJlAuIfDqO6MrrsmIBU_9Yskg"
