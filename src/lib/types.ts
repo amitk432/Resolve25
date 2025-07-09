@@ -94,7 +94,6 @@ export interface AppData {
     jobApplications: JobApplication[];
     emergencyFund: string;
     emergencyFundTarget: string;
-    sipStarted: boolean;
     sipAmount: string;
     sipMutualFund: string;
     sipPlatform: string;
@@ -102,3 +101,5 @@ export interface AppData {
     dailyTasks: DailyTask[];
     incomeSources: IncomeSource[];
 }
+
+    

@@ -122,12 +122,6 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         });
     };
     
-    const handleToggleSip = (started: boolean) => {
-        onUpdate(draft => {
-            draft.sipStarted = started;
-        })
-    }
-
     const handleUpdateSipDetails = (amount: string, mutualFund: string, platform: string) => {
         onUpdate(draft => {
             draft.sipAmount = amount;
@@ -363,7 +357,6 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     loans={data.loans} 
                     emergencyFund={data.emergencyFund}
                     emergencyFundTarget={data.emergencyFundTarget}
-                    sipStarted={data.sipStarted}
                     sipAmount={data.sipAmount}
                     sipMutualFund={data.sipMutualFund}
                     sipPlatform={data.sipPlatform}
@@ -371,7 +364,6 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onUpdateLoanStatus={handleUpdateLoanStatus}
                     onUpdateEmergencyFund={handleUpdateEmergencyFund}
                     onUpdateEmergencyFundTarget={handleUpdateEmergencyFundTarget}
-                    onToggleSip={handleToggleSip}
                     onUpdateSipDetails={handleUpdateSipDetails}
                     onAddLoan={handleAddLoan}
                     onUpdateLoan={handleUpdateLoan}
@@ -403,3 +395,5 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     </>
   );
 }
+
+    
