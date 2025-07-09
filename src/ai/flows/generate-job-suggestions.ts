@@ -27,7 +27,7 @@ const SuggestedJobApplicationSchema = z.object({
     keyResponsibilities: z.array(z.string()).optional().describe('A list of 2-3 key responsibilities for this role.'),
     requiredSkills: z.array(z.string()).optional().describe('A list of 2-3 essential skills required for the job.'),
     reasoning: z.string().describe('A brief explanation (1-2 sentences) of why this job is a good fit for the user based on their resume.'),
-    applyLink: z.string().url().optional().describe('A plausible URL to the job application page. e.g., "https://careers.company.com/jobs/123"'),
+    applyLink: z.string().optional().describe('A plausible URL to the job application page. e.g., "https://careers.company.com/jobs/123"'),
 });
 export type SuggestedJobApplication = z.infer<typeof SuggestedJobApplicationSchema>;
 
