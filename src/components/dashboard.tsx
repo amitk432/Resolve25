@@ -77,7 +77,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         })
     }
     
-    const handleAddLoan = (name: string, principal: string, rate?: string, tenure?: string) => {
+    const handleAddLoan = (name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => {
         onUpdate(draft => {
             draft.loans.push({
                 id: `loan-${Date.now()}-${Math.random()}`,
@@ -85,12 +85,13 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 principal,
                 rate,
                 tenure,
+                emisPaid,
                 status: 'Active'
             });
         });
     };
 
-    const handleUpdateLoan = (id: string, name: string, principal: string, rate?: string, tenure?: string) => {
+    const handleUpdateLoan = (id: string, name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => {
         onUpdate(draft => {
             const loan = draft.loans.find(l => l.id === id);
             if (loan) {
@@ -98,6 +99,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 loan.principal = principal;
                 loan.rate = rate;
                 loan.tenure = tenure;
+                loan.emisPaid = emisPaid;
             }
         });
     };

@@ -34,8 +34,8 @@ interface FinanceTabProps {
     onUpdateEmergencyFund: (amount: string) => void;
     onToggleSip: (started: boolean) => void;
     onUpdateSipDetails: (amount: string, mutualFund: string, platform: string) => void;
-    onAddLoan: (name: string, principal: string, rate?: string, tenure?: string) => void;
-    onUpdateLoan: (id: string, name: string, principal: string, rate?: string, tenure?: string) => void;
+    onAddLoan: (name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => void;
+    onUpdateLoan: (id: string, name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => void;
     onDeleteLoan: (id: string) => void;
 }
 
@@ -44,50 +44,95 @@ const loanSchema = z.object({
   principal: z.string().min(1, { message: 'Principal amount is required.' }),
   rate: z.string().optional(),
   tenure: z.string().optional(),
+  emisPaid: z.string().optional(),
 });
 
-const LoanCalculations = ({ loan }: { loan: Loan }) => {
+const LoanCalculations = ({ loan, onUpdateLoan }: { loan: Loan, onUpdateLoan: FinanceTabProps['onUpdateLoan'] }) => {
+    const { toast } = useToast();
+    const [emisPaidInput, setEmisPaidInput] = useState(loan.emisPaid || '0');
+
+    useEffect(() => {
+        setEmisPaidInput(loan.emisPaid || '0');
+    }, [loan.emisPaid]);
+
     const p = parseFloat(loan.principal);
     const r = loan.rate ? parseFloat(loan.rate) / 100 / 12 : undefined;
     const n = loan.tenure ? parseInt(loan.tenure, 10) : undefined;
-
+    const paidCount = emisPaidInput ? parseInt(emisPaidInput, 10) : 0;
+    
+    let emi = 0;
     if (p > 0 && r !== undefined && r > 0 && n !== undefined && n > 0) {
-        const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-        const totalPayable = emi * n;
-        const totalInterest = totalPayable - p;
-        
-        return (
-            <div className="space-y-2 mt-4 pt-4 border-t">
-                <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">EMI</span>
-                    <span className="font-medium">₹{emi.toLocaleString('en-IN', { maximumFractionDigits: 0 })} / month</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Total Interest</span>
-                    <span className="font-medium text-destructive">₹{totalInterest.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Total Payable</span>
-                    <span className="font-medium">₹{totalPayable.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
-                </div>
-            </div>
-        );
+        emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
     }
+    const totalPayable = emi * (n || 0);
+    const totalInterest = totalPayable > 0 ? totalPayable - p : 0;
+    
+    const remainingEmis = (n || 0) - paidCount;
+    const remainingAmount = emi * remainingEmis;
+    const emiProgress = (n || 0) > 0 ? (paidCount / (n || 1)) * 100 : 0;
 
-    if (p > 0 && r !== undefined && r > 0 && (n === undefined || n <= 0)) {
-        const monthlyInterest = p * r;
-        return (
-            <div className="space-y-2 mt-4 pt-4 border-t">
+    const handleUpdateEmis = () => {
+        if(n !== undefined && parseInt(emisPaidInput, 10) > n) {
+            toast({ variant: 'destructive', title: 'Invalid Input', description: 'EMIs paid cannot be more than total tenure.' });
+            return;
+        }
+        onUpdateLoan(loan.id, loan.name, loan.principal, loan.rate, loan.tenure, emisPaidInput);
+        toast({ title: 'EMI Status Updated' });
+    }
+        
+    return (
+        <div className="space-y-2 mt-4 pt-4 border-t">
+            {emi > 0 && n !== undefined && n > 0 ? (
+                <>
+                    <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">EMI</span>
+                        <span className="font-medium">₹{emi.toLocaleString('en-IN', { maximumFractionDigits: 0 })} / month</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Total Interest</span>
+                        <span className="font-medium text-destructive">₹{totalInterest.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Total Payable</span>
+                        <span className="font-medium">₹{totalPayable.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                    </div>
+
+                    <div className="space-y-3 mt-4 pt-4 border-t">
+                        <Label>EMI Repayment Progress</Label>
+                        <Progress value={emiProgress} />
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>{paidCount} / {n} EMIs Paid</span>
+                            <span>{Math.round(emiProgress)}% Complete</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Remaining Amount Payable</span>
+                            <span className="font-medium">₹{remainingAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                           <Label htmlFor={`emis-paid-${loan.id}`} className="text-sm whitespace-nowrap">Update EMIs Paid:</Label>
+                           <Input
+                               id={`emis-paid-${loan.id}`}
+                               type="number"
+                               value={emisPaidInput}
+                               onChange={(e) => setEmisPaidInput(e.target.value)}
+                               max={n}
+                               min={0}
+                               className="h-9"
+                            />
+                           <Button size="sm" onClick={handleUpdateEmis}>Update</Button>
+                        </div>
+                    </div>
+                </>
+            ) : p > 0 && r !== undefined && r > 0 ? (
                 <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Simple Monthly Interest</span>
-                    <span className="font-medium">₹{monthlyInterest.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                    <span className="font-medium">₹{(p * r).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                 </div>
-                 <p className="text-xs text-center text-muted-foreground pt-2">Enter a tenure to calculate EMI and total payments.</p>
-            </div>
-        )
-    }
-
-    return <p className="text-xs text-center text-muted-foreground pt-4 mt-4 border-t">Enter a valid rate and tenure to see calculations.</p>;
+            ) : (
+                 <p className="text-xs text-center text-muted-foreground pt-2">Enter a valid rate and tenure to see calculations.</p>
+            )}
+        </div>
+    );
 };
 
 export default function FinanceTab({ 
@@ -123,15 +168,15 @@ export default function FinanceTab({
 
     const form = useForm<z.infer<typeof loanSchema>>({
         resolver: zodResolver(loanSchema),
-        defaultValues: { name: '', principal: '', rate: '', tenure: '' },
+        defaultValues: { name: '', principal: '', rate: '', tenure: '', emisPaid: '' },
     });
 
     const handleOpenDialog = (loan: Loan | null) => {
         setEditingLoan(loan);
         if (loan) {
-            form.reset({ name: loan.name, principal: loan.principal, rate: loan.rate, tenure: loan.tenure });
+            form.reset({ name: loan.name, principal: loan.principal, rate: loan.rate, tenure: loan.tenure, emisPaid: loan.emisPaid });
         } else {
-            form.reset({ name: '', principal: '', rate: '', tenure: '' });
+            form.reset({ name: '', principal: '', rate: '', tenure: '', emisPaid: '0' });
         }
         setLoanDialogOpen(true);
     };
@@ -145,10 +190,10 @@ export default function FinanceTab({
 
     const onSubmit = (values: z.infer<typeof loanSchema>) => {
         if (editingLoan) {
-            onUpdateLoan(editingLoan.id, values.name, values.principal, values.rate, values.tenure);
+            onUpdateLoan(editingLoan.id, values.name, values.principal, values.rate, values.tenure, values.emisPaid);
             toast({ title: 'Loan Updated!', description: `"${values.name}" has been updated.` });
         } else {
-            onAddLoan(values.name, values.principal, values.rate, values.tenure);
+            onAddLoan(values.name, values.principal, values.rate, values.tenure, values.emisPaid);
             toast({ title: 'Loan Added!', description: `"${values.name}" has been added to your list.` });
         }
         handleDialogChange(false);
@@ -246,7 +291,7 @@ export default function FinanceTab({
                                             <span className="font-medium">{loan.tenure || 'N/A'} months</span>
                                         </div>
                                     </div>
-                                    <LoanCalculations loan={loan} />
+                                    <LoanCalculations loan={loan} onUpdateLoan={onUpdateLoan} />
                                 </CardContent>
                             </Card>
                         ))
@@ -424,6 +469,19 @@ export default function FinanceTab({
                                     )}
                                 />
                             </div>
+                             <FormField
+                                control={form.control}
+                                name="emisPaid"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>EMIs Already Paid (Optional)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" placeholder="e.g., 6" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <DialogFooter>
                                 <Button type="button" variant="outline" onClick={() => handleDialogChange(false)}>Cancel</Button>
                                 <Button type="submit">{editingLoan ? 'Save Changes' : 'Add Loan'}</Button>

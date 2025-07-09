@@ -41,6 +41,7 @@ export interface Loan {
     principal: string;
     rate?: string; // Annual interest rate in %
     tenure?: string; // Tenure in months
+    emisPaid?: string; // Number of EMIs already paid
     status: LoanStatus;
 }
 

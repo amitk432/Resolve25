@@ -73,8 +73,8 @@ export const initialData: AppData = {
     carSalePrice: '500000',
     carLoanPayoff: '400000',
     loans: [
-        { id: 'loan-1', name: 'Car Loan', principal: '400000', rate: '9.5', tenure: '48', status: 'Active' },
-        { id: 'loan-2', name: 'Personal Loan', principal: '50000', rate: '14', tenure: '24', status: 'Active' },
+        { id: 'loan-1', name: 'Car Loan', principal: '400000', rate: '9.5', tenure: '48', emisPaid: '12', status: 'Active' },
+        { id: 'loan-2', name: 'Personal Loan', principal: '50000', rate: '14', tenure: '24', emisPaid: '6', status: 'Active' },
     ],
     jobApplications: [],
     emergencyFund: '0',
