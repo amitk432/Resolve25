@@ -1,9 +1,11 @@
+
 'use client'
 
 import type { AppData, Goal } from '@/lib/types';
 import AddGoalDialog from './add-goal-dialog';
 import GoalCard from './goal-card';
 import { Target } from 'lucide-react';
+import AiTipsDialog from './ai-tips-dialog';
 
 interface GoalsTabProps {
     goals: Goal[];
@@ -59,8 +61,8 @@ export default function GoalsTab({ goals, onUpdate }: GoalsTabProps) {
     
     return (
         <div className="space-y-8">
-            <div className="flex justify-center items-center gap-4">
-                <h2 className="text-xl font-bold text-foreground">Your Goals for 2025</h2>
+            <div className="text-center">
+                <h2 className="text-xl font-bold text-foreground mb-2">Your Goals for 2025</h2>
                 <AddGoalDialog onGoalAdd={handleGoalAdd} />
             </div>
             

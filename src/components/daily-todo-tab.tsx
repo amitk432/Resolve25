@@ -181,9 +181,9 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
 
   return (
     <div>
-      <div className="flex justify-center items-center mb-6 gap-4">
+      <div className="text-center mb-6">
         <h2 className="text-xl font-bold text-foreground">Daily To-Do List</h2>
-        <Button onClick={() => handleOpenDialog(null)}>
+        <Button className="mt-2" onClick={() => handleOpenDialog(null)}>
           <Plus className="mr-2 h-4 w-4" /> Add Task
         </Button>
       </div>
