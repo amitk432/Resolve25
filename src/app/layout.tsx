@@ -29,7 +29,7 @@ export default function RootLayout({
         </AuthProvider>
         <Toaster />
         <footer className="border-t p-4 text-center text-sm text-muted-foreground">
-          Made by <span className="font-bold text-primary">AmiT</span> with <span className="text-destructive">❤️</span>
+          Resolve25
         </footer>
       </body>
     </html>

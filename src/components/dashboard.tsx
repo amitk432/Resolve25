@@ -234,7 +234,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
 
     // Travel Goal handlers
     const handleAddTravelGoal = (goal: Omit<TravelGoal, 'id' | 'image'> & { travelDate: Date | null }) => {
-        const imageUrl = 'https://placehold.co/400x250.png';
+        const imageUrl = `https://placehold.co/400x250.png`;
         onUpdate((draft) => {
           draft.travelGoals.push({
             id: `travel-${Date.now()}`,
@@ -298,7 +298,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-card shadow-lg">
       <header className="flex flex-col items-center gap-4 bg-primary p-4 text-center text-primary-foreground sm:flex-row sm:justify-between sm:p-6 sm:text-left">
         <div>
-            <h1 className="text-2xl font-bold md:text-3xl">Personalized Action Plan: 2025</h1>
+            <h1 className="text-2xl font-bold md:text-3xl">Resolve25</h1>
             <p className="mt-1 text-muted-foreground">Your interactive dashboard to track career, financial, and skill goals.</p>
         </div>
         {user && (
@@ -401,7 +401,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     sips={data.sips}
                     incomeSources={data.incomeSources}
                     onUpdateLoanStatus={handleUpdateLoanStatus}
-                    onUpdateEmergencyFund={handleUpdateEmergencyFund}
+                    onUpdateEmergencyFund={onUpdateEmergencyFund}
                     onUpdateEmergencyFundTarget={handleUpdateEmergencyFundTarget}
                     onAddSip={handleAddSip}
                     onUpdateSip={handleUpdateSip}
