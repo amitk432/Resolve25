@@ -13,13 +13,16 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Trash2, Plus, FileText, Download, Sparkles, ChevronDown, Clock, IndianRupee, Star, ListChecks, LinkIcon, MapPin } from 'lucide-react';
+import { Trash2, Plus, FileText, Download, Sparkles, ChevronDown, Clock, IndianRupee, Star, ListChecks, LinkIcon, MapPin, Rocket } from 'lucide-react';
 import AiSuggestionSection from './ai-suggestion-section';
 import ResumeBuilderDialog from './resume-builder-dialog';
 import ResumeTemplate from './resume-template';
 import html2canvas from 'html2canvas';
 import jspdf from 'jspdf';
 import AiJobSuggestionDialog from './ai-job-suggestion-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import { Badge } from './ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 interface JobSearchTabProps {
     applications: JobApplication[];
@@ -41,6 +44,7 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
     const [isDialogOpen, setDialogOpen] = useState(false);
     const resumeRef = useRef<HTMLDivElement>(null);
     const [expandedRow, setExpandedRow] = useState<number | null>(null);
+    const { toast } = useToast();
 
     const form = useForm<z.infer<typeof appSchema>>({
         resolver: zodResolver(appSchema),
@@ -98,6 +102,19 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
             pdf.save(`${resumeName.replace(/\s+/g, '_')}.pdf`);
         });
     };
+
+    const handleMarkAsApplied = (index: number) => {
+        onUpdate(draft => {
+            const app = draft.jobApplications[index];
+            app.status = 'Applied';
+            app.date = new Date().toISOString();
+        });
+        toast({
+            title: "Application Marked as Applied!",
+            description: "Good luck! You can now update its status from the dropdown."
+        });
+    };
+
 
     return (
         <div>
@@ -173,10 +190,9 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                         <TableRow>
                             <TableHead className="w-12"></TableHead>
                             <TableHead>Company</TableHead>
-                            <TableHead>Date Applied</TableHead>
                             <TableHead>Role</TableHead>
+                            <TableHead>Date Applied</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead className="text-center">Apply Link</TableHead>
                             <TableHead className="text-center">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -202,37 +218,65 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                                                 {app.company}
                                             </div>
                                         </TableCell>
-                                        <TableCell>{format(parseISO(app.date), 'dd-MMMM-yyyy')}</TableCell>
                                         <TableCell>{app.role}</TableCell>
                                         <TableCell>
-                                             <Select value={app.status} onValueChange={(value: JobStatus) => onUpdateStatus(index, value)}>
-                                                <SelectTrigger className="w-[150px]">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="Need to Apply">Need to Apply</SelectItem>
-                                                    <SelectItem value="Applied">Applied</SelectItem>
-                                                    <SelectItem value="Interviewing">Interviewing</SelectItem>
-                                                    <SelectItem value="Offer">Offer</SelectItem>
-                                                    <SelectItem value="Rejected">Rejected</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </TableCell>
-                                        <TableCell className="text-center">
-                                            {app.applyLink ? (
-                                                <Button asChild variant="outline" size="icon" className="h-8 w-8">
-                                                    <a href={app.applyLink} target="_blank" rel="noopener noreferrer">
-                                                        <LinkIcon className="h-4 w-4" />
-                                                    </a>
-                                                </Button>
+                                            {app.status === 'Need to Apply' ? (
+                                                <span className="text-muted-foreground italic">Pending</span>
                                             ) : (
-                                                <span className="text-muted-foreground">-</span>
+                                                format(parseISO(app.date), 'dd-MMMM-yyyy')
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {app.status === 'Need to Apply' ? (
+                                                <Badge variant="outline">Need to Apply</Badge>
+                                            ) : (
+                                                <Select value={app.status} onValueChange={(value: JobStatus) => onUpdateStatus(index, value)}>
+                                                    <SelectTrigger className="w-[150px]">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Applied">Applied</SelectItem>
+                                                        <SelectItem value="Interviewing">Interviewing</SelectItem>
+                                                        <SelectItem value="Offer">Offer</SelectItem>
+                                                        <SelectItem value="Rejected">Rejected</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
                                             )}
                                         </TableCell>
                                         <TableCell className="text-center">
-                                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => onDelete(index)}>
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
+                                            <div className="flex items-center justify-center gap-1">
+                                                {app.status === 'Need to Apply' && (
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <Button variant="outline" size="sm">
+                                                                <Rocket className="mr-2 h-4 w-4" /> Apply
+                                                            </Button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>Confirm Application</AlertDialogTitle>
+                                                                <AlertDialogDescription>
+                                                                    This will mark the application for the "{app.role}" position at {app.company} as "Applied" with today's date.
+                                                                </AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                <AlertDialogAction onClick={() => handleMarkAsApplied(index)}>Yes, I Applied</AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
+                                                )}
+                                                {app.applyLink && (
+                                                    <Button asChild variant="outline" size="icon" className="h-8 w-8">
+                                                        <a href={app.applyLink} target="_blank" rel="noopener noreferrer">
+                                                            <LinkIcon className="h-4 w-4" />
+                                                        </a>
+                                                    </Button>
+                                                )}
+                                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => onDelete(index)}>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                     {expandedRow === index && (
