@@ -100,6 +100,5 @@ export interface AppData {
     sipPlatform: string;
     travelGoals: TravelGoal[];
     dailyTasks: DailyTask[];
-    sipTotalInvestment: string;
     incomeSources: IncomeSource[];
 }

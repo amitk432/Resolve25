@@ -85,7 +85,6 @@ export const initialData: AppData = {
     sipPlatform: '',
     travelGoals: [],
     dailyTasks: [],
-    sipTotalInvestment: '0',
     incomeSources: [
         { id: 'income-1', name: 'Primary Job', amount: '50000' }
     ],

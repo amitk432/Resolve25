@@ -44,11 +44,9 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
     }, [data]);
 
     const emergencyFundFormatted = useMemo(() => {
-        const manualAmount = parseFloat(data.emergencyFund) || 0;
-        const sipAmount = parseFloat(data.sipTotalInvestment) || 0;
-        const totalAmount = manualAmount + sipAmount;
+        const totalAmount = parseFloat(data.emergencyFund) || 0;
         return isNaN(totalAmount) ? '0' : totalAmount.toLocaleString('en-IN');
-    }, [data.emergencyFund, data.sipTotalInvestment]);
+    }, [data.emergencyFund]);
     
     const emergencyFundTargetFormatted = useMemo(() => {
         const amount = parseFloat(data.emergencyFundTarget);
