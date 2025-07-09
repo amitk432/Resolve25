@@ -17,7 +17,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { BrainCircuit, Sparkles, Loader2, Plus, Briefcase } from 'lucide-react';
+import { BrainCircuit, Sparkles, Loader2, Plus, Briefcase, MapPin, Clock, IndianRupee, ListChecks, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 interface AiJobSuggestionDialogProps {
@@ -66,8 +66,7 @@ export default function AiJobSuggestionDialog({ resumeData, onAddApplication, ch
 
   const handleAddApplication = (job: SuggestedJobApplication) => {
     onAddApplication({
-        company: job.company,
-        role: job.role,
+        ...job,
         source: 'AI'
     });
     toast({
@@ -82,7 +81,7 @@ export default function AiJobSuggestionDialog({ resumeData, onAddApplication, ch
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-3xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BrainCircuit className="text-primary" />
@@ -118,8 +117,34 @@ export default function AiJobSuggestionDialog({ resumeData, onAddApplication, ch
                             </Button>
                         </div>
                     </CardHeader>
-                    <CardContent>
-                        <p className="text-sm text-muted-foreground"><strong className="text-foreground">Why it's a fit:</strong> {job.reasoning}</p>
+                    <CardContent className="space-y-4">
+                        <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1.5"><MapPin className="h-4 w-4"/> {job.location}</div>
+                            <div className="flex items-center gap-1.5"><Clock className="h-4 w-4"/> {job.jobType}</div>
+                            {job.salaryRange && <div className="flex items-center gap-1.5"><IndianRupee className="h-4 w-4"/> {job.salaryRange}</div>}
+                        </div>
+                        <p className="text-sm"><strong className="text-foreground">Why it's a fit:</strong> {job.reasoning}</p>
+                        
+                        {(job.keyResponsibilities || job.requiredSkills) && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                {job.keyResponsibilities && job.keyResponsibilities.length > 0 && (
+                                    <div>
+                                        <h4 className="font-semibold mb-1 flex items-center gap-2"><ListChecks className="h-4 w-4"/> Key Responsibilities</h4>
+                                        <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                                            {job.keyResponsibilities.map((resp, i) => <li key={i}>{resp}</li>)}
+                                        </ul>
+                                    </div>
+                                )}
+                                {job.requiredSkills && job.requiredSkills.length > 0 && (
+                                    <div>
+                                        <h4 className="font-semibold mb-1 flex items-center gap-2"><Star className="h-4 w-4"/> Required Skills</h4>
+                                        <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                                            {job.requiredSkills.map((skill, i) => <li key={i}>{skill}</li>)}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
                 ))}

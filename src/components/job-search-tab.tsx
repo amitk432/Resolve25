@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Trash2, Plus, FileText, Download, Sparkles } from 'lucide-react';
+import { Trash2, Plus, FileText, Download, Sparkles, ChevronDown, Clock, IndianRupee, Star, ListChecks } from 'lucide-react';
 import AiSuggestionSection from './ai-suggestion-section';
 import ResumeBuilderDialog from './resume-builder-dialog';
 import ResumeTemplate from './resume-template';
@@ -39,6 +39,7 @@ const appSchema = z.object({
 export default function JobSearchTab({ applications, onAddApplication, onUpdateStatus, onDelete, data, onUpdate }: JobSearchTabProps) {
     const [isDialogOpen, setDialogOpen] = useState(false);
     const resumeRef = useRef<HTMLDivElement>(null);
+    const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
     const form = useForm<z.infer<typeof appSchema>>({
         resolver: zodResolver(appSchema),
@@ -103,7 +104,7 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
               <h2 className="text-xl font-bold text-foreground">Job Application Tracker</h2>
               <div className="flex items-center gap-2">
                 <AiJobSuggestionDialog resumeData={data.resume} onAddApplication={onAddApplication}>
-                  <Button variant="outline"><Sparkles className="mr-2 h-4 w-4"/> Generate from AI</Button>
+                  <Button variant="outline"><Sparkles className="mr-2 h-4 w-4"/> Generate with AI</Button>
                 </AiJobSuggestionDialog>
                 <ResumeBuilderDialog data={data} onUpdate={onUpdate}>
                     <Button variant="outline"><FileText className="mr-2"/> Add Details</Button>
@@ -158,9 +159,11 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                 <Table>
                     <TableHeader>
                         <TableRow>
+                            <TableHead className="w-12"></TableHead>
                             <TableHead>Company</TableHead>
                             <TableHead>Role</TableHead>
-                            <TableHead>Date Applied</TableHead>
+                            <TableHead>Location</TableHead>
+                            <TableHead>Date Added</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead className="text-center">Actions</TableHead>
                         </TableRow>
@@ -168,38 +171,79 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                     <TableBody>
                         {applications.length === 0 ? (
                              <TableRow>
-                                <TableCell colSpan={5} className="text-center text-muted-foreground">No applications added yet.</TableCell>
+                                <TableCell colSpan={7} className="text-center text-muted-foreground">No applications added yet.</TableCell>
                              </TableRow>
                         ) : (
                             applications.map((app, index) => (
-                                <TableRow key={index}>
-                                    <TableCell className="font-medium">
-                                        <div className="flex items-center gap-2">
-                                            {app.source === 'AI' && <Sparkles className="h-4 w-4 text-primary" />}
-                                            {app.company}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>{app.role}</TableCell>
-                                    <TableCell>{format(parseISO(app.date), 'dd-MMMM-yyyy')}</TableCell>
-                                    <TableCell>
-                                         <Select value={app.status} onValueChange={(value: JobStatus) => onUpdateStatus(index, value)}>
-                                            <SelectTrigger className="w-[130px]">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Applied">Applied</SelectItem>
-                                                <SelectItem value="Interviewing">Interviewing</SelectItem>
-                                                <SelectItem value="Offer">Offer</SelectItem>
-                                                <SelectItem value="Rejected">Rejected</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </TableCell>
-                                    <TableCell className="text-center">
-                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => onDelete(index)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
+                                <React.Fragment key={index}>
+                                    <TableRow>
+                                        <TableCell>
+                                             {(app.keyResponsibilities || app.requiredSkills || app.salaryRange || app.jobType) && (
+                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setExpandedRow(expandedRow === index ? null : index)}>
+                                                    <ChevronDown className={`h-4 w-4 transition-transform ${expandedRow === index ? 'rotate-180' : ''}`} />
+                                                </Button>
+                                             )}
+                                        </TableCell>
+                                        <TableCell className="font-medium">
+                                            <div className="flex items-center gap-2">
+                                                {app.source === 'AI' && <Sparkles className="h-4 w-4 text-primary" />}
+                                                {app.company}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>{app.role}</TableCell>
+                                        <TableCell>{app.location || 'N/A'}</TableCell>
+                                        <TableCell>{format(parseISO(app.date), 'dd-MMMM-yyyy')}</TableCell>
+                                        <TableCell>
+                                             <Select value={app.status} onValueChange={(value: JobStatus) => onUpdateStatus(index, value)}>
+                                                <SelectTrigger className="w-[150px]">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="Need to Apply">Need to Apply</SelectItem>
+                                                    <SelectItem value="Applied">Applied</SelectItem>
+                                                    <SelectItem value="Interviewing">Interviewing</SelectItem>
+                                                    <SelectItem value="Offer">Offer</SelectItem>
+                                                    <SelectItem value="Rejected">Rejected</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => onDelete(index)}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                    {expandedRow === index && (
+                                        <TableRow className="bg-muted/50 hover:bg-muted/50">
+                                            <TableCell colSpan={7} className="p-0">
+                                                <div className="p-4 space-y-4">
+                                                    <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+                                                        {app.jobType && <div className="flex items-center gap-1.5"><Clock className="h-4 w-4"/> {app.jobType}</div>}
+                                                        {app.salaryRange && <div className="flex items-center gap-1.5"><IndianRupee className="h-4 w-4"/> {app.salaryRange}</div>}
+                                                    </div>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                                        {app.keyResponsibilities && app.keyResponsibilities.length > 0 && (
+                                                            <div>
+                                                                <h4 className="font-semibold mb-1 text-foreground flex items-center gap-2"><ListChecks className="h-4 w-4" /> Key Responsibilities</h4>
+                                                                <ul className="list-disc list-inside text-muted-foreground space-y-1 pl-2">
+                                                                    {app.keyResponsibilities.map((resp, i) => <li key={i}>{resp}</li>)}
+                                                                </ul>
+                                                            </div>
+                                                        )}
+                                                        {app.requiredSkills && app.requiredSkills.length > 0 && (
+                                                            <div>
+                                                                <h4 className="font-semibold mb-1 text-foreground flex items-center gap-2"><Star className="h-4 w-4" /> Required Skills</h4>
+                                                                <ul className="list-disc list-inside text-muted-foreground space-y-1 pl-2">
+                                                                    {app.requiredSkills.map((skill, i) => <li key={i}>{skill}</li>)}
+                                                                </ul>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </React.Fragment>
                             ))
                         )}
                     </TableBody>

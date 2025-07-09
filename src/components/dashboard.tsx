@@ -214,7 +214,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         onUpdate(draft => {
             draft.jobApplications.unshift({
                 ...application,
-                status: 'Applied',
+                status: application.source === 'AI' ? 'Need to Apply' : 'Applied',
                 date: new Date().toISOString(),
             });
         });

@@ -46,14 +46,20 @@ export interface Loan {
     lastAutoUpdate?: string; // ISO string to track last EMI increment
 }
 
-export type JobStatus = 'Applied' | 'Interviewing' | 'Offer' | 'Rejected';
+export type JobStatus = 'Need to Apply' | 'Applied' | 'Interviewing' | 'Offer' | 'Rejected';
+export type JobType = 'Full-time' | 'Part-time' | 'Contract' | 'Internship';
 
 export interface JobApplication {
-    date: string; // YYYY-MM-DD
+    date: string; // ISO String
     company: string;
     role: string;
     status: JobStatus;
     source?: 'AI';
+    location?: string;
+    jobType?: JobType;
+    salaryRange?: string;
+    keyResponsibilities?: string[];
+    requiredSkills?: string[];
 }
 
 export type TravelGoalStatus = 'Completed' | 'Planned';

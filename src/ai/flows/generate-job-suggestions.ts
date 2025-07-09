@@ -21,6 +21,11 @@ export type GenerateJobSuggestionsInput = z.infer<typeof GenerateJobSuggestionsI
 const SuggestedJobApplicationSchema = z.object({
     company: z.string().describe('The name of the company hiring.'),
     role: z.string().describe('The job title or role being offered.'),
+    location: z.string().describe('The location of the job, e.g., "Bengaluru, India".'),
+    jobType: z.enum(['Full-time', 'Part-time', 'Contract', 'Internship']).describe('The type of employment.'),
+    salaryRange: z.string().optional().describe('An estimated salary range for the role, e.g., "₹12-15 LPA".'),
+    keyResponsibilities: z.array(z.string()).optional().describe('A list of 2-3 key responsibilities for this role.'),
+    requiredSkills: z.array(z.string()).optional().describe('A list of 2-3 essential skills required for the job.'),
     reasoning: z.string().describe('A brief explanation (1-2 sentences) of why this job is a good fit for the user based on their resume.'),
 });
 export type SuggestedJobApplication = z.infer<typeof SuggestedJobApplicationSchema>;
@@ -49,7 +54,12 @@ Analyze the user's work experience (especially roles and responsibilities) and t
 For each suggestion, provide:
 1.  **Company Name:** A plausible, well-known company in the relevant industry.
 2.  **Job Role:** The specific job title.
-3.  **Reasoning:** A short, 1-2 sentence explanation of why this role is a good match, referencing specific skills or experiences from their resume.
+3.  **Location:** A realistic city for the job (e.g., "Bengaluru, India").
+4.  **Job Type:** The type of employment (Full-time, Part-time, Contract, Internship).
+5.  **Salary Range:** A realistic estimated salary range (e.g., "₹12-15 LPA"). This is optional.
+6.  **Key Responsibilities:** A list of 2-3 key responsibilities. This is optional.
+7.  **Required Skills:** A list of 2-3 crucial skills for the role. This is optional.
+8.  **Reasoning:** A short, 1-2 sentence explanation of why this role is a good match, referencing specific skills or experiences from their resume.
 
 **User's Resume Data:**
 \`\`\`json
