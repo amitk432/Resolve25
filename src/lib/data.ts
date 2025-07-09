@@ -85,4 +85,6 @@ export const initialData: AppData = {
     sipPlatform: '',
     travelGoals: [],
     dailyTasks: [],
+    sipTotalInvestment: '0',
+    monthlyIncome: '50000',
 };

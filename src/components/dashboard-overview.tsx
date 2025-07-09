@@ -1,3 +1,4 @@
+
 'use client'
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -43,9 +44,16 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
     }, [data]);
 
     const emergencyFundFormatted = useMemo(() => {
-        const amount = parseFloat(data.emergencyFund);
+        const manualAmount = parseFloat(data.emergencyFund) || 0;
+        const sipAmount = parseFloat(data.sipTotalInvestment) || 0;
+        const totalAmount = manualAmount + sipAmount;
+        return isNaN(totalAmount) ? '0' : totalAmount.toLocaleString('en-IN');
+    }, [data.emergencyFund, data.sipTotalInvestment]);
+    
+    const emergencyFundTargetFormatted = useMemo(() => {
+        const amount = parseFloat(data.emergencyFundTarget);
         return isNaN(amount) ? '0' : amount.toLocaleString('en-IN');
-    }, [data.emergencyFund]);
+    }, [data.emergencyFundTarget]);
 
     return (
         <div>
@@ -67,7 +75,7 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                     </CardHeader>
                     <CardContent>
                          <p className="text-3xl font-bold text-foreground">₹{emergencyFundFormatted}</p>
-                        <p className="text-sm text-green-600 dark:text-green-500 font-medium">Target: ₹40,000</p>
+                        <p className="text-sm text-green-600 dark:text-green-500 font-medium">Target: ₹{emergencyFundTargetFormatted}</p>
                     </CardContent>
                 </Card>
                 <Card>

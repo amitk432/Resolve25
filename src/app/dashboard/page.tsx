@@ -56,6 +56,8 @@ export default function DashboardPage() {
             completeData.loans = completeData.loans || [];
             completeData.jobApplications = completeData.jobApplications || [];
             completeData.dailyTasks = completeData.dailyTasks || [];
+            completeData.sipTotalInvestment = completeData.sipTotalInvestment || '0';
+            completeData.monthlyIncome = completeData.monthlyIncome || '50000';
             
             setData(completeData as AppData);
           } else {

@@ -121,6 +121,12 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
             draft.emergencyFundTarget = target;
         });
     };
+
+    const handleUpdateSipTotalInvestment = (amount: string) => {
+      onUpdate(draft => {
+          draft.sipTotalInvestment = amount;
+      });
+    };
     
     const handleToggleSip = (started: boolean) => {
         onUpdate(draft => {
@@ -134,6 +140,12 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
             draft.sipMutualFund = mutualFund;
             draft.sipPlatform = platform;
         });
+    };
+
+    const handleUpdateMonthlyIncome = (amount: string) => {
+      onUpdate(draft => {
+          draft.monthlyIncome = amount;
+      });
     };
 
     const handleAddApplication = (company: string, role: string) => {
@@ -346,6 +358,8 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     sipAmount={data.sipAmount}
                     sipMutualFund={data.sipMutualFund}
                     sipPlatform={data.sipPlatform}
+                    sipTotalInvestment={data.sipTotalInvestment || '0'}
+                    monthlyIncome={data.monthlyIncome || '50000'}
                     onUpdateLoanStatus={handleUpdateLoanStatus}
                     onUpdateEmergencyFund={handleUpdateEmergencyFund}
                     onUpdateEmergencyFundTarget={handleUpdateEmergencyFundTarget}
@@ -354,6 +368,8 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onAddLoan={handleAddLoan}
                     onUpdateLoan={handleUpdateLoan}
                     onDeleteLoan={handleDeleteLoan}
+                    onUpdateSipTotalInvestment={handleUpdateSipTotalInvestment}
+                    onUpdateMonthlyIncome={handleUpdateMonthlyIncome}
                 />
             </TabsContent>
             <TabsContent value="job-search">

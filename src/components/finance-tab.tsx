@@ -14,14 +14,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Pencil, Trash2, Plus, BadgeIndianRupee } from 'lucide-react';
+import { Pencil, Trash2, Plus, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import AiSuggestionSection from './ai-suggestion-section';
-import { Badge } from './ui/badge';
 
 interface FinanceTabProps {
     loans: Loan[];
@@ -31,6 +30,8 @@ interface FinanceTabProps {
     sipAmount: string;
     sipMutualFund: string;
     sipPlatform: string;
+    sipTotalInvestment: string;
+    monthlyIncome: string;
     onUpdateLoanStatus: (loanId: string, status: LoanStatus) => void;
     onUpdateEmergencyFund: (amount: string) => void;
     onUpdateEmergencyFundTarget: (target: string) => void;
@@ -39,6 +40,8 @@ interface FinanceTabProps {
     onAddLoan: (name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => void;
     onUpdateLoan: (id: string, name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => void;
     onDeleteLoan: (id: string) => void;
+    onUpdateSipTotalInvestment: (amount: string) => void;
+    onUpdateMonthlyIncome: (amount: string) => void;
 }
 
 const loanSchema = z.object({
@@ -145,6 +148,8 @@ export default function FinanceTab({
     sipAmount,
     sipMutualFund,
     sipPlatform,
+    sipTotalInvestment,
+    monthlyIncome,
     onUpdateLoanStatus, 
     onUpdateEmergencyFund, 
     onUpdateEmergencyFundTarget,
@@ -152,32 +157,13 @@ export default function FinanceTab({
     onUpdateSipDetails,
     onAddLoan,
     onUpdateLoan,
-    onDeleteLoan
+    onDeleteLoan,
+    onUpdateSipTotalInvestment,
+    onUpdateMonthlyIncome
 }: FinanceTabProps) {
-    const [fundInput, setFundInput] = useState(emergencyFund);
-    const [targetInput, setTargetInput] = useState(emergencyFundTarget);
     const [isLoanDialogOpen, setLoanDialogOpen] = useState(false);
     const [editingLoan, setEditingLoan] = useState<Loan | null>(null);
     const { toast } = useToast();
-
-    const [isSipEditing, setIsSipEditing] = useState(false);
-    const [sipAmountInput, setSipAmountInput] = useState(sipAmount);
-    const [sipFundInput, setSipFundInput] = useState(sipMutualFund);
-    const [sipPlatformInput, setSipPlatformInput] = useState(sipPlatform);
-    
-    useEffect(() => {
-      setFundInput(emergencyFund);
-    }, [emergencyFund]);
-    
-    useEffect(() => {
-      setTargetInput(emergencyFundTarget);
-    }, [emergencyFundTarget]);
-
-    useEffect(() => {
-        setSipAmountInput(sipAmount);
-        setSipFundInput(sipMutualFund);
-        setSipPlatformInput(sipPlatform);
-    }, [sipAmount, sipMutualFund, sipPlatform]);
 
     const form = useForm<z.infer<typeof loanSchema>>({
         resolver: zodResolver(loanSchema),
@@ -218,31 +204,8 @@ export default function FinanceTab({
         handleDialogChange(false);
     };
 
-    const handleUpdateFundDetails = () => {
-        onUpdateEmergencyFund(fundInput);
-        onUpdateEmergencyFundTarget(targetInput);
-        toast({ title: 'Emergency Fund Details Updated!' });
-    };
-
-    const handleSaveSip = () => {
-        onUpdateSipDetails(sipAmountInput, sipFundInput, sipPlatformInput);
-        setIsSipEditing(false);
-        toast({ title: "SIP Details Updated!" });
-    };
-
-    const handleCancelSipEdit = () => {
-        setSipAmountInput(sipAmount);
-        setSipFundInput(sipMutualFund);
-        setSipPlatformInput(sipPlatform);
-        setIsSipEditing(false);
-    };
-    
-    const emergencyFundCurrent = parseFloat(emergencyFund) || 0;
-    const emergencyFundTargetValue = parseFloat(emergencyFundTarget) || 0;
-    const emergencyFundProgress = emergencyFundTargetValue > 0 ? Math.min((emergencyFundCurrent / emergencyFundTargetValue) * 100, 100) : 0;
-
     return (
-        <div>
+        <div className="space-y-8">
             <div className="flex justify-center items-center mb-6 gap-4">
                 <h2 className="text-xl font-bold text-foreground">Loan & Investment Tracker</h2>
                 <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4"/> Add Loan</Button>
@@ -323,118 +286,25 @@ export default function FinanceTab({
                  )}
             </div>
 
-            <Card className="mt-8">
-                <CardHeader><CardTitle className="text-lg">Investment Growth</CardTitle></CardHeader>
-                <CardContent className="space-y-6">
-                    <div>
-                        <h4 className="font-medium text-foreground mb-2">Emergency Fund</h4>
-                        <div className="flex justify-between items-baseline mb-1">
-                            <span className="text-2xl font-bold text-primary">₹{emergencyFundCurrent.toLocaleString('en-IN')}</span>
-                            <span className="text-sm text-muted-foreground">/ ₹{emergencyFundTargetValue.toLocaleString('en-IN')}</span>
-                        </div>
-                        <Progress value={emergencyFundProgress} className="h-2" />
-                        <div className="flex items-end mt-4 gap-4">
-                            <div className="flex-1 space-y-1">
-                                <Label htmlFor="emergency-fund-input" className="text-xs">Current Amount (₹)</Label>
-                                <Input 
-                                  type="number" 
-                                  id="emergency-fund-input" 
-                                  value={fundInput}
-                                  onChange={(e) => setFundInput(e.target.value)}
-                                  placeholder="Update amount"
-                                  className="h-9"
-                                />
-                            </div>
-                             <div className="flex-1 space-y-1">
-                                <Label htmlFor="emergency-fund-target-input" className="text-xs">Target Amount (₹)</Label>
-                                <Input 
-                                  type="number" 
-                                  id="emergency-fund-target-input" 
-                                  value={targetInput}
-                                  onChange={(e) => setTargetInput(e.target.value)}
-                                  placeholder="Update target"
-                                  className="h-9"
-                                />
-                            </div>
-                            <Button onClick={handleUpdateFundDetails} size="sm">Update</Button>
-                        </div>
-                    </div>
-                    <Separator />
-                    <div>
-                        <div className="flex justify-between items-center">
-                            <h4 className="font-medium text-foreground">SIP Planner</h4>
-                            {!isSipEditing && sipStarted && (
-                                <Button variant="outline" size="sm" onClick={() => setIsSipEditing(true)}>
-                                    <Pencil className="mr-2 h-3 w-3" /> Edit
-                                </Button>
-                            )}
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-1">Goal: Start with ₹1,000–₹2,000/month after the car is sold.</p>
-                        <div className="mt-4 bg-muted/50 p-4 rounded-lg space-y-4">
-                            <div className="flex items-center">
-                                <Checkbox
-                                  id="sip-check"
-                                  className="mr-3"
-                                  checked={sipStarted}
-                                  onCheckedChange={(checked) => {
-                                      onToggleSip(!!checked);
-                                      if (!checked) setIsSipEditing(false);
-                                    }}
-                                 />
-                                <label htmlFor="sip-check" className={cn("text-sm font-medium", sipStarted && "line-through text-muted-foreground")}>
-                                    I have started my first SIP
-                                </label>
-                            </div>
+            <MonthlyIncomeCard
+                monthlyIncome={monthlyIncome}
+                onUpdateMonthlyIncome={onUpdateMonthlyIncome}
+            />
 
-                            {sipStarted && (
-                                isSipEditing ? (
-                                    <div className="space-y-4 pt-2">
-                                        <div className="space-y-1">
-                                            <Label htmlFor="sip-amount" className="text-xs">Monthly Amount (₹)</Label>
-                                            <Input id="sip-amount" type="number" value={sipAmountInput} onChange={(e) => setSipAmountInput(e.target.value)} placeholder="e.g., 2000" className="h-9" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <Label htmlFor="sip-fund" className="text-xs">Mutual Fund Name</Label>
-                                            <Input id="sip-fund" value={sipFundInput} onChange={(e) => setSipFundInput(e.target.value)} placeholder="e.g., Parag Parikh Flexi Cap" className="h-9" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <Label htmlFor="sip-platform" className="text-xs">Investment Platform</Label>
-                                            <Input id="sip-platform" value={sipPlatformInput} onChange={(e) => setSipPlatformInput(e.target.value)} placeholder="e.g., Groww, Zerodha Coin" className="h-9" />
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <Button onClick={handleSaveSip} size="sm">Save</Button>
-                                            <Button variant="ghost" size="sm" onClick={handleCancelSipEdit}>Cancel</Button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-3 text-sm pt-2">
-                                        { (sipAmount || sipMutualFund || sipPlatform) ? (
-                                            <>
-                                                <div className="flex justify-between">
-                                                    <span className="text-muted-foreground">Monthly Amount:</span>
-                                                    <span className="font-medium">₹{parseFloat(sipAmount || '0').toLocaleString('en-IN')}</span>
-                                                </div>
-                                                <div className="flex justify-between">
-                                                    <span className="text-muted-foreground">Fund Name:</span>
-                                                    <span className="font-medium">{sipMutualFund || 'Not set'}</span>
-                                                </div>
-                                                <div className="flex justify-between">
-                                                    <span className="text-muted-foreground">Platform:</span>
-                                                    <span className="font-medium">{sipPlatform || 'Not set'}</span>
-                                                </div>
-                                            </>
-                                        ) : (
-                                             <div className="text-center text-muted-foreground py-2">
-                                                <p>Click "Edit" to add your SIP details.</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )
-                            )}
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+            <SavingsAndInvestmentsCard
+              emergencyFund={emergencyFund}
+              emergencyFundTarget={emergencyFundTarget}
+              sipStarted={sipStarted}
+              sipAmount={sipAmount}
+              sipMutualFund={sipMutualFund}
+              sipPlatform={sipPlatform}
+              sipTotalInvestment={sipTotalInvestment}
+              onUpdateEmergencyFund={onUpdateEmergencyFund}
+              onUpdateEmergencyFundTarget={onUpdateEmergencyFundTarget}
+              onToggleSip={onToggleSip}
+              onUpdateSipDetails={onUpdateSipDetails}
+              onUpdateSipTotalInvestment={onUpdateSipTotalInvestment}
+            />
 
             <Dialog open={isLoanDialogOpen} onOpenChange={handleDialogChange}>
                 <DialogContent>
@@ -528,5 +398,274 @@ export default function FinanceTab({
                 contextData={{ loans, emergencyFund, sipStarted }}
             />
         </div>
+    )
+}
+
+function MonthlyIncomeCard({ monthlyIncome, onUpdateMonthlyIncome }: { monthlyIncome: string; onUpdateMonthlyIncome: (amount: string) => void; }) {
+    const { toast } = useToast();
+    const [incomeInput, setIncomeInput] = useState(monthlyIncome || '');
+    const [isIncomeVisible, setIsIncomeVisible] = useState(false);
+
+    useEffect(() => {
+        setIncomeInput(monthlyIncome || '');
+    }, [monthlyIncome]);
+
+    const handleUpdate = () => {
+        onUpdateMonthlyIncome(incomeInput);
+        toast({ title: "Monthly income updated!" });
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Monthly Income</CardTitle>
+                <CardDescription>Keep track of your monthly earnings to better manage your budget.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex items-center gap-4">
+                    <div className="flex-grow space-y-1">
+                        <Label htmlFor="monthly-income">Your take-home income (₹)</Label>
+                        <div className="relative">
+                            <Input
+                                id="monthly-income"
+                                type={isIncomeVisible ? 'number' : 'password'}
+                                value={incomeInput}
+                                onChange={(e) => setIncomeInput(e.target.value)}
+                                placeholder="Enter your income"
+                            />
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+                                onClick={() => setIsIncomeVisible(!isIncomeVisible)}
+                            >
+                                {isIncomeVisible ? <EyeOff /> : <Eye />}
+                            </Button>
+                        </div>
+                    </div>
+                    <Button onClick={handleUpdate} className="self-end">Save</Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+function SavingsAndInvestmentsCard({
+    emergencyFund,
+    emergencyFundTarget,
+    sipStarted,
+    sipAmount,
+    sipMutualFund,
+    sipPlatform,
+    sipTotalInvestment,
+    onUpdateEmergencyFund,
+    onUpdateEmergencyFundTarget,
+    onToggleSip,
+    onUpdateSipDetails,
+    onUpdateSipTotalInvestment
+}: Omit<FinanceTabProps, 'loans' | 'monthlyIncome' | 'onUpdateLoanStatus' | 'onAddLoan' | 'onUpdateLoan' | 'onDeleteLoan' | 'onUpdateMonthlyIncome'>) {
+    const { toast } = useToast();
+    
+    // State for local inputs
+    const [manualFundInput, setManualFundInput] = useState(emergencyFund || '');
+    const [sipTotalInput, setSipTotalInput] = useState(sipTotalInvestment || '');
+    const [targetInput, setTargetInput] = useState(emergencyFundTarget || '');
+    const [isSipEditing, setIsSipEditing] = useState(false);
+    const [isTargetEditing, setIsTargetEditing] = useState(false);
+    const [sipAmountInput, setSipAmountInput] = useState(sipAmount);
+    const [sipFundInput, setSipFundInput] = useState(sipMutualFund);
+    const [sipPlatformInput, setSipPlatformInput] = useState(sipPlatform);
+
+    // Sync local state with props
+    useEffect(() => setManualFundInput(emergencyFund || ''), [emergencyFund]);
+    useEffect(() => setSipTotalInput(sipTotalInvestment || ''), [sipTotalInvestment]);
+    useEffect(() => setTargetInput(emergencyFundTarget || ''), [emergencyFundTarget]);
+    useEffect(() => {
+        setSipAmountInput(sipAmount);
+        setSipFundInput(sipMutualFund);
+        setSipPlatformInput(sipPlatform);
+    }, [sipAmount, sipMutualFund, sipPlatform]);
+
+    // Derived values for display and calculations
+    const totalEmergencyFund = useMemo(() => {
+        return (parseFloat(emergencyFund) || 0) + (parseFloat(sipTotalInvestment) || 0);
+    }, [emergencyFund, sipTotalInvestment]);
+
+    const emergencyFundTargetValue = parseFloat(emergencyFundTarget) || 0;
+    const emergencyFundProgress = emergencyFundTargetValue > 0 ? Math.min((totalEmergencyFund / emergencyFundTargetValue) * 100, 100) : 0;
+
+    const handleUpdateSavings = () => {
+        onUpdateEmergencyFund(manualFundInput);
+        onUpdateSipTotalInvestment(sipTotalInput);
+        toast({ title: 'Emergency savings updated!' });
+    };
+
+    const handleUpdateTarget = () => {
+        onUpdateEmergencyFundTarget(targetInput);
+        setIsTargetEditing(false);
+        toast({ title: 'Emergency fund target updated!' });
+    };
+
+    const handleSaveSip = () => {
+        onUpdateSipDetails(sipAmountInput, sipFundInput, sipPlatformInput);
+        setIsSipEditing(false);
+        toast({ title: "SIP Details Updated!" });
+    };
+
+    const handleCancelSipEdit = () => {
+        setSipAmountInput(sipAmount);
+        setSipFundInput(sipMutualFund);
+        setSipPlatformInput(sipPlatform);
+        setIsSipEditing(false);
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Savings & Investments</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div>
+                    <h4 className="font-medium text-foreground mb-2">Emergency Fund</h4>
+                    <div className="p-4 bg-muted/50 rounded-lg space-y-4">
+                        <div className="text-center">
+                            <p className="text-sm text-muted-foreground">Total Emergency Fund</p>
+                            <p className="text-3xl font-bold text-primary">₹{totalEmergencyFund.toLocaleString('en-IN')}</p>
+                        </div>
+                        <Progress value={emergencyFundProgress} className="h-2" />
+                        <div className="flex justify-between items-center text-sm">
+                            <div className="text-muted-foreground">
+                                Target: ₹{emergencyFundTargetValue.toLocaleString('en-IN')}
+                            </div>
+                            <span className="font-semibold">{Math.round(emergencyFundProgress)}% Reached</span>
+                        </div>
+
+                        <Separator />
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <Label htmlFor="manual-fund-input">Current Amount (Manual)</Label>
+                                <Input
+                                    id="manual-fund-input"
+                                    type="number"
+                                    value={manualFundInput}
+                                    onChange={(e) => setManualFundInput(e.target.value)}
+                                    placeholder="e.g., 10000"
+                                />
+                            </div>
+                             <div className="space-y-1">
+                                <Label htmlFor="sip-total-input">Total Investment from SIP</Label>
+                                <Input
+                                    id="sip-total-input"
+                                    type="number"
+                                    value={sipTotalInput}
+                                    onChange={(e) => setSipTotalInput(e.target.value)}
+                                    placeholder="e.g., 5000"
+                                />
+                            </div>
+                        </div>
+                         <Button onClick={handleUpdateSavings} className="w-full">Update Savings</Button>
+                         <div className="space-y-1">
+                            <Label>Fund Target</Label>
+                            {isTargetEditing ? (
+                                <div className="flex items-center gap-2">
+                                     <Input
+                                        type="number"
+                                        value={targetInput}
+                                        onChange={(e) => setTargetInput(e.target.value)}
+                                        placeholder="Set your target"
+                                    />
+                                    <Button onClick={handleUpdateTarget}>Save</Button>
+                                    <Button variant="ghost" onClick={() => setIsTargetEditing(false)}>Cancel</Button>
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-between p-2 h-10 border rounded-md">
+                                    <span className="text-sm">₹{parseFloat(targetInput || '0').toLocaleString('en-IN')}</span>
+                                    <Button variant="outline" size="sm" onClick={() => setIsTargetEditing(true)}>
+                                        <Pencil className="mr-2 h-3 w-3" /> Edit Target
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <Separator />
+                
+                <div>
+                    <div className="flex justify-between items-center">
+                        <h4 className="font-medium text-foreground">SIP Planner</h4>
+                        {!isSipEditing && sipStarted && (
+                            <Button variant="outline" size="sm" onClick={() => setIsSipEditing(true)}>
+                                <Pencil className="mr-2 h-3 w-3" /> Edit
+                            </Button>
+                        )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">Goal: Start with ₹1,000–₹2,000/month after the car is sold.</p>
+                    <div className="mt-4 bg-muted/50 p-4 rounded-lg space-y-4">
+                        <div className="flex items-center">
+                            <Checkbox
+                                id="sip-check"
+                                className="mr-3"
+                                checked={sipStarted}
+                                onCheckedChange={(checked) => {
+                                    onToggleSip(!!checked);
+                                    if (!checked) setIsSipEditing(false);
+                                }}
+                            />
+                            <label htmlFor="sip-check" className={cn("text-sm font-medium", !sipStarted && "text-muted-foreground")}>
+                                I have started my first SIP
+                            </label>
+                        </div>
+
+                        {sipStarted && (
+                            isSipEditing ? (
+                                <div className="space-y-4 pt-2">
+                                    <div className="space-y-1">
+                                        <Label htmlFor="sip-amount" className="text-xs">Monthly Amount (₹)</Label>
+                                        <Input id="sip-amount" type="number" value={sipAmountInput} onChange={(e) => setSipAmountInput(e.target.value)} placeholder="e.g., 2000" className="h-9" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label htmlFor="sip-fund" className="text-xs">Mutual Fund Name</Label>
+                                        <Input id="sip-fund" value={sipFundInput} onChange={(e) => setSipFundInput(e.target.value)} placeholder="e.g., Parag Parikh Flexi Cap" className="h-9" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label htmlFor="sip-platform" className="text-xs">Investment Platform</Label>
+                                        <Input id="sip-platform" value={sipPlatformInput} onChange={(e) => setSipPlatformInput(e.target.value)} placeholder="e.g., Groww, Zerodha Coin" className="h-9" />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Button onClick={handleSaveSip} size="sm">Save</Button>
+                                        <Button variant="ghost" size="sm" onClick={handleCancelSipEdit}>Cancel</Button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-3 text-sm pt-2">
+                                    {(sipAmount || sipMutualFund || sipPlatform) ? (
+                                        <>
+                                            <div className="flex justify-between">
+                                                <span className="text-muted-foreground">Monthly Amount:</span>
+                                                <span className="font-medium">₹{parseFloat(sipAmount || '0').toLocaleString('en-IN')}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-muted-foreground">Fund Name:</span>
+                                                <span className="font-medium">{sipMutualFund || 'Not set'}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-muted-foreground">Platform:</span>
+                                                <span className="font-medium">{sipPlatform || 'Not set'}</span>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="text-center text-muted-foreground py-2">
+                                            <p>Click "Edit" to add your SIP details.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        )}
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
     )
 }
