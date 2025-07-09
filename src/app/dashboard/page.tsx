@@ -7,12 +7,13 @@ import { useAuth } from '@/hooks/use-auth';
 import { doc, getDoc, setDoc, FirestoreError } from 'firebase/firestore';
 import { produce } from 'immer';
 import { db } from '@/lib/firebase';
-import type { AppData } from '@/lib/types';
+import type { AppData, JobStatus } from '@/lib/types';
 import { initialData } from '@/lib/data';
 
 import { Loader2 } from 'lucide-react';
 import Dashboard from '@/components/dashboard';
 import { useToast } from '@/hooks/use-toast';
+import { getAIJobSuggestions } from '@/app/actions';
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -127,11 +128,71 @@ export default function DashboardPage() {
             completeData.incomeSources = completeData.incomeSources && completeData.incomeSources.length > 0
               ? completeData.incomeSources
               : [{ id: 'income-1', name: 'Primary Job', amount: '50000' }];
+            completeData.lastJobSuggestionCheck = completeData.lastJobSuggestionCheck || new Date(0).toISOString();
+
+            let dataForState = completeData;
+
+            // --- START NEW DAILY JOB CHECK ---
+            const now = new Date();
+            const lastCheck = new Date(dataForState.lastJobSuggestionCheck || 0);
+            const today9AM = new Date();
+            today9AM.setHours(9, 0, 0, 0);
+
+            if (now >= today9AM && lastCheck < today9AM && dataForState.resume) {
+                toast({
+                    title: "Finding new jobs for you...",
+                    description: "Our AI is checking for daily job recommendations.",
+                });
+                
+                const suggestionsResult = await getAIJobSuggestions({ resume: dataForState.resume });
+
+                let dataWasUpdated = false;
+                if (suggestionsResult && 'suggestions' in suggestionsResult && suggestionsResult.suggestions.length > 0) {
+                    const newJobs = suggestionsResult.suggestions;
+                    
+                    const updatedDataWithNewJobs = produce(dataForState, draft => {
+                        newJobs.forEach(newJob => {
+                            const exists = draft.jobApplications.some(
+                                j => j.company === newJob.company && j.role === newJob.role
+                            );
+                            if (!exists) {
+                                draft.jobApplications.unshift({
+                                    ...newJob,
+                                    status: 'Need to Apply',
+                                    date: new Date().toISOString(),
+                                });
+                            }
+                        });
+                        draft.lastJobSuggestionCheck = now.toISOString();
+                    });
+                    
+                    dataForState = updatedDataWithNewJobs;
+                    dataWasUpdated = true;
+                    
+                    toast({
+                        title: `Found ${newJobs.length} new job suggestions!`,
+                        description: "They've been added to your Job Search tracker.",
+                        duration: 7000
+                    });
+                } else {
+                    // Even if no jobs are found, update the check time to avoid re-checking today
+                     const updatedDataWithCheckTime = produce(dataForState, draft => {
+                        draft.lastJobSuggestionCheck = now.toISOString();
+                    });
+                    dataForState = updatedDataWithCheckTime;
+                    dataWasUpdated = true;
+                }
+                
+                if (dataWasUpdated) {
+                    await updateDataInFirestore(dataForState);
+                }
+            }
+            // --- END NEW DAILY JOB CHECK ---
             
-            setData(completeData as AppData);
+            setData(dataForState as AppData);
 
              if (loansWereUpdated) {
-                await updateDataInFirestore(completeData as AppData); 
+                await updateDataInFirestore(dataForState as AppData); 
                 toast({
                     title: "Loan Progress Updated",
                     description: "We've automatically updated your EMI payment progress."

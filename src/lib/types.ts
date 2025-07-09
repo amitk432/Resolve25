@@ -162,4 +162,5 @@ export interface AppData {
     dailyTasks: DailyTask[];
     incomeSources: IncomeSource[];
     resume?: ResumeData | null;
+    lastJobSuggestionCheck?: string;
 }

@@ -5,7 +5,8 @@ import React, { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
+import { parseISO } from 'date-fns/fp';
 import type { JobApplication, JobStatus, AppData } from '@/lib/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -13,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Trash2, Plus, FileText, Download, Sparkles, ChevronDown, Clock, IndianRupee, Star, ListChecks, LinkIcon, MapPin, Rocket } from 'lucide-react';
+import { Trash2, Plus, FileText, Download, Sparkles, ChevronDown, Clock, IndianRupee, Star, ListChecks, LinkIcon, MapPin, Rocket, Mail } from 'lucide-react';
 import AiSuggestionSection from './ai-suggestion-section';
 import ResumeBuilderDialog from './resume-builder-dialog';
 import ResumeTemplate from './resume-template';
@@ -23,6 +24,7 @@ import AiJobSuggestionDialog from './ai-job-suggestion-dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import { Badge } from './ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import GenerateEmailDialog from './generate-email-dialog';
 
 interface JobSearchTabProps {
     applications: JobApplication[];
@@ -272,6 +274,13 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                                                             <LinkIcon className="h-4 w-4" />
                                                         </a>
                                                     </Button>
+                                                )}
+                                                {data.resume && (
+                                                    <GenerateEmailDialog resumeData={data.resume} jobApplication={app}>
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                            <Mail className="h-4 w-4" />
+                                                        </Button>
+                                                    </GenerateEmailDialog>
                                                 )}
                                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => onDelete(index)}>
                                                     <Trash2 className="h-4 w-4" />

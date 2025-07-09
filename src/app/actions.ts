@@ -8,6 +8,7 @@ import { generateTaskSuggestions, type GenerateTaskSuggestionsInput } from '@/ai
 import { generateMonthlyPlanSuggestions, type GenerateMonthlyPlanSuggestionsInput } from '@/ai/flows/generate-monthly-plan-suggestions';
 import { parseResume, type ParseResumeInput, type ResumeData } from '@/ai/flows/parse-resume';
 import { generateJobSuggestions, type GenerateJobSuggestionsInput } from '@/ai/flows/generate-job-suggestions';
+import { generateApplicationEmail, type GenerateApplicationEmailInput } from '@/ai/flows/generate-application-email';
 
 export async function getModuleSuggestions(input: ModuleSuggestionInput) {
     try {
@@ -82,6 +83,17 @@ export async function getAIJobSuggestions(input: GenerateJobSuggestionsInput) {
   } catch (error) {
     console.error('Error getting AI job suggestions:', error);
     const errorMessage = error instanceof Error ? error.message : 'Failed to generate AI suggestions. Please try again.';
+    return { error: errorMessage };
+  }
+}
+
+export async function getAIEmailTemplate(input: GenerateApplicationEmailInput) {
+  try {
+    const result = await generateApplicationEmail(input);
+    return result;
+  } catch (error) {
+    console.error('Error getting AI email template:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to generate email template. Please try again.';
     return { error: errorMessage };
   }
 }

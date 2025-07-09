@@ -86,4 +86,5 @@ export const initialData: AppData = {
     incomeSources: [
         { id: 'income-1', name: 'Primary Job', amount: '50000' }
     ],
+    lastJobSuggestionCheck: new Date(0).toISOString(),
 };
