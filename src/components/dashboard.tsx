@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { AppData, DailyTask, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource } from '@/lib/types';
+import type { AppData, DailyTask, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP } from '@/lib/types';
 import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, Loader2, ListTodo } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -121,12 +121,25 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
             draft.emergencyFundTarget = target;
         });
     };
-    
-    const handleUpdateSipDetails = (amount: string, mutualFund: string, platform: string) => {
+
+    const handleAddSip = (sip: Omit<SIP, 'id'>) => {
         onUpdate(draft => {
-            draft.sipAmount = amount;
-            draft.sipMutualFund = mutualFund;
-            draft.sipPlatform = platform;
+            draft.sips.push({ ...sip, id: `sip-${Date.now()}` });
+        });
+    };
+
+    const handleUpdateSip = (updatedSip: SIP) => {
+        onUpdate(draft => {
+            const index = draft.sips.findIndex(s => s.id === updatedSip.id);
+            if (index !== -1) {
+                draft.sips[index] = updatedSip;
+            }
+        });
+    };
+
+    const handleDeleteSip = (sipId: string) => {
+        onUpdate(draft => {
+            draft.sips = draft.sips.filter(s => s.id !== sipId);
         });
     };
 
@@ -357,14 +370,14 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     loans={data.loans} 
                     emergencyFund={data.emergencyFund}
                     emergencyFundTarget={data.emergencyFundTarget}
-                    sipAmount={data.sipAmount}
-                    sipMutualFund={data.sipMutualFund}
-                    sipPlatform={data.sipPlatform}
+                    sips={data.sips}
                     incomeSources={data.incomeSources}
                     onUpdateLoanStatus={handleUpdateLoanStatus}
-                    onUpdateEmergencyFund={handleUpdateEmergencyFund}
+                    onUpdateEmergencyFund={onUpdateEmergencyFund}
                     onUpdateEmergencyFundTarget={handleUpdateEmergencyFundTarget}
-                    onUpdateSipDetails={handleUpdateSipDetails}
+                    onAddSip={handleAddSip}
+                    onUpdateSip={handleUpdateSip}
+                    onDeleteSip={handleDeleteSip}
                     onAddLoan={handleAddLoan}
                     onUpdateLoan={handleUpdateLoan}
                     onDeleteLoan={handleDeleteLoan}
@@ -395,5 +408,3 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     </>
   );
 }
-
-    

@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import type { Loan, LoanStatus, IncomeSource } from '@/lib/types';
+import type { Loan, LoanStatus, IncomeSource, SIP } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Pencil, Trash2, Plus, Eye, EyeOff, Target } from 'lucide-react';
+import { Pencil, Trash2, Plus, Eye, EyeOff, Target, Banknote } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
@@ -26,14 +26,14 @@ interface FinanceTabProps {
     loans: Loan[];
     emergencyFund: string;
     emergencyFundTarget: string;
-    sipAmount: string;
-    sipMutualFund: string;
-    sipPlatform: string;
+    sips: SIP[];
     incomeSources: IncomeSource[];
     onUpdateLoanStatus: (loanId: string, status: LoanStatus) => void;
     onUpdateEmergencyFund: (amount: string) => void;
     onUpdateEmergencyFundTarget: (target: string) => void;
-    onUpdateSipDetails: (amount: string, mutualFund: string, platform: string) => void;
+    onAddSip: (sip: Omit<SIP, 'id'>) => void;
+    onUpdateSip: (sip: SIP) => void;
+    onDeleteSip: (sipId: string) => void;
     onAddLoan: (name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => void;
     onUpdateLoan: (id: string, name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => void;
     onDeleteLoan: (id: string) => void;
@@ -142,14 +142,14 @@ export default function FinanceTab({
     loans, 
     emergencyFund, 
     emergencyFundTarget,
-    sipAmount,
-    sipMutualFund,
-    sipPlatform,
+    sips,
     incomeSources,
     onUpdateLoanStatus, 
     onUpdateEmergencyFund, 
     onUpdateEmergencyFundTarget,
-    onUpdateSipDetails,
+    onAddSip,
+    onUpdateSip,
+    onDeleteSip,
     onAddLoan,
     onUpdateLoan,
     onDeleteLoan,
@@ -293,12 +293,12 @@ export default function FinanceTab({
             <SavingsAndInvestmentsCard
               emergencyFund={emergencyFund}
               emergencyFundTarget={emergencyFundTarget}
-              sipAmount={sipAmount}
-              sipMutualFund={sipMutualFund}
-              sipPlatform={sipPlatform}
+              sips={sips}
               onUpdateEmergencyFund={onUpdateEmergencyFund}
               onUpdateEmergencyFundTarget={onUpdateEmergencyFundTarget}
-              onUpdateSipDetails={onUpdateSipDetails}
+              onAddSip={onAddSip}
+              onUpdateSip={onUpdateSip}
+              onDeleteSip={onDeleteSip}
             />
             
             <MonthlyIncomeCard
@@ -564,33 +564,49 @@ function MonthlyIncomeCard({
     );
 }
 
+const sipSchema = z.object({
+  amount: z.string().min(1, { message: 'Amount is required.' }),
+  mutualFund: z.string().min(3, { message: 'Fund name is required.' }),
+  platform: z.string().optional(),
+});
+
+interface SavingsAndInvestmentsCardProps {
+    emergencyFund: string;
+    emergencyFundTarget: string;
+    sips: SIP[];
+    onUpdateEmergencyFund: (amount: string) => void;
+    onUpdateEmergencyFundTarget: (target: string) => void;
+    onAddSip: (sip: Omit<SIP, 'id'>) => void;
+    onUpdateSip: (sip: SIP) => void;
+    onDeleteSip: (sipId: string) => void;
+}
+
 function SavingsAndInvestmentsCard({
     emergencyFund,
     emergencyFundTarget,
-    sipAmount,
-    sipMutualFund,
-    sipPlatform,
+    sips,
     onUpdateEmergencyFund,
     onUpdateEmergencyFundTarget,
-    onUpdateSipDetails,
-}: Omit<FinanceTabProps, 'loans' | 'incomeSources' | 'onUpdateLoanStatus' | 'onAddLoan' | 'onUpdateLoan' | 'onDeleteLoan' | 'onAddIncomeSource' | 'onUpdateIncomeSource' | 'onDeleteIncomeSource'>) {
+    onAddSip,
+    onUpdateSip,
+    onDeleteSip,
+}: SavingsAndInvestmentsCardProps) {
     const { toast } = useToast();
     
     const [manualFundInput, setManualFundInput] = useState(emergencyFund);
     const [isTargetEditing, setIsTargetEditing] = useState(false);
     const [targetInput, setTargetInput] = useState(emergencyFundTarget);
-    const [isSipEditing, setIsSipEditing] = useState(false);
-    const [sipAmountInput, setSipAmountInput] = useState(sipAmount);
-    const [sipFundInput, setSipFundInput] = useState(sipMutualFund);
-    const [sipPlatformInput, setSipPlatformInput] = useState(sipPlatform);
+    
+    const [isSipDialogOpen, setSipDialogOpen] = useState(false);
+    const [editingSip, setEditingSip] = useState<SIP | null>(null);
+
+    const sipForm = useForm<z.infer<typeof sipSchema>>({
+        resolver: zodResolver(sipSchema),
+        defaultValues: { amount: '', mutualFund: '', platform: '' },
+    });
 
     useEffect(() => setManualFundInput(emergencyFund), [emergencyFund]);
     useEffect(() => setTargetInput(emergencyFundTarget), [emergencyFundTarget]);
-    useEffect(() => {
-        setSipAmountInput(sipAmount);
-        setSipFundInput(sipMutualFund);
-        setSipPlatformInput(sipPlatform);
-    }, [sipAmount, sipMutualFund, sipPlatform]);
 
     const totalEmergencyFund = useMemo(() => {
         return (parseFloat(manualFundInput) || 0);
@@ -598,6 +614,10 @@ function SavingsAndInvestmentsCard({
 
     const emergencyFundTargetValue = parseFloat(targetInput) || 0;
     const emergencyFundProgress = emergencyFundTargetValue > 0 ? Math.min((totalEmergencyFund / emergencyFundTargetValue) * 100, 100) : 0;
+
+    const totalSipInvestment = useMemo(() => {
+        return sips.reduce((sum, sip) => sum + (parseFloat(sip.amount) || 0), 0);
+    }, [sips]);
 
     const handleUpdateManualFund = () => {
         onUpdateEmergencyFund(manualFundInput || '0');
@@ -610,152 +630,208 @@ function SavingsAndInvestmentsCard({
         toast({ title: 'Emergency fund target updated!' });
     };
 
-    const handleSaveSip = () => {
-        onUpdateSipDetails(sipAmountInput, sipFundInput, sipPlatformInput);
-        setIsSipEditing(false);
-        toast({ title: "SIP Details Updated!" });
+    const handleOpenSipDialog = (sip: SIP | null) => {
+        setEditingSip(sip);
+        if (sip) {
+            sipForm.reset({
+                amount: sip.amount,
+                mutualFund: sip.mutualFund,
+                platform: sip.platform || '',
+            });
+        } else {
+            sipForm.reset({ amount: '', mutualFund: '', platform: '' });
+        }
+        setSipDialogOpen(true);
     };
 
-    const handleCancelSipEdit = () => {
-        setSipAmountInput(sipAmount);
-        setSipFundInput(sipMutualFund);
-        setSipPlatformInput(sipPlatform);
-        setIsSipEditing(false);
+    const onSipSubmit = (values: z.infer<typeof sipSchema>) => {
+        if (editingSip) {
+            onUpdateSip({ ...editingSip, ...values });
+            toast({ title: 'SIP updated successfully!' });
+        } else {
+            onAddSip(values);
+            toast({ title: 'New SIP added!' });
+        }
+        setSipDialogOpen(false);
     };
-    
-    const hasSipDetails = sipAmount || sipMutualFund || sipPlatform;
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Savings & Investments</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                <div>
-                    <h4 className="font-medium text-foreground mb-2">Emergency Fund</h4>
-                    <div className="p-4 bg-muted/50 rounded-lg space-y-4">
-                        <div className="text-center">
-                            <p className="text-sm text-muted-foreground">Total Emergency Fund</p>
-                            <p className="text-3xl font-bold text-primary">₹{parseFloat(emergencyFund).toLocaleString('en-IN')}</p>
-                        </div>
-                        <Progress value={emergencyFundProgress} className="h-2" />
-                        <div className="flex justify-between items-center text-sm">
-                            <div className="text-muted-foreground">
-                                Target: ₹{emergencyFundTargetValue.toLocaleString('en-IN')}
+        <>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Savings & Investments</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div>
+                        <h4 className="font-medium text-foreground mb-2">Emergency Fund</h4>
+                        <div className="p-4 bg-muted/50 rounded-lg space-y-4">
+                            <div className="text-center">
+                                <p className="text-sm text-muted-foreground">Total Emergency Fund</p>
+                                <p className="text-3xl font-bold text-primary">₹{parseFloat(emergencyFund).toLocaleString('en-IN')}</p>
                             </div>
-                            <span className="font-semibold">{Math.round(emergencyFundProgress)}% Reached</span>
-                        </div>
+                            <Progress value={emergencyFundProgress} className="h-2" />
+                            <div className="flex justify-between items-center text-sm">
+                                <div className="text-muted-foreground">
+                                    Target: ₹{emergencyFundTargetValue.toLocaleString('en-IN')}
+                                </div>
+                                <span className="font-semibold">{Math.round(emergencyFundProgress)}% Reached</span>
+                            </div>
 
-                        <Separator />
-                        
-                        <div className="space-y-1">
-                            <Label htmlFor="manual-fund-input">Current Amount (Manual)</Label>
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    id="manual-fund-input"
-                                    type="number"
-                                    value={manualFundInput || ''}
-                                    onChange={(e) => setManualFundInput(e.target.value)}
-                                    placeholder="e.g., 10000"
-                                />
-                                <Button onClick={handleUpdateManualFund} size="sm">Update</Button>
-                            </div>
-                        </div>
-                         <div className="space-y-1">
-                            <Label>Fund Target</Label>
-                            {isTargetEditing ? (
+                            <Separator />
+                            
+                            <div className="space-y-1">
+                                <Label htmlFor="manual-fund-input">Current Amount (Manual)</Label>
                                 <div className="flex items-center gap-2">
-                                     <Input
+                                    <Input
+                                        id="manual-fund-input"
                                         type="number"
-                                        value={targetInput || ''}
-                                        onChange={(e) => setTargetInput(e.target.value)}
-                                        placeholder="Set your target"
+                                        value={manualFundInput || ''}
+                                        onChange={(e) => setManualFundInput(e.target.value)}
+                                        placeholder="e.g., 10000"
                                     />
-                                    <Button onClick={handleUpdateTarget}>Save</Button>
-                                    <Button variant="ghost" onClick={() => setIsTargetEditing(false)}>Cancel</Button>
-                                </div>
-                            ) : (
-                                <div className="flex items-center justify-between p-2 h-10 border rounded-md">
-                                    <span className="text-sm">₹{parseFloat(targetInput || '0').toLocaleString('en-IN')}</span>
-                                    <Button variant="outline" size="sm" onClick={() => setIsTargetEditing(true)}>
-                                        <Pencil className="mr-2 h-3 w-3" /> Edit Target
-                                    </Button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                <Separator />
-                
-                <div>
-                    <div className="flex justify-between items-center">
-                        <h4 className="font-medium text-foreground">SIP Planner</h4>
-                        {!isSipEditing && (
-                            <Button variant="outline" size="sm" onClick={() => setIsSipEditing(true)}>
-                                {hasSipDetails ? <Pencil className="mr-2 h-3 w-3" /> : <Plus className="mr-2 h-3 w-3" />}
-                                Add / Edit Details
-                            </Button>
-                        )}
-                    </div>
-                    <div className="flex items-center gap-2 mt-2">
-                        <Badge variant="outline" className="border-yellow-300 bg-yellow-50 text-yellow-800 dark:border-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300">
-                           <Target className="h-3 w-3 mr-1.5" />
-                           Goal
-                        </Badge>
-                        <p className="text-sm text-muted-foreground">Start with ₹1,000–₹2,000/month after the car is sold.</p>
-                    </div>
-                    <div className="mt-4 bg-muted/50 p-4 rounded-lg space-y-4">
-                        {isSipEditing ? (
-                            <div className="space-y-4 pt-2">
-                                <div className="space-y-1">
-                                    <Label htmlFor="sip-amount" className="text-xs">Monthly Amount (₹)</Label>
-                                    <Input id="sip-amount" type="number" value={sipAmountInput} onChange={(e) => setSipAmountInput(e.target.value)} placeholder="e.g., 2000" className="h-9" />
-                                </div>
-                                <div className="space-y-1">
-                                    <Label htmlFor="sip-fund" className="text-xs">Mutual Fund Name</Label>
-                                    <Input id="sip-fund" value={sipFundInput} onChange={(e) => setSipFundInput(e.target.value)} placeholder="e.g., Parag Parikh Flexi Cap" className="h-9" />
-                                </div>
-                                <div className="space-y-1">
-                                    <Label htmlFor="sip-platform" className="text-xs">Investment Platform</Label>
-                                    <Input id="sip-platform" value={sipPlatformInput} onChange={(e) => setSipPlatformInput(e.target.value)} placeholder="e.g., Groww, Zerodha Coin" className="h-9" />
-                                </div>
-                                <div className="flex gap-2">
-                                    <Button onClick={handleSaveSip} size="sm">Save</Button>
-                                    <Button variant="ghost" size="sm" onClick={handleCancelSipEdit}>Cancel</Button>
+                                    <Button onClick={handleUpdateManualFund} size="sm">Update</Button>
                                 </div>
                             </div>
-                        ) : (
-                            <div className="space-y-3 text-sm pt-2">
-                                {hasSipDetails ? (
-                                    <>
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Monthly Amount:</span>
-                                            <span className="font-medium">₹{parseFloat(sipAmount || '0').toLocaleString('en-IN')}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Fund Name:</span>
-                                            <span className="font-medium">{sipMutualFund || 'Not set'}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Platform:</span>
-                                            <span className="font-medium">{sipPlatform || 'Not set'}</span>
-                                        </div>
-                                    </>
+                            <div className="space-y-1">
+                                <Label>Fund Target</Label>
+                                {isTargetEditing ? (
+                                    <div className="flex items-center gap-2">
+                                        <Input
+                                            type="number"
+                                            value={targetInput || ''}
+                                            onChange={(e) => setTargetInput(e.target.value)}
+                                            placeholder="Set your target"
+                                        />
+                                        <Button onClick={handleUpdateTarget}>Save</Button>
+                                        <Button variant="ghost" onClick={() => setIsTargetEditing(false)}>Cancel</Button>
+                                    </div>
                                 ) : (
-                                    <div className="text-center text-muted-foreground py-2">
-                                        <p>Click "Add / Edit Details" to set your SIP info.</p>
+                                    <div className="flex items-center justify-between p-2 h-10 border rounded-md">
+                                        <span className="text-sm">₹{parseFloat(targetInput || '0').toLocaleString('en-IN')}</span>
+                                        <Button variant="outline" size="sm" onClick={() => setIsTargetEditing(true)}>
+                                            <Pencil className="mr-2 h-3 w-3" /> Edit Target
+                                        </Button>
                                     </div>
                                 )}
                             </div>
-                        )}
+                        </div>
                     </div>
-                </div>
-            </CardContent>
-        </Card>
+
+                    <Separator />
+                    
+                    <div>
+                        <div className="flex justify-between items-center mb-4">
+                            <h4 className="font-medium text-foreground">SIP Planner</h4>
+                            <Button onClick={() => handleOpenSipDialog(null)}>
+                                <Plus className="mr-2 h-4 w-4" /> Add SIP
+                            </Button>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
+                            <Badge variant="outline" className="border-yellow-300 bg-yellow-50 text-yellow-800 dark:border-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300">
+                            <Target className="h-3 w-3 mr-1.5" />
+                            Goal
+                            </Badge>
+                            <p className="text-sm text-muted-foreground">Start with ₹1,000–₹2,000/month after the car is sold.</p>
+                        </div>
+                        <div className="mt-4 bg-muted/50 p-4 rounded-lg space-y-3">
+                            {sips.length > 0 ? (
+                                sips.map(sip => (
+                                    <div key={sip.id} className="flex justify-between items-center p-2 border-b last:border-b-0">
+                                        <div>
+                                            <p className="font-semibold">{sip.mutualFund}</p>
+                                            <p className="text-sm text-muted-foreground">{sip.platform || 'N/A'}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <p className="font-mono font-semibold">₹{parseFloat(sip.amount).toLocaleString('en-IN')}</p>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenSipDialog(sip)}><Pencil className="h-4 w-4" /></Button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Delete SIP?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            This will remove the "{sip.mutualFund}" SIP. This cannot be undone.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => onDeleteSip(sip.id)}>Delete</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-center text-sm text-muted-foreground py-4">No SIPs added yet. Click "Add SIP" to get started.</p>
+                            )}
+                            {sips.length > 0 && (
+                                <>
+                                <Separator className="my-2" />
+                                <div className="flex justify-between items-center pt-2 font-bold text-lg">
+                                    <span>Total Monthly SIP:</span>
+                                    <span>₹{totalSipInvestment.toLocaleString('en-IN')}</span>
+                                </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Dialog open={isSipDialogOpen} onOpenChange={setSipDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{editingSip ? 'Edit SIP' : 'Add New SIP'}</DialogTitle>
+                        <DialogDescription>
+                            Enter the details for your systematic investment plan.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Form {...sipForm}>
+                        <form onSubmit={sipForm.handleSubmit(onSipSubmit)} className="space-y-4 py-4">
+                            <FormField
+                                control={sipForm.control}
+                                name="amount"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Monthly Amount (₹)</FormLabel>
+                                        <FormControl><Input type="number" placeholder="e.g., 5000" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={sipForm.control}
+                                name="mutualFund"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Mutual Fund Name</FormLabel>
+                                        <FormControl><Input placeholder="e.g., Parag Parikh Flexi Cap" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={sipForm.control}
+                                name="platform"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Investment Platform (Optional)</FormLabel>
+                                        <FormControl><Input placeholder="e.g., Groww, Zerodha Coin" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <DialogFooter>
+                                <Button type="button" variant="outline" onClick={() => setSipDialogOpen(false)}>Cancel</Button>
+                                <Button type="submit">{editingSip ? 'Save Changes' : 'Add SIP'}</Button>
+                            </DialogFooter>
+                        </form>
+                    </Form>
+                </DialogContent>
+            </Dialog>
+        </>
     )
 }
-
-    
-
-    

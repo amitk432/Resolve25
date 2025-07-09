@@ -79,14 +79,10 @@ export const initialData: AppData = {
     jobApplications: [],
     emergencyFund: '0',
     emergencyFundTarget: '40000',
-    sipAmount: '',
-    sipMutualFund: '',
-    sipPlatform: '',
+    sips: [],
     travelGoals: [],
     dailyTasks: [],
     incomeSources: [
         { id: 'income-1', name: 'Primary Job', amount: '50000' }
     ],
 };
-
-    

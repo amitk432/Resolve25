@@ -36,7 +36,7 @@ export interface ChecklistItem {
 export type LoanStatus = 'Active' | 'Closed';
 
 export interface Loan {
-    id: string;
+    id:string;
     name: string;
     principal: string;
     rate?: string; // Annual interest rate in %
@@ -84,6 +84,13 @@ export interface IncomeSource {
     amount: string;
 }
 
+export interface SIP {
+    id: string;
+    amount: string;
+    mutualFund: string;
+    platform?: string;
+}
+
 export interface AppData {
     goals: Goal[];
     monthlyPlan: MonthlyPlan[];
@@ -94,12 +101,8 @@ export interface AppData {
     jobApplications: JobApplication[];
     emergencyFund: string;
     emergencyFundTarget: string;
-    sipAmount: string;
-    sipMutualFund: string;
-    sipPlatform: string;
+    sips: SIP[];
     travelGoals: TravelGoal[];
     dailyTasks: DailyTask[];
     incomeSources: IncomeSource[];
 }
-
-    
