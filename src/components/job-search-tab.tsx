@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
 import { parseISO } from 'date-fns/fp';
-import type { JobApplication, JobStatus, AppData } from '@/lib/types';
+import type { JobApplication, JobStatus, AppData, JobType } from '@/lib/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,8 @@ import { Badge } from './ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import GenerateEmailDialog from './generate-email-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { ScrollArea } from './ui/scroll-area';
+import { Textarea } from './ui/textarea';
 
 interface JobSearchTabProps {
     applications: JobApplication[];
@@ -39,7 +41,12 @@ interface JobSearchTabProps {
 const appSchema = z.object({
   company: z.string().min(1, 'Company name is required.'),
   role: z.string().min(1, 'Role is required.'),
-  applyLink: z.string().url({ message: 'Please enter a valid URL.' }).optional().or(z.literal('')),
+  location: z.string().optional(),
+  applyLink: z.string().url({ message: "Please enter a valid URL."}).optional().or(z.literal('')),
+  jobType: z.enum(['Full-time', 'Part-time', 'Contract', 'Internship']).optional(),
+  salaryRange: z.string().optional(),
+  keyResponsibilities: z.string().optional(),
+  requiredSkills: z.string().optional(),
 });
 
 
@@ -51,11 +58,28 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
 
     const form = useForm<z.infer<typeof appSchema>>({
         resolver: zodResolver(appSchema),
-        defaultValues: { company: '', role: '', applyLink: '' },
+        defaultValues: { 
+            company: '', 
+            role: '', 
+            applyLink: '',
+            location: '',
+            salaryRange: '',
+            keyResponsibilities: '',
+            requiredSkills: '',
+         },
     });
 
     const onSubmit = (values: z.infer<typeof appSchema>) => {
-        onAddApplication({ company: values.company, role: values.role, applyLink: values.applyLink });
+        onAddApplication({
+            company: values.company,
+            role: values.role,
+            applyLink: values.applyLink,
+            location: values.location,
+            jobType: values.jobType,
+            salaryRange: values.salaryRange,
+            keyResponsibilities: values.keyResponsibilities?.split('\n').filter(s => s.trim()),
+            requiredSkills: values.requiredSkills?.split('\n').filter(s => s.trim()),
+        });
         setDialogOpen(false);
         form.reset();
     }
@@ -134,49 +158,57 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                     <DialogTrigger asChild>
                         <Button><Plus className="mr-2 h-4 w-4"/>Add Application</Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="max-w-2xl">
                         <DialogHeader>
                             <DialogTitle>Add New Application</DialogTitle>
                             <DialogDescription>
-                                Track a new job application you've submitted.
+                                Track a new job application. More details help the AI give better advice.
                             </DialogDescription>
                         </DialogHeader>
                         <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-                                <FormField
-                                    control={form.control}
-                                    name="company"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Company</FormLabel>
-                                            <FormControl><Input placeholder="e.g., Thoughtworks" {...field} /></FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="role"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Role</FormLabel>
-                                            <FormControl><Input placeholder="e.g., Sr. QA Engineer" {...field} /></FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="applyLink"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Application Link (Optional)</FormLabel>
-                                            <FormControl><Input placeholder="https://careers.example.com/job/123" {...field} /></FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <DialogFooter>
+                            <form onSubmit={form.handleSubmit(onSubmit)}>
+                                <ScrollArea className="h-[60vh] pr-4 -mr-4">
+                                  <div className="space-y-4 p-1">
+                                    <FormField control={form.control} name="company" render={({ field }) => (
+                                        <FormItem><FormLabel>Company</FormLabel><FormControl><Input placeholder="e.g., Thoughtworks" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )} />
+                                    <FormField control={form.control} name="role" render={({ field }) => (
+                                        <FormItem><FormLabel>Role</FormLabel><FormControl><Input placeholder="e.g., Sr. QA Engineer" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )} />
+                                     <FormField control={form.control} name="location" render={({ field }) => (
+                                        <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g., Bengaluru, India" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )} />
+                                    <FormField control={form.control} name="applyLink" render={({ field }) => (
+                                        <FormItem><FormLabel>Application Link (Optional)</FormLabel><FormControl><Input placeholder="https://careers.example.com/job/123" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )} />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <FormField control={form.control} name="jobType" render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Job Type</FormLabel>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <FormControl><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger></FormControl>
+                                                    <SelectContent>
+                                                        {(['Full-time', 'Part-time', 'Contract', 'Internship'] as JobType[]).map(c => (
+                                                           <SelectItem key={c} value={c}>{c}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )} />
+                                         <FormField control={form.control} name="salaryRange" render={({ field }) => (
+                                            <FormItem><FormLabel>Salary Range (Optional)</FormLabel><FormControl><Input placeholder="e.g., ₹12-15 LPA" {...field} /></FormControl><FormMessage /></FormItem>
+                                        )} />
+                                    </div>
+                                     <FormField control={form.control} name="keyResponsibilities" render={({ field }) => (
+                                        <FormItem><FormLabel>Key Responsibilities (one per line)</FormLabel><FormControl><Textarea className="h-24" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )} />
+                                     <FormField control={form.control} name="requiredSkills" render={({ field }) => (
+                                        <FormItem><FormLabel>Required Skills (one per line)</FormLabel><FormControl><Textarea className="h-24" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )} />
+                                  </div>
+                                </ScrollArea>
+                                <DialogFooter className="pt-4 mt-4 border-t">
                                     <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
                                     <Button type="submit">Add Application</Button>
                                 </DialogFooter>
