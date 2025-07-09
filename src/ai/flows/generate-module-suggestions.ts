@@ -93,6 +93,9 @@ const moduleSuggestionFlow = ai.defineFlow(
         context: contextString,
         currentDate,
     });
-    return output!;
+    if (!output) {
+        throw new Error('The AI model failed to generate valid suggestions. This may be a temporary issue.');
+    }
+    return output;
   }
 );

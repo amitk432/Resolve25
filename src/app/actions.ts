@@ -10,7 +10,8 @@ export async function getModuleSuggestions(input: ModuleSuggestionInput) {
         return result;
     } catch (error) {
         console.error('Error getting module suggestions:', error);
-        return { error: 'Failed to generate AI suggestions. Please try again.' };
+        const errorMessage = error instanceof Error ? error.message : 'Failed to generate AI suggestions. Please try again.';
+        return { error: errorMessage };
     }
 }
 
@@ -20,6 +21,7 @@ export async function getAITips(input: GenerateGoalTipsInput) {
     return result;
   } catch (error) {
     console.error('Error getting AI tips:', error);
-    return { error: 'Failed to generate AI tips. Please try again.' };
+    const errorMessage = error instanceof Error ? error.message : 'Failed to generate AI tips. Please try again.';
+    return { error: errorMessage };
   }
 }
