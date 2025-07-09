@@ -14,7 +14,9 @@ interface MonthlyPlanTabProps {
 export default function MonthlyPlanTab({ monthlyPlan, onToggleTask }: MonthlyPlanTabProps) {
     return (
          <div>
-            <h2 className="text-xl font-bold text-foreground mb-4">Monthly Action Plan</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-foreground">Monthly Action Plan</h2>
+            </div>
             
             <div className="space-y-8 mt-8">
                 {monthlyPlan.map((monthData, monthIndex) => (
