@@ -70,18 +70,19 @@ export default function DashboardPage() {
           console.error("Error fetching user data: ", error);
           if (error instanceof FirestoreError) {
              const rulesFix = (
-                <div className="text-left space-y-4">
-                    <p className="font-semibold text-lg">Your Firestore Security Rules are blocking access.</p>
-                    <p className="text-muted-foreground">To fix this, you need to update the rules to allow authenticated users to access their own data.</p>
-                    <ol className="list-decimal list-inside space-y-3 pl-2">
-                        <li>
-                            Go to the <strong>Rules</strong> tab in your Firestore Database settings.
-                            <a href={`https://console.firebase.google.com/project/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/firestore/rules`} target="_blank" rel="noopener noreferrer" className="text-primary underline ml-2">Open Rules Editor</a>
-                        </li>
-                        <li>
-                            Replace the entire content of the rules editor with the following code:
-                            <pre className="mt-2 p-3 bg-muted rounded-md text-xs w-full overflow-x-auto">
-                                <code>{`rules_version = '2';
+                <>
+                    <h2 className="text-xl font-bold text-destructive mb-4">Action Required: Update Firestore Security Rules</h2>
+                    <div className="text-left space-y-4">
+                        <p className="text-muted-foreground">Your project's security rules are blocking the app from reading or writing data. To fix this, you must update the rules to allow authenticated users to access their own data.</p>
+                        <ol className="list-decimal list-inside space-y-3 pl-2 mt-4">
+                            <li>
+                                Go to the <strong>Rules</strong> tab in your Firestore Database settings.
+                                <a href={`https://console.firebase.google.com/project/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/firestore/rules`} target="_blank" rel="noopener noreferrer" className="text-primary underline ml-2">Open Rules Editor</a>
+                            </li>
+                            <li>
+                                Replace the entire content of the rules editor with the following code:
+                                <pre className="mt-2 p-3 bg-muted rounded-md text-xs w-full overflow-x-auto">
+                                    <code>{`rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
@@ -89,32 +90,35 @@ service cloud.firestore {
     }
   }
 }`}</code>
-                            </pre>
-                        </li>
-                        <li>Click the <strong>Publish</strong> button at the top of the editor.</li>
-                        <li>Come back here and <strong className="text-primary">refresh the page</strong>.</li>
-                    </ol>
-                </div>
+                                </pre>
+                            </li>
+                            <li>Click the <strong>Publish</strong> button at the top of the editor.</li>
+                            <li>Come back here and <strong className="text-primary">refresh the page</strong>.</li>
+                        </ol>
+                    </div>
+                </>
              );
 
              const unavailableFix = (
-                <div className="text-left space-y-4">
-                    <p className="font-semibold text-lg">This is a critical one-time setup step in your Firebase project.</p>
-                    <p className="text-muted-foreground">Your app cannot connect to the database because it hasn't been created yet. Please follow these steps exactly:</p>
-                    <ol className="list-decimal list-inside space-y-3 pl-2">
-                        <li>
-                            Open the Firebase Console for your project:
-                            <br/>
-                             <a href={`https://console.firebase.google.com/project/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/firestore`} target="_blank" rel="noopener noreferrer" className="text-primary underline font-mono bg-muted/50 px-1.5 py-1 rounded my-1 inline-block">{`console.firebase.google.com`}</a>
-                        </li>
-                         <li>In the console, go to <strong>Build &gt; Firestore Database</strong> (the link above should take you there).</li>
-                         <li>Click the large blue <strong className="text-primary">Create database</strong> button.</li>
-                         <li>Choose <strong>Start in production mode</strong> and click Next.</li>
-                         <li>Select a Cloud Firestore location (the default is fine) and click <strong>Enable</strong>. This might take a minute.</li>
-                         <li>Once you see the database interface (with "Data", "Rules", "Indexes" tabs), it's ready.</li>
-                         <li>Come back to this page and <strong className="text-primary">refresh your browser</strong>.</li>
-                    </ol>
-                  </div>
+                <>
+                    <h2 className="text-xl font-bold text-destructive mb-4">Action Required: Create Firestore Database</h2>
+                    <div className="text-left space-y-4">
+                        <p className="text-muted-foreground">Your app cannot connect to the database because it hasn't been created yet. Please follow these steps exactly:</p>
+                        <ol className="list-decimal list-inside space-y-3 pl-2 mt-4">
+                            <li>
+                                Open the Firebase Console for your project:
+                                <br/>
+                                 <a href={`https://console.firebase.google.com/project/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/firestore`} target="_blank" rel="noopener noreferrer" className="text-primary underline font-mono bg-muted/50 px-1.5 py-1 rounded my-1 inline-block">{`console.firebase.google.com`}</a>
+                            </li>
+                             <li>In the console, go to <strong>Build &gt; Firestore Database</strong> (the link above should take you there).</li>
+                             <li>Click the large blue <strong className="text-primary">Create database</strong> button.</li>
+                             <li>Choose <strong>Start in production mode</strong> and click Next.</li>
+                             <li>Select a Cloud Firestore location (the default is fine) and click <strong>Enable</strong>. This might take a minute.</li>
+                             <li>Once you see the database interface (with "Data", "Rules", "Indexes" tabs), it's ready.</li>
+                             <li>Come back to this page and <strong className="text-primary">refresh your browser</strong>.</li>
+                        </ol>
+                      </div>
+                </>
              );
 
              if (error.code === 'unavailable') {
@@ -183,7 +187,6 @@ service cloud.firestore {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background p-8">
           <div className="max-w-2xl w-full rounded-lg border bg-card text-card-foreground shadow-sm p-8">
-            <h2 className="text-xl font-bold text-destructive mb-4">Action Required: Configure Your Database</h2>
             <div className="text-muted-foreground">{errorState}</div>
             <p className="text-sm text-muted-foreground mt-6">After resolving the issue in your Firebase Console, please refresh the page.</p>
           </div>
