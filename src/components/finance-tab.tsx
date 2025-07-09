@@ -87,7 +87,7 @@ const LoanCalculations = ({ loan, onUpdateLoan }: { loan: Loan, onUpdateLoan: Fi
     }
         
     return (
-        <div className="space-y-2 mt-4 pt-4 border-t">
+        <div className="space-y-2">
             {emi > 0 && n !== undefined && n > 0 ? (
                 <>
                     <div className="flex justify-between text-sm">
@@ -103,7 +103,7 @@ const LoanCalculations = ({ loan, onUpdateLoan }: { loan: Loan, onUpdateLoan: Fi
                         <span className="font-medium">₹{totalPayable.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                     </div>
 
-                    <div className="space-y-3 mt-4 pt-4 border-t">
+                    <div className="space-y-3 pt-3 mt-3 border-t">
                         <Label>EMI Repayment Progress</Label>
                         <Progress value={emiProgress} />
                         <div className="flex justify-between text-xs text-muted-foreground">
@@ -212,80 +212,88 @@ export default function FinanceTab({
                 <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4"/> Add Loan</Button>
             </div>
             
-            <div className="mt-8">
-                <h3 className="text-lg font-semibold mb-4">Your Loans</h3>
-                {loans.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {loans.map(loan => (
-                            <Card key={loan.id}>
-                                <CardHeader className="flex flex-row items-start justify-between">
-                                    <div>
-                                        <CardTitle>{loan.name}</CardTitle>
-                                        <div className="mt-2">
-                                            <Select value={loan.status} onValueChange={(value: LoanStatus) => onUpdateLoanStatus(loan.id, value)}>
-                                                <SelectTrigger className="w-[120px] h-8 text-xs">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="Active">Active</SelectItem>
-                                                    <SelectItem value="Closed">Closed</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Your Loans</CardTitle>
+                    <CardDescription>An overview of your active and closed loans.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {loans.length > 0 ? (
+                        <div className="space-y-6">
+                            {loans.map(loan => (
+                                <div key={loan.id} className="p-4 border rounded-lg bg-background">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h4 className="font-semibold text-lg">{loan.name}</h4>
+                                            <div className="mt-2">
+                                                <Select value={loan.status} onValueChange={(value: LoanStatus) => onUpdateLoanStatus(loan.id, value)}>
+                                                    <SelectTrigger className="w-[120px] h-8 text-xs">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Active">Active</SelectItem>
+                                                        <SelectItem value="Closed">Closed</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-1">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenDialog(loan)}>
+                                                <Pencil className="h-4 w-4" />
+                                            </Button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            This action will permanently delete the loan "{loan.name}". This cannot be undone.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => onDeleteLoan(loan.id)}>Delete</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </div>
                                     </div>
-                                    <div className="flex gap-1">
-                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenDialog(loan)}>
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        This action will permanently delete the loan "{loan.name}". This cannot be undone.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => onDeleteLoan(loan.id)}>Delete</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    </div>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between text-base">
-                                            <span className="text-muted-foreground">Principal</span>
-                                            <span className="font-semibold">₹{parseFloat(loan.principal).toLocaleString('en-IN')}</span>
+                                    <Separator className="my-4" />
+                                    <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
+                                        <div className="space-y-2">
+                                            <h5 className="text-sm font-medium text-muted-foreground">Loan Details</h5>
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-muted-foreground">Principal</span>
+                                                <span className="font-semibold">₹{parseFloat(loan.principal).toLocaleString('en-IN')}</span>
+                                            </div>
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-muted-foreground">Interest Rate</span>
+                                                <span className="font-medium">{loan.rate || 'N/A'}%</span>
+                                            </div>
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-muted-foreground">Tenure</span>
+                                                <span className="font-medium">{loan.tenure || 'N/A'} months</span>
+                                            </div>
                                         </div>
-                                        <div className="flex justify-between text-sm">
-                                            <span className="text-muted-foreground">Interest Rate</span>
-                                            <span className="font-medium">{loan.rate || 'N/A'}%</span>
-                                        </div>
-                                        <div className="flex justify-between text-sm">
-                                            <span className="text-muted-foreground">Tenure</span>
-                                            <span className="font-medium">{loan.tenure || 'N/A'} months</span>
+                                        <div className="space-y-2">
+                                            <h5 className="text-sm font-medium text-muted-foreground">Repayment Summary</h5>
+                                            <LoanCalculations loan={loan} onUpdateLoan={onUpdateLoan} />
                                         </div>
                                     </div>
-                                    <LoanCalculations loan={loan} onUpdateLoan={onUpdateLoan} />
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
-                 ) : (
-                    <Card>
-                        <CardContent className="text-center text-muted-foreground p-8">
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center text-muted-foreground py-8">
                             No loans added yet. Click "Add Loan" to get started.
-                        </CardContent>
-                    </Card>
-                 )}
-            </div>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
             <SavingsAndInvestmentsCard
               emergencyFund={emergencyFund}
@@ -776,3 +784,5 @@ function SavingsAndInvestmentsCard({
         </Card>
     )
 }
+
+    
