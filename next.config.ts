@@ -30,6 +30,23 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  webpack: (config, { isServer }) => {
+    // Suppress warnings for optional dependencies in OpenTelemetry
+    config.externals.push('@opentelemetry/exporter-jaeger');
+    
+    // Suppress warnings for 'require.extensions' in Handlebars
+    config.module.rules.push({
+      test: /node_modules\/handlebars\/lib\/index\.js$/,
+      loader: 'string-replace-loader',
+      options: {
+        search: `require.extensions\\['.handlebars'\\]`,
+        replace: `''`,
+        flags: 'g',
+      },
+    });
+
+    return config;
+  },
 };
 
 export default nextConfig;

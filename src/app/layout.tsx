@@ -32,7 +32,7 @@ export default function RootLayout({
         </AuthProvider>
         <Toaster />
         <footer className="border-t p-4 text-center text-sm text-muted-foreground">
-          Resolve25
+          Built with ❤️ by <strong>AmiT</strong>
         </footer>
       </body>
     </html>
