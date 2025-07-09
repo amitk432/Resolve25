@@ -80,10 +80,10 @@ export default function ResumeTemplate({ resume }: { resume: ResumeData }) {
       {Object.keys(skills).length > 0 && (
         <section className="mb-6">
           <SectionHeader title="Skills" />
-          <div className="space-y-1">
+          <div className="flex flex-col">
             {Object.entries(skills).map(([category, skillList]) => (
-              <div key={category} className="flex text-sm">
-                <p className="w-1/3 font-bold text-gray-900">{category}:</p>
+              <div key={category} className="flex text-sm py-0.5">
+                <p className="w-1/3 font-bold text-gray-900 pr-4">{category}</p>
                 <p className="w-2/3 text-gray-700">{skillList}</p>
               </div>
             ))}
@@ -134,15 +134,17 @@ export default function ResumeTemplate({ resume }: { resume: ResumeData }) {
       {education.length > 0 && (
         <section>
           <SectionHeader title="Education" />
-          {education.map((edu, index) => (
-            <div key={index}>
-              <div className="flex justify-between items-start">
-                <h3 className="font-bold text-base text-gray-900">{edu.institution}</h3>
-                <p className="text-sm font-medium text-gray-500">{formatDate(edu.endDate)}</p>
+          <div className="space-y-2">
+            {education.map((edu, index) => (
+              <div key={index}>
+                <div className="flex justify-between items-start">
+                  <h3 className="font-bold text-base text-gray-900">{edu.institution}</h3>
+                  <p className="text-sm font-medium text-gray-500">{formatDate(edu.endDate)}</p>
+                </div>
+                <p className="text-gray-700">{edu.degree} • {edu.location} • {edu.gpa}</p>
               </div>
-              <p className="text-gray-700">{edu.degree} • {edu.location} • {edu.gpa}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </section>
       )}
     </div>
