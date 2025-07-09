@@ -92,6 +92,49 @@ export interface SIP {
     platform?: string;
 }
 
+export interface ResumeContactInfo {
+  name: string;
+  location: string;
+  phone: string;
+  email: string;
+  linkedin: string;
+  github: string;
+}
+
+export interface ResumeWorkExperience {
+  company: string;
+  location: string;
+  role: string;
+  dates: string;
+  descriptionPoints: string[];
+}
+
+export interface ResumeProject {
+  name: string;
+  dates: string;
+  description: string;
+}
+
+export interface ResumeEducation {
+  institution: string;
+  degree: string;
+  location: string;
+  gpa: string;
+  date: string;
+}
+
+export interface ResumeData {
+  contactInfo: ResumeContactInfo;
+  summary: {
+    title: string;
+    text: string;
+  };
+  skills: Record<string, string>;
+  workExperience: ResumeWorkExperience[];
+  projects: ResumeProject[];
+  education: ResumeEducation[];
+}
+
 export interface AppData {
     goals: Goal[];
     monthlyPlan: MonthlyPlan[];
@@ -106,4 +149,5 @@ export interface AppData {
     travelGoals: TravelGoal[];
     dailyTasks: DailyTask[];
     incomeSources: IncomeSource[];
+    resume?: ResumeData | null;
 }

@@ -6,6 +6,7 @@ import { generateModuleSuggestions, type ModuleSuggestionInput } from '@/ai/flow
 import { generateGoalSuggestions, type GenerateGoalSuggestionsInput } from '@/ai/flows/generate-goal-suggestions';
 import { generateTaskSuggestions, type GenerateTaskSuggestionsInput } from '@/ai/flows/generate-task-suggestions';
 import { generateMonthlyPlanSuggestions, type GenerateMonthlyPlanSuggestionsInput } from '@/ai/flows/generate-monthly-plan-suggestions';
+import { parseResume, type ParseResumeInput, type ResumeData } from '@/ai/flows/parse-resume';
 
 export async function getModuleSuggestions(input: ModuleSuggestionInput) {
     try {
@@ -58,6 +59,17 @@ export async function getAIMonthlyPlanSuggestions(input: GenerateMonthlyPlanSugg
   } catch (error) {
     console.error('Error getting AI monthly plan suggestions:', error);
     const errorMessage = error instanceof Error ? error.message : 'Failed to generate AI suggestions. Please try again.';
+    return { error: errorMessage };
+  }
+}
+
+export async function getParsedResume(input: ParseResumeInput): Promise<ResumeData | { error: string }> {
+  try {
+    const result = await parseResume(input);
+    return result;
+  } catch (error) {
+    console.error('Error parsing resume:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to parse resume. Please try again.';
     return { error: errorMessage };
   }
 }

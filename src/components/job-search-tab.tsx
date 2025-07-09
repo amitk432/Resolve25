@@ -5,21 +5,24 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import type { JobApplication, JobStatus } from '@/lib/types';
+import type { JobApplication, JobStatus, AppData } from '@/lib/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, FileText } from 'lucide-react';
 import AiSuggestionSection from './ai-suggestion-section';
+import ResumeBuilderDialog from './resume-builder-dialog';
 
 interface JobSearchTabProps {
     applications: JobApplication[];
     onAddApplication: (company: string, role: string) => void;
     onUpdateStatus: (index: number, status: JobStatus) => void;
     onDelete: (index: number) => void;
+    data: AppData;
+    onUpdate: (updater: (draft: AppData) => void) => void;
 }
 
 const appSchema = z.object({
@@ -28,7 +31,7 @@ const appSchema = z.object({
 });
 
 
-export default function JobSearchTab({ applications, onAddApplication, onUpdateStatus, onDelete }: JobSearchTabProps) {
+export default function JobSearchTab({ applications, onAddApplication, onUpdateStatus, onDelete, data, onUpdate }: JobSearchTabProps) {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
     const form = useForm<z.infer<typeof appSchema>>({
@@ -46,49 +49,54 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
         <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-foreground">Job Application Tracker</h2>
-              <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-                  <DialogTrigger asChild>
-                      <Button><Plus className="mr-2 h-4 w-4"/>Add Application</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                      <DialogHeader>
-                          <DialogTitle>Add New Application</DialogTitle>
-                          <DialogDescription>
-                              Track a new job application you've submitted.
-                          </DialogDescription>
-                      </DialogHeader>
-                      <Form {...form}>
-                          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-                              <FormField
-                                  control={form.control}
-                                  name="company"
-                                  render={({ field }) => (
-                                      <FormItem>
-                                          <FormLabel>Company</FormLabel>
-                                          <FormControl><Input placeholder="e.g., Thoughtworks" {...field} /></FormControl>
-                                          <FormMessage />
-                                      </FormItem>
-                                  )}
-                              />
-                              <FormField
-                                  control={form.control}
-                                  name="role"
-                                  render={({ field }) => (
-                                      <FormItem>
-                                          <FormLabel>Role</FormLabel>
-                                          <FormControl><Input placeholder="e.g., Sr. QA Engineer" {...field} /></FormControl>
-                                          <FormMessage />
-                                      </FormItem>
-                                  )}
-                              />
-                              <DialogFooter>
-                                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                                  <Button type="submit">Add Application</Button>
-                              </DialogFooter>
-                          </form>
-                      </Form>
-                  </DialogContent>
-              </Dialog>
+              <div className="flex items-center gap-2">
+                <ResumeBuilderDialog data={data} onUpdate={onUpdate}>
+                    <Button variant="outline"><FileText className="mr-2"/> Add Details</Button>
+                </ResumeBuilderDialog>
+                <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button><Plus className="mr-2 h-4 w-4"/>Add Application</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Add New Application</DialogTitle>
+                            <DialogDescription>
+                                Track a new job application you've submitted.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                                <FormField
+                                    control={form.control}
+                                    name="company"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Company</FormLabel>
+                                            <FormControl><Input placeholder="e.g., Thoughtworks" {...field} /></FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="role"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Role</FormLabel>
+                                            <FormControl><Input placeholder="e.g., Sr. QA Engineer" {...field} /></FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <DialogFooter>
+                                    <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                                    <Button type="submit">Add Application</Button>
+                                </DialogFooter>
+                            </form>
+                        </Form>
+                    </DialogContent>
+                </Dialog>
+              </div>
             </div>
 
             <div className="rounded-lg border overflow-x-auto">
@@ -141,7 +149,7 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                 moduleName="JobSearch"
                 title="AI Career Coach"
                 description="Get suggestions for your job search strategy, from networking to interview prep."
-                contextData={{ applications }}
+                contextData={{ applications, resume: data.resume }}
             />
         </div>
     )

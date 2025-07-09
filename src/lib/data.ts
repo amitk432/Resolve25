@@ -77,6 +77,7 @@ export const initialData: AppData = {
         { id: 'loan-2', name: 'Personal Loan', principal: '50000', rate: '14', tenure: '24', emisPaid: '6', status: 'Active', lastAutoUpdate: new Date().toISOString() },
     ],
     jobApplications: [],
+    resume: null,
     emergencyFund: '0',
     emergencyFundTarget: '40000',
     sips: [],

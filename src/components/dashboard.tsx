@@ -449,6 +449,8 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onAddApplication={handleAddApplication}
                     onUpdateStatus={handleUpdateJobStatus}
                     onDelete={handleDeleteJob}
+                    data={data}
+                    onUpdate={onUpdate}
                 />
             </TabsContent>
             <TabsContent value="travel-goals">
