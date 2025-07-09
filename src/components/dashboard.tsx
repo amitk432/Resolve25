@@ -21,6 +21,8 @@ import DailyTodoTab from './daily-todo-tab';
 import { EditProfileDialog } from './edit-profile-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { generateTravelImage } from '@/ai/flows/generate-travel-image';
+import type { SuggestedMonthlyPlan } from '@/ai/flows/generate-monthly-plan-suggestions';
+
 
 interface DashboardProps {
   data: AppData;
@@ -33,13 +35,40 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     const [activeTab, setActiveTab] = useState('dashboard');
     const { toast } = useToast();
     
-    // Handlers for updating state
+    // Monthly Plan handlers
     const handleToggleMonthlyTask = (monthIndex: number, taskIndex: number, done: boolean) => {
         onUpdate(draft => {
             draft.monthlyPlan[monthIndex].tasks[taskIndex].done = done;
         });
     };
     
+    const handleAddMonthlyTask = (monthIndex: number, taskText: string) => {
+        onUpdate(draft => {
+            draft.monthlyPlan[monthIndex].tasks.push({ text: taskText, done: false });
+        });
+    };
+    
+    const handleDeleteMonthlyTask = (monthIndex: number, taskIndex: number) => {
+        onUpdate(draft => {
+            draft.monthlyPlan[monthIndex].tasks.splice(taskIndex, 1);
+        });
+    };
+
+    const handleAddMonthlyPlan = (plan: SuggestedMonthlyPlan) => {
+        onUpdate(draft => {
+            const newPlan = {
+                month: plan.month,
+                theme: plan.theme,
+                tasks: plan.tasks.map(taskText => ({ text: taskText, done: false })),
+            };
+            draft.monthlyPlan.push(newPlan);
+            // Sort plans by date
+            draft.monthlyPlan.sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
+        });
+    }
+
+
+    // Car Sale handlers
     const handleToggleCarSaleTask = (id: string, done: boolean) => {
         onUpdate(draft => {
             const task = draft.carSaleChecklist.find(t => t.id === id);
@@ -70,6 +99,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         });
     };
 
+    // Finance Handlers
     const handleUpdateLoanStatus = (loanId: string, status: LoanStatus) => {
         onUpdate(draft => {
             const loanToUpdate = draft.loans.find(l => l.id === loanId);
@@ -168,6 +198,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         });
     };
 
+    // Job Search handlers
     const handleAddApplication = (company: string, role: string) => {
         onUpdate(draft => {
             draft.jobApplications.unshift({
@@ -191,6 +222,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         });
     }
 
+    // Travel Goal handlers
     const handleAddTravelGoal = async (goal: Omit<TravelGoal, 'id' | 'image'> & { travelDate: Date | null }) => {
         const { update, dismiss } = toast({
           title: (
@@ -247,6 +279,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         });
     };
 
+    // Daily Task Handlers
     const handleAddDailyTask = (task: Omit<DailyTask, 'id' | 'completed'>) => {
         onUpdate(draft => {
             draft.dailyTasks.push({
@@ -357,7 +390,14 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 />
             </TabsContent>
             <TabsContent value="monthly-plan">
-                <MonthlyPlanTab monthlyPlan={data.monthlyPlan} onToggleTask={handleToggleMonthlyTask}/>
+                <MonthlyPlanTab 
+                    monthlyPlan={data.monthlyPlan} 
+                    onToggleTask={handleToggleMonthlyTask}
+                    onAddTask={handleAddMonthlyTask}
+                    onDeleteTask={handleDeleteMonthlyTask}
+                    onAddPlan={handleAddMonthlyPlan}
+                    data={data}
+                />
             </TabsContent>
             <TabsContent value="car-sale">
                  <CarSaleTab 
