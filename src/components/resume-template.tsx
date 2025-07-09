@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { ResumeData } from '@/lib/types';
@@ -104,7 +103,7 @@ export default function ResumeTemplate({ resume }: { resume: ResumeData }) {
                   <p className="text-sm font-medium text-gray-500">{formatDateRange(job.startDate, job.endDate, job.isCurrent)}</p>
                 </div>
                 <p className="font-semibold text-gray-800 italic">{job.role}</p>
-                <ul className="list-disc list-outside pl-5 mt-1 space-y-1.5 text-gray-700 text-justify">
+                <ul className="list-disc list-outside pl-6 mt-1 space-y-1.5 text-gray-700 text-justify">
                   {job.descriptionPoints.map((point, i) => <li key={i}>{point}</li>)}
                 </ul>
               </div>
