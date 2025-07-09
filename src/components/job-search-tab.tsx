@@ -1,7 +1,7 @@
 
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -12,9 +12,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Trash2, Plus, FileText } from 'lucide-react';
+import { Trash2, Plus, FileText, Download } from 'lucide-react';
 import AiSuggestionSection from './ai-suggestion-section';
 import ResumeBuilderDialog from './resume-builder-dialog';
+import ResumeTemplate from './resume-template';
+import html2canvas from 'html2canvas';
+import jspdf from 'jspdf';
 
 interface JobSearchTabProps {
     applications: JobApplication[];
@@ -33,6 +36,7 @@ const appSchema = z.object({
 
 export default function JobSearchTab({ applications, onAddApplication, onUpdateStatus, onDelete, data, onUpdate }: JobSearchTabProps) {
     const [isDialogOpen, setDialogOpen] = useState(false);
+    const resumeRef = useRef<HTMLDivElement>(null);
 
     const form = useForm<z.infer<typeof appSchema>>({
         resolver: zodResolver(appSchema),
@@ -44,6 +48,52 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
         setDialogOpen(false);
         form.reset();
     }
+    
+    const handleDownloadPdf = () => {
+        const input = resumeRef.current;
+        if (!input) {
+            console.error("Resume preview element not found.");
+            return;
+        }
+
+        html2canvas(input, {
+            scale: 2, // Higher scale for better quality
+            useCORS: true,
+            scrollY: -window.scrollY,
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jspdf({
+                orientation: 'portrait',
+                unit: 'pt',
+                format: 'a4'
+            });
+
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+
+            const ratio = canvasWidth / canvasHeight;
+            let imgHeight = pdfWidth / ratio;
+            let heightLeft = imgHeight;
+
+            let position = 0;
+
+            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+            heightLeft -= pdfHeight;
+
+            while (heightLeft >= 0) {
+              position = heightLeft - imgHeight;
+              pdf.addPage();
+              pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+              heightLeft -= pdfHeight;
+            }
+
+            const resumeName = data.resume?.contactInfo?.name || 'resume';
+            pdf.save(`${resumeName.replace(/\s+/g, '_')}.pdf`);
+        });
+    };
 
     return (
         <div>
@@ -151,6 +201,22 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                 description="Get suggestions for your job search strategy, from networking to interview prep."
                 contextData={{ applications, resume: data.resume }}
             />
+            {data.resume && (
+                <div className="mt-8">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-bold text-foreground">Resume Preview</h3>
+                        <Button onClick={handleDownloadPdf}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Download PDF
+                        </Button>
+                    </div>
+                    <div className="border rounded-lg overflow-hidden">
+                        <div ref={resumeRef} className="bg-white">
+                            <ResumeTemplate resume={data.resume} />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
