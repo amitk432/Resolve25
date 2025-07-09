@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -22,6 +23,8 @@ import AiSuggestionSection from './ai-suggestion-section';
 import AiTaskGeneratorDialog from './ai-task-generator-dialog';
 import type { SuggestedTask } from '@/ai/flows/generate-task-suggestions';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+
 
 const taskSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters long.'),
@@ -86,7 +89,23 @@ const TaskItem = ({ task, onToggleTask, onEdit, onDelete }: { task: DailyTask, o
       </div>
       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(task)}><Edit className="h-4 w-4" /></Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(task.id)}><Trash2 className="h-4 w-4" /></Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+              <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                      This will permanently delete the task "{task.title}". This cannot be undone.
+                  </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => onDelete(task.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+              </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   )
@@ -151,6 +170,7 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
     const today = sortTasks(tasks.filter(t => isToday(startOfDay(parseISO(t.dueDate)))));
     const tomorrow = sortTasks(tasks.filter(t => isTomorrow(startOfDay(parseISO(t.dueDate)))));
     const upcoming = sortTasks(tasks.filter(t => isFuture(startOfDay(parseISO(t.dueDate))) && !isToday(startOfDay(parseISO(t.dueDate))) && !isTomorrow(startOfDay(parseISO(t.dueDate)))));
+    const completed = sortTasks(tasks.filter(t => t.completed));
 
     if (overdue.length > 0) groups.push({ title: 'Overdue', tasks: overdue, defaultOpen: true });
     if (today.length > 0) groups.push({ title: 'Today', tasks: today, defaultOpen: true });

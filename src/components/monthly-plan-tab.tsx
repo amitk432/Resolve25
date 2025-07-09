@@ -13,6 +13,8 @@ import AiMonthlyPlanGeneratorDialog from './ai-monthly-plan-generator-dialog';
 import type { SuggestedMonthlyPlan } from '@/ai/flows/generate-monthly-plan-suggestions';
 import AddMonthlyPlanDialog from './add-monthly-plan-dialog';
 import AiMonthlyTaskSuggestionDialog from './ai-monthly-task-suggestion-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+
 
 interface MonthlyPlanTabProps {
     monthlyPlan: MonthlyPlan[];
@@ -60,14 +62,29 @@ const MonthCard = ({ monthData, monthIndex, data, onToggleTask, onAddTask, onDel
                             >
                                 {task.text}
                             </label>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                onClick={() => onDeleteTask(monthIndex, taskIndex)}
-                            >
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
+                             <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This will permanently delete the task: "{task.text}".
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => onDeleteTask(monthIndex, taskIndex)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </div>
                     ))}
                  </div>

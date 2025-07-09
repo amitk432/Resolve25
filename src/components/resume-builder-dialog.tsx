@@ -27,6 +27,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
 import { cn } from '@/lib/utils';
 import { Checkbox } from './ui/checkbox';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 
 interface ResumeBuilderDialogProps {
@@ -202,7 +203,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} id="resume-form" className="h-full flex flex-col">
                 <ScrollArea className="flex-grow">
-                  <div className="mx-auto max-w-3xl space-y-8 px-6 py-4">
+                  <div className="mx-auto max-w-3xl space-y-8 px-1 py-4">
                     {/* Contact Info */}
                     <div className="space-y-4">
                       <h4 className="font-medium text-lg">Contact Information</h4>
@@ -241,7 +242,23 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                     <FormField name={`skills.${index}.category`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Category</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                     <FormField name={`skills.${index}.skillList`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Skills (comma-separated)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 </div>
-                                <Button type="button" variant="ghost" size="icon" className="mt-6" onClick={() => removeSkill(index)}><Trash2 className="text-destructive h-4 w-4"/></Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button type="button" variant="ghost" size="icon" className="mt-6"><Trash2 className="text-destructive h-4 w-4"/></Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Remove Skill Category?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Are you sure you want to remove this skill category and all its skills?
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => removeSkill(index)} className="bg-destructive hover:bg-destructive/90">Remove</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </div>
                         ))}
                     </div>
@@ -256,7 +273,23 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                         </div>
                         {workFields.map((field, index) => (
                             <div key={field.id} className="space-y-2 p-3 border rounded-md relative">
-                                <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => removeWork(index)}><Trash2 className="text-destructive h-4 w-4"/></Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1"><Trash2 className="text-destructive h-4 w-4"/></Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Remove Work Experience?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Are you sure you want to remove this work experience entry?
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => removeWork(index)} className="bg-destructive hover:bg-destructive/90">Remove</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                                 <FormField name={`workExperience.${index}.company`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Company</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField name={`workExperience.${index}.role`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Role</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField name={`workExperience.${index}.location`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -314,7 +347,23 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                       </div>
                       {projectFields.map((field, index) => (
                           <div key={field.id} className="space-y-2 p-3 border rounded-md relative">
-                              <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => removeProject(index)}><Trash2 className="text-destructive h-4 w-4"/></Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1"><Trash2 className="text-destructive h-4 w-4"/></Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Remove Project?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Are you sure you want to remove this project entry?
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => removeProject(index)} className="bg-destructive hover:bg-destructive/90">Remove</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                               <FormField name={`projects.${index}.name`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Project Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                               
                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -370,7 +419,23 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                         </div>
                         {educationFields.map((field, index) => (
                             <div key={field.id} className="space-y-2 p-3 border rounded-md relative">
-                                <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => removeEducation(index)}><Trash2 className="text-destructive h-4 w-4"/></Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1"><Trash2 className="text-destructive h-4 w-4"/></Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Remove Education Entry?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Are you sure you want to remove this education entry?
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => removeEducation(index)} className="bg-destructive hover:bg-destructive/90">Remove</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                                 <FormField name={`education.${index}.institution`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Institution</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <FormField name={`education.${index}.degree`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Degree/Course</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
