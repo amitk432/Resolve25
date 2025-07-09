@@ -25,6 +25,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from './ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import GenerateEmailDialog from './generate-email-dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 interface JobSearchTabProps {
     applications: JobApplication[];
@@ -246,46 +247,68 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                                             )}
                                         </TableCell>
                                         <TableCell className="text-center">
-                                            <div className="flex items-center justify-center gap-1">
-                                                {app.status === 'Need to Apply' && (
-                                                    <AlertDialog>
-                                                        <AlertDialogTrigger asChild>
-                                                            <Button variant="outline" size="sm">
-                                                                <Rocket className="mr-2 h-4 w-4" /> Apply
+                                            <TooltipProvider>
+                                                <div className="flex items-center justify-center gap-1">
+                                                    {app.status === 'Need to Apply' && (
+                                                        <AlertDialog>
+                                                            <AlertDialogTrigger asChild>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <Button variant="outline" size="icon" className="h-8 w-8">
+                                                                            <Rocket className="h-4 w-4" />
+                                                                        </Button>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent><p>Mark as Applied</p></TooltipContent>
+                                                                </Tooltip>
+                                                            </AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader>
+                                                                    <AlertDialogTitle>Confirm Application</AlertDialogTitle>
+                                                                    <AlertDialogDescription>
+                                                                        This will mark the application for the "{app.role}" position at {app.company} as "Applied" with today's date.
+                                                                    </AlertDialogDescription>
+                                                                </AlertDialogHeader>
+                                                                <AlertDialogFooter>
+                                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                    <AlertDialogAction onClick={() => handleMarkAsApplied(index)}>Yes, I Applied</AlertDialogAction>
+                                                                </AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
+                                                    )}
+                                                    {app.applyLink && (
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <Button asChild variant="outline" size="icon" className="h-8 w-8">
+                                                                    <a href={app.applyLink} target="_blank" rel="noopener noreferrer">
+                                                                        <LinkIcon className="h-4 w-4" />
+                                                                    </a>
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent><p>Open Application Link</p></TooltipContent>
+                                                        </Tooltip>
+                                                    )}
+                                                    {data.resume && (
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <GenerateEmailDialog resumeData={data.resume} jobApplication={app}>
+                                                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                                        <Mail className="h-4 w-4" />
+                                                                    </Button>
+                                                                </GenerateEmailDialog>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent><p>Generate Email</p></TooltipContent>
+                                                        </Tooltip>
+                                                    )}
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => onDelete(index)}>
+                                                                <Trash2 className="h-4 w-4" />
                                                             </Button>
-                                                        </AlertDialogTrigger>
-                                                        <AlertDialogContent>
-                                                            <AlertDialogHeader>
-                                                                <AlertDialogTitle>Confirm Application</AlertDialogTitle>
-                                                                <AlertDialogDescription>
-                                                                    This will mark the application for the "{app.role}" position at {app.company} as "Applied" with today's date.
-                                                                </AlertDialogDescription>
-                                                            </AlertDialogHeader>
-                                                            <AlertDialogFooter>
-                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                <AlertDialogAction onClick={() => handleMarkAsApplied(index)}>Yes, I Applied</AlertDialogAction>
-                                                            </AlertDialogFooter>
-                                                        </AlertDialogContent>
-                                                    </AlertDialog>
-                                                )}
-                                                {app.applyLink && (
-                                                    <Button asChild variant="outline" size="icon" className="h-8 w-8">
-                                                        <a href={app.applyLink} target="_blank" rel="noopener noreferrer">
-                                                            <LinkIcon className="h-4 w-4" />
-                                                        </a>
-                                                    </Button>
-                                                )}
-                                                {data.resume && (
-                                                    <GenerateEmailDialog resumeData={data.resume} jobApplication={app}>
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                            <Mail className="h-4 w-4" />
-                                                        </Button>
-                                                    </GenerateEmailDialog>
-                                                )}
-                                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive h-8 w-8" onClick={() => onDelete(index)}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent><p>Delete Application</p></TooltipContent>
+                                                    </Tooltip>
+                                                </div>
+                                            </TooltipProvider>
                                         </TableCell>
                                     </TableRow>
                                     {expandedRow === index && (
