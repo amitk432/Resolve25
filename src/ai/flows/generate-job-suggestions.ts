@@ -24,8 +24,8 @@ const SuggestedJobApplicationSchema = z.object({
     location: z.string().describe('The location of the job, e.g., "Bengaluru, India".'),
     jobType: z.enum(['Full-time', 'Part-time', 'Contract', 'Internship']).describe('The type of employment.'),
     salaryRange: z.string().optional().describe('An estimated salary range for the role, e.g., "₹12-15 LPA".'),
-    keyResponsibilities: z.array(z.string()).optional().describe('A list of 2-3 key responsibilities for this role.'),
-    requiredSkills: z.array(z.string()).optional().describe('A list of 2-3 essential skills required for the job.'),
+    keyResponsibilities: z.array(z.string()).describe('A list of 2-3 key responsibilities for this role.'),
+    requiredSkills: z.array(z.string()).describe('A list of 2-3 essential skills required for the job.'),
     reasoning: z.string().describe('A brief explanation (1-2 sentences) of why this job is a good fit for the user based on their resume.'),
     applyLink: z.string().optional().describe('A plausible URL to the job application page. e.g., "https://careers.company.com/jobs/123"'),
 });
@@ -58,8 +58,8 @@ For each suggestion, provide:
 3.  **Location:** A realistic city for the job (e.g., "Bengaluru, India").
 4.  **Job Type:** The type of employment (Full-time, Part-time, Contract, Internship).
 5.  **Salary Range:** A realistic estimated salary range (e.g., "₹12-15 LPA"). This is optional.
-6.  **Key Responsibilities:** A list of 2-3 key responsibilities. This is optional.
-7.  **Required Skills:** A list of 2-3 crucial skills for the role. This is optional.
+6.  **Key Responsibilities:** A list of 2-3 key responsibilities.
+7.  **Required Skills:** A list of 2-3 crucial skills for the role.
 8.  **Reasoning:** A short, 1-2 sentence explanation of why this role is a good match, referencing specific skills or experiences from their resume.
 9.  **Apply Link:** A plausible, but not necessarily real, URL to a job application page.
 
