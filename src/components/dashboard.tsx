@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import type { AppData, DailyTask, JobApplication, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP, Task } from '@/lib/types';
-import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, Loader2, ListTodo } from 'lucide-react';
+import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, ListTodo } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,6 @@ import TravelGoalsTab from './travel-goals-tab';
 import DailyTodoTab from './daily-todo-tab';
 import { EditProfileDialog } from './edit-profile-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { generateTravelImage } from '@/ai/flows/generate-travel-image';
 import type { SuggestedMonthlyPlan } from '@/ai/flows/generate-monthly-plan-suggestions';
 
 
@@ -233,44 +232,8 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     }
 
     // Travel Goal handlers
-    const handleAddTravelGoal = async (goal: Omit<TravelGoal, 'id' | 'image'> & { travelDate: Date | null }) => {
-        const { update, dismiss } = toast({
-          title: (
-            <div className="flex items-center gap-2">
-              <Loader2 className="animate-spin" />
-              <span>Generating Image...</span>
-            </div>
-          ),
-          description: `Creating a custom image for ${goal.destination}. Please wait.`,
-          duration: 90000,
-        });
-    
-        let imageUrl = 'https://placehold.co/400x250.png';
-    
-        try {
-          const result = await generateTravelImage({ destination: goal.destination });
-          if (result.imageDataUri) {
-            imageUrl = result.imageDataUri;
-            update({
-              id: 'image-generated',
-              title: 'Image Generated!',
-              description: 'Your new travel goal has been added.',
-            });
-          } else {
-            throw new Error('No image data received from AI.');
-          }
-        } catch (error) {
-          console.error("Error generating travel image:", error);
-          update({
-            id: 'image-failed',
-            variant: 'destructive',
-            title: 'Image Generation Failed',
-            description: 'Using a placeholder image. The AI may be busy, please try again later.',
-          });
-        } finally {
-            setTimeout(() => dismiss(), 5000);
-        }
-    
+    const handleAddTravelGoal = (goal: Omit<TravelGoal, 'id' | 'image'> & { travelDate: Date | null }) => {
+        const imageUrl = 'https://placehold.co/400x250.png';
         onUpdate((draft) => {
           draft.travelGoals.push({
             id: `travel-${Date.now()}`,
@@ -281,7 +244,12 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
             image: imageUrl,
           });
         });
-      };
+    
+        toast({
+            title: 'Travel Goal Added!',
+            description: `Your goal to travel to ${goal.destination} has been added.`,
+        });
+    };
 
     const handleDeleteTravelGoal = (id: string) => {
         onUpdate(draft => {

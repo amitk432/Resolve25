@@ -184,7 +184,7 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }:
             {travelGoals.map(goal => (
                 <Card key={goal.id} className="flex flex-col overflow-hidden">
                 <CardHeader className="relative p-0">
-                    <Image src={goal.image} alt={goal.destination} width={400} height={250} className="rounded-t-lg object-cover aspect-[16/10]" />
+                    <Image src={goal.image} alt={goal.destination} width={400} height={250} className="rounded-t-lg object-cover aspect-[16/10]" data-ai-hint={goal.destination.split(',')[0].toLowerCase()} />
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg">
