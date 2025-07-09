@@ -22,6 +22,7 @@ import { EditProfileDialog } from './edit-profile-dialog';
 import { useToast } from '@/hooks/use-toast';
 import type { SuggestedMonthlyPlan } from '@/ai/flows/generate-monthly-plan-suggestions';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import Image from 'next/image';
 
 
 interface DashboardProps {
@@ -298,8 +299,11 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-card shadow-lg">
       <header className="flex flex-col items-center gap-4 bg-primary p-4 text-center text-primary-foreground sm:flex-row sm:justify-between sm:p-6 sm:text-left">
         <div>
+          <div className="flex items-center gap-3">
+            <Image src="/icon.svg" alt="Resolve25 Logo" width={36} height={36} />
             <h1 className="text-2xl font-bold md:text-3xl">Resolve25</h1>
-            <p className="mt-1 text-muted-foreground">Your interactive dashboard to track career, financial, and skill goals.</p>
+          </div>
+          <p className="mt-1 text-muted-foreground">Your interactive dashboard to track career, financial, and skill goals.</p>
         </div>
         {user && (
            <DropdownMenu>

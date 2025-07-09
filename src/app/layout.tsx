@@ -7,6 +7,9 @@ import { AuthProvider } from '@/hooks/use-auth';
 export const metadata: Metadata = {
   title: 'Resolve25',
   description: 'A personal goal-setting and tracking app to help you crush your 2025 resolutions.',
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({
