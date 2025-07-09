@@ -100,29 +100,35 @@ const LoanCalculations = ({ loan, onUpdateLoan }: { loan: Loan, onUpdateLoan: Fi
                         <span className="font-medium">₹{totalPayable.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                     </div>
 
-                    <div className="space-y-3 pt-3 mt-3 border-t">
-                        <Label>EMI Repayment Progress</Label>
-                        <Progress value={emiProgress} />
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>{paidCount} / {n} EMIs Paid</span>
-                            <span>{Math.round(emiProgress)}% Complete</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Remaining Amount Payable</span>
-                            <span className="font-medium">₹{remainingAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                           <Label htmlFor={`emis-paid-${loan.id}`} className="text-sm whitespace-nowrap">Update EMIs Paid:</Label>
-                           <Input
-                               id={`emis-paid-${loan.id}`}
-                               type="number"
-                               value={emisPaidInput}
-                               onChange={(e) => setEmisPaidInput(e.target.value)}
-                               max={n}
-                               min={0}
-                               className="h-9"
-                            />
-                           <Button size="sm" onClick={handleUpdateEmis}>Update</Button>
+                    <div className="pt-3 mt-3 border-t">
+                        <h6 className="text-sm font-medium text-muted-foreground mb-2">EMI Repayment Progress</h6>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 items-start">
+                            <div className="space-y-2">
+                                <Progress value={emiProgress} />
+                                <div className="flex justify-between text-xs text-muted-foreground">
+                                    <span>{paidCount} / {n} EMIs Paid</span>
+                                    <span>{Math.round(emiProgress)}% Complete</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-muted-foreground">Remaining Payable</span>
+                                    <span className="font-medium">₹{remainingAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                </div>
+                            </div>
+                            <div className="space-y-1">
+                                <Label htmlFor={`emis-paid-${loan.id}`} className="text-xs">Update EMIs Paid</Label>
+                                <div className="flex items-center gap-2">
+                                    <Input
+                                       id={`emis-paid-${loan.id}`}
+                                       type="number"
+                                       value={emisPaidInput}
+                                       onChange={(e) => setEmisPaidInput(e.target.value)}
+                                       max={n}
+                                       min={0}
+                                       className="h-9"
+                                    />
+                                   <Button size="sm" onClick={handleUpdateEmis}>Update</Button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </>
