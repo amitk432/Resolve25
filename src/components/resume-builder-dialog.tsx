@@ -191,7 +191,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-3xl h-[90vh] flex flex-col">
+      <DialogContent className="max-w-5xl h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Resume Details</DialogTitle>
           <DialogDescription>
@@ -201,8 +201,8 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
         <div className="flex-grow overflow-hidden">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} id="resume-form" className="h-full flex flex-col">
-                <ScrollArea className="flex-grow pr-4">
-                  <div className="space-y-8">
+                <ScrollArea className="flex-grow">
+                  <div className="max-w-3xl mx-auto space-y-8 px-6 py-4">
                     {/* Contact Info */}
                     <div className="space-y-4">
                       <h4 className="font-medium text-lg">Contact Information</h4>
