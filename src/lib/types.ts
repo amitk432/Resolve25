@@ -28,7 +28,7 @@ export interface MonthlyPlan {
 }
 
 export interface ChecklistItem {
-    id: string;
+    id:string;
     text: string;
     done: boolean;
 }
@@ -43,6 +43,7 @@ export interface Loan {
     tenure?: string; // Tenure in months
     emisPaid?: string; // Number of EMIs already paid
     status: LoanStatus;
+    lastAutoUpdate?: string; // ISO string to track last EMI increment
 }
 
 export type JobStatus = 'Applied' | 'Interviewing' | 'Offer' | 'Rejected';

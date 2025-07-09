@@ -86,7 +86,8 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 rate,
                 tenure,
                 emisPaid,
-                status: 'Active'
+                status: 'Active',
+                lastAutoUpdate: new Date().toISOString()
             });
         });
     };
@@ -100,6 +101,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 loan.rate = rate;
                 loan.tenure = tenure;
                 loan.emisPaid = emisPaid;
+                loan.lastAutoUpdate = new Date().toISOString();
             }
         });
     };

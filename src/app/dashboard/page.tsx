@@ -29,6 +29,32 @@ export default function DashboardPage() {
     }
   }, [user, authLoading, router]);
 
+  const updateDataInFirestore = async (updatedData: AppData) => {
+    if (!user || !db) return;
+    const planRef = doc(db, 'users', user.uid);
+    try {
+      // Create a deep copy and convert Dates to ISO strings for Firestore
+      const firestoreReadyData = JSON.parse(JSON.stringify(updatedData));
+      await setDoc(planRef, firestoreReadyData, { merge: true });
+    } catch (error) {
+      console.error("Error updating data: ", error);
+      if (error instanceof FirestoreError && error.code === 'permission-denied') {
+        toast({
+          variant: 'destructive',
+          title: 'Permission Denied',
+          description: "Could not save your changes. Please check your Firestore security rules to allow writes for authenticated users.",
+          duration: 15000
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Failed to save changes',
+          description: 'Your recent changes could not be saved to the database.',
+        });
+      }
+    }
+  };
+
   useEffect(() => {
     if (user) {
       const fetchData = async () => {
@@ -45,7 +71,47 @@ export default function DashboardPage() {
           const planSnap = await getDoc(planRef);
 
           if (planSnap.exists()) {
-            const fetchedData = planSnap.data();
+            let fetchedData = planSnap.data() as AppData;
+            
+            // --- START NEW AUTO-INCREMENT LOGIC ---
+            const today = new Date();
+            let loansWereUpdated = false;
+
+            const updatedLoans = (fetchedData.loans || []).map(loan => {
+                if (loan.status === 'Active' && loan.tenure) {
+                    // Fallback to today's date if lastAutoUpdate is missing to prevent errors
+                    const lastUpdate = loan.lastAutoUpdate ? new Date(loan.lastAutoUpdate) : new Date();
+                    
+                    // Calculate full months passed
+                    const monthsSinceLastUpdate = (today.getFullYear() - lastUpdate.getFullYear()) * 12 + (today.getMonth() - lastUpdate.getMonth());
+
+                    if (monthsSinceLastUpdate > 0) {
+                        const currentEmisPaid = parseInt(loan.emisPaid || '0', 10);
+                        const totalTenure = parseInt(loan.tenure, 10);
+                        
+                        // Only update if not fully paid
+                        if (currentEmisPaid < totalTenure) {
+                            const newEmisPaid = Math.min(totalTenure, currentEmisPaid + monthsSinceLastUpdate);
+                            
+                            if (String(newEmisPaid) !== loan.emisPaid) {
+                                loansWereUpdated = true;
+                                return {
+                                    ...loan,
+                                    emisPaid: String(newEmisPaid),
+                                    lastAutoUpdate: today.toISOString(),
+                                };
+                            }
+                        }
+                    }
+                }
+                return loan;
+            });
+
+            if (loansWereUpdated) {
+                fetchedData = { ...fetchedData, loans: updatedLoans };
+            }
+            // --- END NEW AUTO-INCREMENT LOGIC ---
+
             // Merge with initialData to ensure all fields are present for older user documents
             const completeData = { ...initialData, ...fetchedData };
             // Ensure nested arrays exist
@@ -56,12 +122,22 @@ export default function DashboardPage() {
             completeData.loans = completeData.loans || [];
             completeData.jobApplications = completeData.jobApplications || [];
             completeData.dailyTasks = completeData.dailyTasks || [];
-            completeData.sipTotalInvestment = completeData.sipTotalInvestment || '0';
+            completeData.sips = completeData.sips || [];
+            completeData.emergencyFundTarget = completeData.emergencyFundTarget || '40000';
             completeData.incomeSources = completeData.incomeSources && completeData.incomeSources.length > 0
               ? completeData.incomeSources
               : [{ id: 'income-1', name: 'Primary Job', amount: '50000' }];
             
             setData(completeData as AppData);
+
+             if (loansWereUpdated) {
+                await updateDataInFirestore(completeData as AppData); 
+                toast({
+                    title: "Loan Progress Updated",
+                    description: "We've automatically updated your EMI payment progress."
+                });
+            }
+
           } else {
             await setDoc(planRef, initialData);
             setData(initialData);
@@ -145,32 +221,6 @@ service cloud.firestore {
       fetchData();
     }
   }, [user, toast]);
-
-  const updateDataInFirestore = async (updatedData: AppData) => {
-    if (!user || !db) return;
-    const planRef = doc(db, 'users', user.uid);
-    try {
-      // Create a deep copy and convert Dates to ISO strings for Firestore
-      const firestoreReadyData = JSON.parse(JSON.stringify(updatedData));
-      await setDoc(planRef, firestoreReadyData, { merge: true });
-    } catch (error) {
-      console.error("Error updating data: ", error);
-      if (error instanceof FirestoreError && error.code === 'permission-denied') {
-        toast({
-          variant: 'destructive',
-          title: 'Permission Denied',
-          description: "Could not save your changes. Please check your Firestore security rules to allow writes for authenticated users.",
-          duration: 15000
-        });
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'Failed to save changes',
-          description: 'Your recent changes could not be saved to the database.',
-        });
-      }
-    }
-  };
   
   const handleUpdate = (updater: (draft: AppData) => void) => {
     if (!data) return;

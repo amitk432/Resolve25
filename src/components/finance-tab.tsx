@@ -50,18 +50,11 @@ const loanSchema = z.object({
   emisPaid: z.string().optional(),
 });
 
-const LoanCalculations = ({ loan, onUpdateLoan }: { loan: Loan, onUpdateLoan: FinanceTabProps['onUpdateLoan'] }) => {
-    const { toast } = useToast();
-    const [emisPaidInput, setEmisPaidInput] = useState(loan.emisPaid || '0');
-
-    useEffect(() => {
-        setEmisPaidInput(loan.emisPaid || '0');
-    }, [loan.emisPaid]);
-
+const LoanCalculations = ({ loan }: { loan: Loan }) => {
     const p = parseFloat(loan.principal);
     const r = loan.rate ? parseFloat(loan.rate) / 100 / 12 : undefined;
     const n = loan.tenure ? parseInt(loan.tenure, 10) : undefined;
-    const paidCount = emisPaidInput ? parseInt(emisPaidInput, 10) : 0;
+    const paidCount = loan.emisPaid ? parseInt(loan.emisPaid, 10) : 0;
     
     let emi = 0;
     if (p > 0 && r !== undefined && r > 0 && n !== undefined && n > 0) {
@@ -73,15 +66,6 @@ const LoanCalculations = ({ loan, onUpdateLoan }: { loan: Loan, onUpdateLoan: Fi
     const remainingEmis = (n || 0) - paidCount;
     const remainingAmount = emi * remainingEmis;
     const emiProgress = (n || 0) > 0 ? (paidCount / (n || 1)) * 100 : 0;
-
-    const handleUpdateEmis = () => {
-        if(n !== undefined && parseInt(emisPaidInput, 10) > n) {
-            toast({ variant: 'destructive', title: 'Invalid Input', description: 'EMIs paid cannot be more than total tenure.' });
-            return;
-        }
-        onUpdateLoan(loan.id, loan.name, loan.principal, loan.rate, loan.tenure, emisPaidInput);
-        toast({ title: 'EMI Status Updated' });
-    }
         
     return (
         <div className="space-y-2">
@@ -102,32 +86,15 @@ const LoanCalculations = ({ loan, onUpdateLoan }: { loan: Loan, onUpdateLoan: Fi
 
                     <div className="pt-3 mt-3 border-t">
                         <h6 className="text-sm font-medium text-muted-foreground mb-2">EMI Repayment Progress</h6>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 items-start">
-                            <div className="space-y-2">
-                                <Progress value={emiProgress} />
-                                <div className="flex justify-between text-xs text-muted-foreground">
-                                    <span>{paidCount} / {n} EMIs Paid</span>
-                                    <span>{Math.round(emiProgress)}% Complete</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Remaining Payable</span>
-                                    <span className="font-medium">₹{remainingAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
-                                </div>
+                        <div className="space-y-2">
+                            <Progress value={emiProgress} />
+                            <div className="flex justify-between text-xs text-muted-foreground">
+                                <span>{paidCount} / {n} EMIs Paid</span>
+                                <span>{Math.round(emiProgress)}% Complete</span>
                             </div>
-                            <div className="space-y-1">
-                                <Label htmlFor={`emis-paid-${loan.id}`} className="text-xs">Update EMIs Paid</Label>
-                                <div className="flex items-center gap-2">
-                                    <Input
-                                       id={`emis-paid-${loan.id}`}
-                                       type="number"
-                                       value={emisPaidInput}
-                                       onChange={(e) => setEmisPaidInput(e.target.value)}
-                                       max={n}
-                                       min={0}
-                                       className="h-9"
-                                    />
-                                   <Button size="sm" onClick={handleUpdateEmis}>Update</Button>
-                                </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Remaining Payable</span>
+                                <span className="font-medium">₹{remainingAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                             </div>
                         </div>
                     </div>
@@ -223,11 +190,10 @@ export default function FinanceTab({
                         <div className="space-y-6">
                             {loans.map(loan => (
                                 <div key={loan.id} className="p-4 border rounded-lg bg-background">
-                                    <div className="flex justify-between items-center">
+                                    <div className="flex justify-between items-start">
                                         <div className="flex items-center gap-4">
-                                            <h4 className="font-semibold text-lg">{loan.name}</h4>
                                             <Select value={loan.status} onValueChange={(value: LoanStatus) => onUpdateLoanStatus(loan.id, value)}>
-                                                <SelectTrigger className="w-[120px] h-8 text-xs">
+                                                <SelectTrigger className="w-[120px] h-9 text-sm">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -235,6 +201,7 @@ export default function FinanceTab({
                                                     <SelectItem value="Closed">Closed</SelectItem>
                                                 </SelectContent>
                                             </Select>
+                                            <h4 className="font-semibold text-lg">{loan.name}</h4>
                                         </div>
                                         <div className="flex gap-1">
                                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenDialog(loan)}>
@@ -280,7 +247,7 @@ export default function FinanceTab({
                                         </div>
                                         <div className="space-y-2">
                                             <h5 className="text-sm font-medium text-muted-foreground">Repayment Summary</h5>
-                                            <LoanCalculations loan={loan} onUpdateLoan={onUpdateLoan} />
+                                            <LoanCalculations loan={loan} />
                                         </div>
                                     </div>
                                 </div>
