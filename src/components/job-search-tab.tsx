@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Trash2, Plus, FileText, Download, Sparkles, ChevronDown, Clock, IndianRupee, Star, ListChecks } from 'lucide-react';
+import { Trash2, Plus, FileText, Download, Sparkles, ChevronDown, Clock, IndianRupee, Star, ListChecks, LinkIcon, MapPin } from 'lucide-react';
 import AiSuggestionSection from './ai-suggestion-section';
 import ResumeBuilderDialog from './resume-builder-dialog';
 import ResumeTemplate from './resume-template';
@@ -33,6 +33,7 @@ interface JobSearchTabProps {
 const appSchema = z.object({
   company: z.string().min(1, 'Company name is required.'),
   role: z.string().min(1, 'Role is required.'),
+  applyLink: z.string().url({ message: 'Please enter a valid URL.' }).optional().or(z.literal('')),
 });
 
 
@@ -43,11 +44,11 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
 
     const form = useForm<z.infer<typeof appSchema>>({
         resolver: zodResolver(appSchema),
-        defaultValues: { company: '', role: '' },
+        defaultValues: { company: '', role: '', applyLink: '' },
     });
 
     const onSubmit = (values: z.infer<typeof appSchema>) => {
-        onAddApplication({ company: values.company, role: values.role });
+        onAddApplication({ company: values.company, role: values.role, applyLink: values.applyLink });
         setDialogOpen(false);
         form.reset();
     }
@@ -144,6 +145,17 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                                         </FormItem>
                                     )}
                                 />
+                                <FormField
+                                    control={form.control}
+                                    name="applyLink"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Application Link (Optional)</FormLabel>
+                                            <FormControl><Input placeholder="https://careers.example.com/job/123" {...field} /></FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                                 <DialogFooter>
                                     <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
                                     <Button type="submit">Add Application</Button>
@@ -161,10 +173,10 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                         <TableRow>
                             <TableHead className="w-12"></TableHead>
                             <TableHead>Company</TableHead>
+                            <TableHead>Date Applied</TableHead>
                             <TableHead>Role</TableHead>
-                            <TableHead>Location</TableHead>
-                            <TableHead>Date Added</TableHead>
                             <TableHead>Status</TableHead>
+                            <TableHead className="text-center">Apply Link</TableHead>
                             <TableHead className="text-center">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -178,7 +190,7 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                                 <React.Fragment key={index}>
                                     <TableRow>
                                         <TableCell>
-                                             {(app.keyResponsibilities || app.requiredSkills || app.salaryRange || app.jobType) && (
+                                             {(app.keyResponsibilities || app.requiredSkills || app.salaryRange || app.jobType || app.location) && (
                                                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setExpandedRow(expandedRow === index ? null : index)}>
                                                     <ChevronDown className={`h-4 w-4 transition-transform ${expandedRow === index ? 'rotate-180' : ''}`} />
                                                 </Button>
@@ -190,9 +202,8 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                                                 {app.company}
                                             </div>
                                         </TableCell>
-                                        <TableCell>{app.role}</TableCell>
-                                        <TableCell>{app.location || 'N/A'}</TableCell>
                                         <TableCell>{format(parseISO(app.date), 'dd-MMMM-yyyy')}</TableCell>
+                                        <TableCell>{app.role}</TableCell>
                                         <TableCell>
                                              <Select value={app.status} onValueChange={(value: JobStatus) => onUpdateStatus(index, value)}>
                                                 <SelectTrigger className="w-[150px]">
@@ -208,6 +219,17 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                                             </Select>
                                         </TableCell>
                                         <TableCell className="text-center">
+                                            {app.applyLink ? (
+                                                <Button asChild variant="outline" size="icon" className="h-8 w-8">
+                                                    <a href={app.applyLink} target="_blank" rel="noopener noreferrer">
+                                                        <LinkIcon className="h-4 w-4" />
+                                                    </a>
+                                                </Button>
+                                            ) : (
+                                                <span className="text-muted-foreground">-</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-center">
                                             <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => onDelete(index)}>
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
@@ -218,6 +240,7 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                                             <TableCell colSpan={7} className="p-0">
                                                 <div className="p-4 space-y-4">
                                                     <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+                                                        {app.location && <div className="flex items-center gap-1.5"><MapPin className="h-4 w-4"/> {app.location}</div>}
                                                         {app.jobType && <div className="flex items-center gap-1.5"><Clock className="h-4 w-4"/> {app.jobType}</div>}
                                                         {app.salaryRange && <div className="flex items-center gap-1.5"><IndianRupee className="h-4 w-4"/> {app.salaryRange}</div>}
                                                     </div>

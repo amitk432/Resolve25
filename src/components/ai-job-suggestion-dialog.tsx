@@ -17,7 +17,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { BrainCircuit, Sparkles, Loader2, Plus, Briefcase, MapPin, Clock, IndianRupee, ListChecks, Star } from 'lucide-react';
+import { BrainCircuit, Sparkles, Loader2, Plus, Briefcase, MapPin, Clock, IndianRupee, ListChecks, Star, LinkIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 interface AiJobSuggestionDialogProps {
@@ -122,6 +122,14 @@ export default function AiJobSuggestionDialog({ resumeData, onAddApplication, ch
                             <div className="flex items-center gap-1.5"><MapPin className="h-4 w-4"/> {job.location}</div>
                             <div className="flex items-center gap-1.5"><Clock className="h-4 w-4"/> {job.jobType}</div>
                             {job.salaryRange && <div className="flex items-center gap-1.5"><IndianRupee className="h-4 w-4"/> {job.salaryRange}</div>}
+                            {job.applyLink && (
+                                <div className="flex items-center gap-1.5">
+                                    <LinkIcon className="h-4 w-4" />
+                                    <a href={job.applyLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                                        Application Link
+                                    </a>
+                                </div>
+                            )}
                         </div>
                         <p className="text-sm"><strong className="text-foreground">Why it's a fit:</strong> {job.reasoning}</p>
                         

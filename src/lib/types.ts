@@ -60,6 +60,7 @@ export interface JobApplication {
     salaryRange?: string;
     keyResponsibilities?: string[];
     requiredSkills?: string[];
+    applyLink?: string;
 }
 
 export type TravelGoalStatus = 'Completed' | 'Planned';
