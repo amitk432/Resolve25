@@ -13,7 +13,7 @@ function formatDate(dateStr: string | null): string {
     if (!dateStr) return '';
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return '';
-    return format(date, 'dd-MMMM-yyyy');
+    return format(date, 'MMM yyyy');
 }
 
 function formatDateRange(startDateStr: string | null, endDateStr: string | null, isCurrent: boolean): string {
