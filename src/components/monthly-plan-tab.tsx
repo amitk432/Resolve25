@@ -44,7 +44,7 @@ const MonthCard = ({ monthData, monthIndex, data, onToggleTask, onAddTask, onDel
                 <CardDescription>{monthData.theme}</CardDescription>
             </CardHeader>
             <CardContent>
-                 <div className="space-y-3 mt-4">
+                 <div className="space-y-3">
                     {monthData.tasks.map((task, taskIndex) => (
                         <div key={taskIndex} className="flex items-center group">
                             <Checkbox
@@ -110,7 +110,7 @@ export default function MonthlyPlanTab({ monthlyPlan, onToggleTask, onAddTask, o
                 </div>
             </div>
             
-            <div className="space-y-8 mt-8">
+            <div className="space-y-6">
                 {monthlyPlan.map((monthData, monthIndex) => (
                     <MonthCard
                         key={monthIndex}
