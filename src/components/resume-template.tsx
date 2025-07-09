@@ -81,11 +81,11 @@ export default function ResumeTemplate({ resume }: { resume: ResumeData }) {
       {Object.keys(skills).length > 0 && (
         <section className="mb-6">
           <SectionHeader title="Skills" />
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col gap-1">
             {Object.entries(skills).map(([category, skillList]) => (
-              <div key={category} className="flex text-sm py-0.5">
-                <p className="w-1/3 font-bold text-gray-900 pr-4">{category}</p>
-                <p className="w-2/3 text-gray-700">{skillList}</p>
+              <div key={category} className="text-sm py-0.5">
+                <span className="font-bold text-gray-900">{category}: </span>
+                <span className="text-gray-700">{skillList}</span>
               </div>
             ))}
           </div>
@@ -104,7 +104,7 @@ export default function ResumeTemplate({ resume }: { resume: ResumeData }) {
                   <p className="text-sm font-medium text-gray-500">{formatDateRange(job.startDate, job.endDate, job.isCurrent)}</p>
                 </div>
                 <p className="font-semibold text-gray-800 italic">{job.role}</p>
-                <ul className="list-disc list-inside mt-1 space-y-1.5 text-gray-700 text-justify">
+                <ul className="list-disc list-outside pl-5 mt-1 space-y-1.5 text-gray-700 text-justify">
                   {job.descriptionPoints.map((point, i) => <li key={i}>{point}</li>)}
                 </ul>
               </div>
