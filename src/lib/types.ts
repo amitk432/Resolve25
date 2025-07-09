@@ -105,13 +105,17 @@ export interface ResumeWorkExperience {
   company: string;
   location: string;
   role: string;
-  dates: string;
+  startDate: string | null;
+  endDate: string | null;
+  isCurrent: boolean;
   descriptionPoints: string[];
 }
 
 export interface ResumeProject {
   name: string;
-  dates: string;
+  startDate: string | null;
+  endDate: string | null;
+  isCurrent: boolean;
   description: string;
 }
 
@@ -120,7 +124,7 @@ export interface ResumeEducation {
   degree: string;
   location: string;
   gpa: string;
-  date: string;
+  endDate: string | null;
 }
 
 export interface ResumeData {

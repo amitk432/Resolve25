@@ -4,10 +4,32 @@
 import type { ResumeData } from '@/lib/types';
 import { Mail, Phone, MapPin, Linkedin, Github } from 'lucide-react';
 
-// SectionHeader Component for consistent section titles
 const SectionHeader = ({ title }: { title: string }) => (
   <h2 className="text-sm font-bold text-teal-600 uppercase tracking-wider border-b-2 border-gray-200 pb-1 mb-3">{title}</h2>
 );
+
+function formatDate(dateStr: string | null): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short' };
+    return date.toLocaleDateString('en-US', options);
+}
+
+function formatDateRange(startDateStr: string | null, endDateStr: string | null, isCurrent: boolean): string {
+  const startFormatted = formatDate(startDateStr);
+
+  if (isCurrent) {
+    return `${startFormatted} - Present`;
+  }
+
+  const endFormatted = formatDate(endDateStr);
+  
+  if (startFormatted && endFormatted) {
+      return `${startFormatted} - ${endFormatted}`;
+  }
+  
+  return startFormatted || endFormatted;
+}
 
 export default function ResumeTemplate({ resume }: { resume: ResumeData }) {
   const { contactInfo, summary, skills, workExperience, education, projects } = resume;
@@ -78,7 +100,7 @@ export default function ResumeTemplate({ resume }: { resume: ResumeData }) {
               <div key={index}>
                 <div className="flex justify-between items-baseline">
                   <h3 className="font-bold text-base text-gray-900">{job.company} <span className="font-normal text-gray-500 text-sm">• {job.location}</span></h3>
-                  <p className="text-sm font-medium text-gray-500">{job.dates}</p>
+                  <p className="text-sm font-medium text-gray-500">{formatDateRange(job.startDate, job.endDate, job.isCurrent)}</p>
                 </div>
                 <p className="font-semibold text-gray-800 italic">{job.role}</p>
                 <ul className="list-disc list-inside mt-1 space-y-1.5 text-gray-700 text-justify">
@@ -99,7 +121,7 @@ export default function ResumeTemplate({ resume }: { resume: ResumeData }) {
               <div key={index}>
                 <div className="flex justify-between items-baseline">
                   <h3 className="font-bold text-base text-gray-900">{project.name}</h3>
-                  <p className="text-sm font-medium text-gray-500">{project.dates}</p>
+                   <p className="text-sm font-medium text-gray-500">{formatDateRange(project.startDate, project.endDate, project.isCurrent)}</p>
                 </div>
                 <p className="text-gray-700 text-justify leading-relaxed">{project.description}</p>
               </div>
@@ -116,7 +138,7 @@ export default function ResumeTemplate({ resume }: { resume: ResumeData }) {
             <div key={index}>
               <div className="flex justify-between items-start">
                 <h3 className="font-bold text-base text-gray-900">{edu.institution}</h3>
-                <p className="text-sm font-medium text-gray-500">{edu.date}</p>
+                <p className="text-sm font-medium text-gray-500">{formatDate(edu.endDate)}</p>
               </div>
               <p className="text-gray-700">{edu.degree} • {edu.location} • {edu.gpa}</p>
             </div>
