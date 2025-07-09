@@ -599,6 +599,7 @@ function SavingsAndInvestmentsCard({
     
     const [isSipDialogOpen, setSipDialogOpen] = useState(false);
     const [editingSip, setEditingSip] = useState<SIP | null>(null);
+    const [isSipVisible, setSipVisible] = useState(false);
 
     const sipForm = useForm<z.infer<typeof sipSchema>>({
         resolver: zodResolver(sipSchema),
@@ -608,9 +609,7 @@ function SavingsAndInvestmentsCard({
     useEffect(() => setManualFundInput(emergencyFund), [emergencyFund]);
     useEffect(() => setTargetInput(emergencyFundTarget), [emergencyFundTarget]);
 
-    const totalEmergencyFund = useMemo(() => {
-        return (parseFloat(manualFundInput) || 0);
-    }, [manualFundInput]);
+    const totalEmergencyFund = parseFloat(emergencyFund) || 0;
 
     const emergencyFundTargetValue = parseFloat(targetInput) || 0;
     const emergencyFundProgress = emergencyFundTargetValue > 0 ? Math.min((totalEmergencyFund / emergencyFundTargetValue) * 100, 100) : 0;
@@ -667,7 +666,7 @@ function SavingsAndInvestmentsCard({
                         <div className="p-4 bg-muted/50 rounded-lg space-y-4">
                             <div className="text-center">
                                 <p className="text-sm text-muted-foreground">Total Emergency Fund</p>
-                                <p className="text-3xl font-bold text-primary">₹{parseFloat(emergencyFund).toLocaleString('en-IN')}</p>
+                                <p className="text-3xl font-bold text-primary">₹{totalEmergencyFund.toLocaleString('en-IN')}</p>
                             </div>
                             <Progress value={emergencyFundProgress} className="h-2" />
                             <div className="flex justify-between items-center text-sm">
@@ -722,9 +721,14 @@ function SavingsAndInvestmentsCard({
                     <div>
                         <div className="flex justify-between items-center mb-4">
                             <h4 className="font-medium text-foreground">SIP Planner</h4>
-                            <Button onClick={() => handleOpenSipDialog(null)}>
-                                <Plus className="mr-2 h-4 w-4" /> Add SIP
-                            </Button>
+                            <div className="flex items-center gap-2">
+                                <Button variant="ghost" size="icon" onClick={() => setSipVisible(!isSipVisible)}>
+                                    {isSipVisible ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                </Button>
+                                <Button onClick={() => handleOpenSipDialog(null)}>
+                                    <Plus className="mr-2 h-4 w-4" /> Add SIP
+                                </Button>
+                            </div>
                         </div>
                         <div className="flex items-center gap-2 mt-2">
                             <Badge variant="outline" className="border-yellow-300 bg-yellow-50 text-yellow-800 dark:border-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300">
@@ -742,7 +746,9 @@ function SavingsAndInvestmentsCard({
                                             <p className="text-sm text-muted-foreground">{sip.platform || 'N/A'}</p>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <p className="font-mono font-semibold">₹{parseFloat(sip.amount).toLocaleString('en-IN')}</p>
+                                            <p className="font-mono font-semibold">
+                                                {isSipVisible ? `₹${parseFloat(sip.amount).toLocaleString('en-IN')}` : '₹ ••••••'}
+                                            </p>
                                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenSipDialog(sip)}><Pencil className="h-4 w-4" /></Button>
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
@@ -772,7 +778,9 @@ function SavingsAndInvestmentsCard({
                                 <Separator className="my-2" />
                                 <div className="flex justify-between items-center pt-2 font-bold text-lg">
                                     <span>Total Monthly SIP:</span>
-                                    <span>₹{totalSipInvestment.toLocaleString('en-IN')}</span>
+                                    <span>
+                                       {isSipVisible ? `₹${totalSipInvestment.toLocaleString('en-IN')}` : '₹ ••••••'}
+                                    </span>
                                 </div>
                                 </>
                             )}
