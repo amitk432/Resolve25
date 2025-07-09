@@ -54,7 +54,6 @@ const LoanCalculations = ({ loan }: { loan: Loan }) => {
     const p = parseFloat(loan.principal);
     const r = loan.rate ? parseFloat(loan.rate) / 100 / 12 : undefined;
     const n = loan.tenure ? parseInt(loan.tenure, 10) : undefined;
-    const paidCount = loan.emisPaid ? parseInt(loan.emisPaid, 10) : 0;
     
     let emi = 0;
     if (p > 0 && r !== undefined && r > 0 && n !== undefined && n > 0) {
@@ -62,7 +61,7 @@ const LoanCalculations = ({ loan }: { loan: Loan }) => {
     }
     const totalPayable = emi * (n || 0);
     const totalInterest = totalPayable > 0 ? totalPayable - p : 0;
-    
+    const paidCount = loan.emisPaid ? parseInt(loan.emisPaid, 10) : 0;
     const remainingEmis = (n || 0) - paidCount;
     const remainingAmount = loan.status === 'Closed' ? 0 : emi * remainingEmis;
         
@@ -163,9 +162,9 @@ export default function FinanceTab({
 
     return (
         <div className="space-y-8">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-foreground">Loan & Investment Tracker</h2>
-                <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4"/> Add Loan</Button>
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold text-foreground">Loan & Investment Tracker</h2>
+              <Button onClick={() => handleOpenDialog(null)}><Plus className="mr-2 h-4 w-4"/> Add Loan</Button>
             </div>
             
             <Card>
@@ -760,10 +759,9 @@ function SavingsAndInvestmentsCard({
                             {sips.length > 0 && (
                                 <>
                                 <Separator className="my-2" />
-                                <div className="flex justify-between items-center pt-2 font-bold text-lg">
-                                    <span>Total Monthly SIP:</span>
-                                    <span>
-                                       {isSipVisible ? `₹${totalSipInvestment.toLocaleString('en-IN')}` : '₹ ••••••'}
+                                <div className="flex justify-end pt-2 text-lg">
+                                    <span className="font-bold">
+                                        Total Monthly SIP: <span className="font-mono">{isSipVisible ? `₹${totalSipInvestment.toLocaleString('en-IN')}` : '₹ ••••••'}</span>
                                     </span>
                                 </div>
                                 </>
