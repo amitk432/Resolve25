@@ -3,8 +3,6 @@
 
 import { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { format } from 'date-fns';
 import type { AppData, ResumeData } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -86,7 +84,6 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
   const currentYear = new Date().getFullYear();
 
   const form = useForm<ResumeFormValues>({
-    resolver: zodResolver(resumeFormSchema),
     mode: 'onChange',
     defaultValues: {
       contactInfo: { name: '', location: '', phone: '', email: '', linkedin: '', github: '' },
@@ -204,7 +201,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} id="resume-form" className="h-full flex flex-col">
                 <ScrollArea className="flex-grow pr-4">
-                  <div className="space-y-8 p-1">
+                  <div className="space-y-8">
                     {/* Contact Info */}
                     <div className="space-y-4">
                       <h4 className="font-medium text-lg">Contact Information</h4>
@@ -273,7 +270,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                                 </Button>
                                             </FormControl></PopoverTrigger>
                                             <PopoverContent className="w-auto p-0">
-                                                <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value} onSelect={field.onChange} initialFocus />
+                                                <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value ?? undefined} onSelect={field.onChange} initialFocus />
                                             </PopoverContent>
                                             </Popover><FormMessage />
                                         </FormItem>
@@ -289,7 +286,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                                 </Button>
                                             </FormControl></PopoverTrigger>
                                             <PopoverContent className="w-auto p-0">
-                                                <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value} onSelect={field.onChange} initialFocus />
+                                                <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value ?? undefined} onSelect={field.onChange} initialFocus />
                                             </PopoverContent>
                                             </Popover><FormMessage />
                                         </FormItem>
@@ -329,7 +326,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                                 </Button>
                                             </FormControl></PopoverTrigger>
                                             <PopoverContent className="w-auto p-0">
-                                                <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value} onSelect={field.onChange} initialFocus />
+                                                <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value ?? undefined} onSelect={field.onChange} initialFocus />
                                             </PopoverContent>
                                             </Popover><FormMessage />
                                         </FormItem>
@@ -345,7 +342,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                                 </Button>
                                             </FormControl></PopoverTrigger>
                                             <PopoverContent className="w-auto p-0">
-                                                <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value} onSelect={field.onChange} initialFocus />
+                                                <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value ?? undefined} onSelect={field.onChange} initialFocus />
                                             </PopoverContent>
                                             </Popover><FormMessage />
                                         </FormItem>
@@ -388,7 +385,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                             </Button>
                                         </FormControl></PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
-                                            <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value} onSelect={field.onChange} initialFocus />
+                                            <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value ?? undefined} onSelect={field.onChange} initialFocus />
                                         </PopoverContent>
                                         </Popover><FormMessage />
                                     </FormItem>
@@ -401,7 +398,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                 </ScrollArea>
                 <DialogFooter className="pt-4 mt-auto border-t">
                   <Button variant="outline" onClick={() => setOpen(false)}>Close</Button>
-                  <Button type="submit" form="resume-form" disabled={!form.formState.isValid}>Save Details</Button>
+                  <Button type="submit" form="resume-form" disabled={!form.formState.isDirty && !form.formState.isValid}>Save Details</Button>
                 </DialogFooter>
               </form>
             </Form>
@@ -410,5 +407,3 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
     </Dialog>
   );
 }
-
-    
