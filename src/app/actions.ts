@@ -3,6 +3,7 @@
 
 import { generateGoalTips, type GenerateGoalTipsInput } from '@/ai/flows/generate-goal-tips';
 import { generateModuleSuggestions, type ModuleSuggestionInput } from '@/ai/flows/generate-module-suggestions';
+import { generateGoalSuggestions, type GenerateGoalSuggestionsInput } from '@/ai/flows/generate-goal-suggestions';
 
 export async function getModuleSuggestions(input: ModuleSuggestionInput) {
     try {
@@ -22,6 +23,17 @@ export async function getAITips(input: GenerateGoalTipsInput) {
   } catch (error) {
     console.error('Error getting AI tips:', error);
     const errorMessage = error instanceof Error ? error.message : 'Failed to generate AI tips. Please try again.';
+    return { error: errorMessage };
+  }
+}
+
+export async function getAIGoalSuggestions(input: GenerateGoalSuggestionsInput) {
+  try {
+    const result = await generateGoalSuggestions(input);
+    return result;
+  } catch (error) {
+    console.error('Error getting AI goal suggestions:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to generate AI suggestions. Please try again.';
     return { error: errorMessage };
   }
 }

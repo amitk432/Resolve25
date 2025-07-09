@@ -342,7 +342,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 <DashboardOverview data={data} />
             </TabsContent>
             <TabsContent value="goals">
-                <GoalsTab goals={data.goals} onUpdate={onUpdate} />
+                <GoalsTab data={data} onUpdate={onUpdate} />
             </TabsContent>
             <TabsContent value="daily-todo">
                 <DailyTodoTab 

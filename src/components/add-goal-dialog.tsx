@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, Plus, Briefcase, HeartPulse, BookOpenText, Sparkles } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Briefcase, HeartPulse, BookOpenText } from 'lucide-react';
 import type { Goal, GoalCategory } from '@/lib/types';
 
 import { Button } from '@/components/ui/button';
@@ -32,12 +32,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -89,37 +83,11 @@ export default function AddGoalDialog({ onGoalAdd }: AddGoalDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <div className="flex items-center gap-2">
-        <DialogTrigger asChild>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" /> Add New Goal
-          </Button>
-        </DialogTrigger>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toast({
-                    title: 'Coming Soon!',
-                    description: 'AI-powered goal generation will be available here.',
-                  });
-                }}
-              >
-                <Sparkles className="h-4 w-4" />
-                <span className="sr-only">Generate with AI</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Generate with AI</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
+      <DialogTrigger asChild>
+        <Button>
+          <Plus className="mr-2 h-4 w-4" /> Add New Goal
+        </Button>
+      </DialogTrigger>
 
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>

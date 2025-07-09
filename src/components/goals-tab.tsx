@@ -4,15 +4,17 @@
 import type { AppData, Goal } from '@/lib/types';
 import AddGoalDialog from './add-goal-dialog';
 import GoalCard from './goal-card';
-import { Target } from 'lucide-react';
-import AiTipsDialog from './ai-tips-dialog';
+import { Sparkles, Target } from 'lucide-react';
+import AiGoalGeneratorDialog from './ai-goal-generator-dialog';
+import { Button } from './ui/button';
+import type { SuggestedGoal } from '@/ai/flows/generate-goal-suggestions';
 
 interface GoalsTabProps {
-    goals: Goal[];
+    data: AppData;
     onUpdate: (updater: (draft: AppData) => void) => void;
 }
 
-export default function GoalsTab({ goals, onUpdate }: GoalsTabProps) {
+export default function GoalsTab({ data, onUpdate }: GoalsTabProps) {
 
     const handleGoalAdd = (newGoal: Omit<Goal, 'id' | 'steps' | 'deadline'> & { deadline: Date }) => {
         onUpdate(draft => {
@@ -22,6 +24,25 @@ export default function GoalsTab({ goals, onUpdate }: GoalsTabProps) {
                 deadline: newGoal.deadline.toISOString(),
                 steps: []
             });
+        });
+    };
+
+    const handleAiGoalAdd = (suggestedGoal: SuggestedGoal) => {
+        onUpdate(draft => {
+            const newGoal: Goal = {
+                id: `goal-${Date.now()}`,
+                title: suggestedGoal.title,
+                description: suggestedGoal.description,
+                category: suggestedGoal.category,
+                // AI goals get a default 3 month deadline, user can change it.
+                deadline: new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString(),
+                steps: suggestedGoal.steps.map(stepText => ({
+                    id: `step-${Date.now()}-${Math.random()}`,
+                    text: stepText,
+                    completed: false,
+                }))
+            };
+            draft.goals.push(newGoal);
         });
     };
 
@@ -62,13 +83,23 @@ export default function GoalsTab({ goals, onUpdate }: GoalsTabProps) {
     return (
         <div className="space-y-8">
             <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-foreground">Your Goals for 2025</h2>
-                <AddGoalDialog onGoalAdd={handleGoalAdd} />
+                <div>
+                    <h2 className="text-xl font-bold text-foreground">Your Goals for 2025</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                    <AiGoalGeneratorDialog data={data} onGoalAdd={handleAiGoalAdd}>
+                        <Button variant="outline">
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            Generate with AI
+                        </Button>
+                    </AiGoalGeneratorDialog>
+                    <AddGoalDialog onGoalAdd={handleGoalAdd} />
+                </div>
             </div>
             
-            {goals.length > 0 ? (
+            {data.goals.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {goals.map(goal => (
+                    {data.goals.map(goal => (
                        <GoalCard 
                             key={goal.id} 
                             goal={goal}
