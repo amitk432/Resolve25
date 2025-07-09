@@ -38,43 +38,43 @@ interface ResumeBuilderDialogProps {
 
 const resumeFormSchema = z.object({
   contactInfo: z.object({
-    name: z.string().min(1, 'Name is required.'),
-    location: z.string().min(1, 'Location is required.'),
-    phone: z.string().min(1, 'Phone is required.'),
-    email: z.string().email('Invalid email address.'),
-    linkedin: z.string().url('Invalid URL.').optional().or(z.literal('')),
-    github: z.string().url('Invalid URL.').optional().or(z.literal('')),
+    name: z.string(),
+    location: z.string(),
+    phone: z.string(),
+    email: z.string(),
+    linkedin: z.string().optional().or(z.literal('')),
+    github: z.string().optional().or(z.literal('')),
   }),
   summary: z.object({
-    title: z.string().min(1, 'Summary title is required.'),
-    text: z.string().min(1, 'Summary text is required.'),
+    title: z.string(),
+    text: z.string(),
   }),
   skills: z.array(z.object({
-    category: z.string().min(1, 'Category is required.'),
-    skillList: z.string().min(1, 'Skills are required.'),
+    category: z.string(),
+    skillList: z.string(),
   })),
   workExperience: z.array(z.object({
-    company: z.string().min(1, 'Company is required.'),
-    location: z.string().min(1, 'Location is required.'),
-    role: z.string().min(1, 'Role is required.'),
-    startDate: z.date({ required_error: 'Start date is required.' }),
+    company: z.string(),
+    location: z.string(),
+    role: z.string(),
+    startDate: z.date().nullable(),
     endDate: z.date().nullable(),
     isCurrent: z.boolean().default(false),
-    descriptionPoints: z.string().min(1, 'Description is required.'),
+    descriptionPoints: z.string(),
   })),
   projects: z.array(z.object({
-    name: z.string().min(1, 'Project name is required.'),
-    startDate: z.date({ required_error: 'Start date is required.' }),
+    name: z.string(),
+    startDate: z.date().nullable(),
     endDate: z.date().nullable(),
     isCurrent: z.boolean().default(false),
-    description: z.string().min(1, 'Description is required.'),
+    description: z.string(),
   })),
   education: z.array(z.object({
-    institution: z.string().min(1, 'Institution is required.'),
-    degree: z.string().min(1, 'Degree is required.'),
-    location: z.string().min(1, 'Location is required.'),
-    gpa: z.string().min(1, 'GPA is required.'),
-    endDate: z.date({ required_error: 'End date is required.' }),
+    institution: z.string(),
+    degree: z.string(),
+    location: z.string(),
+    gpa: z.string(),
+    endDate: z.date().nullable(),
   })),
 });
 
@@ -83,9 +83,11 @@ type ResumeFormValues = z.infer<typeof resumeFormSchema>;
 export default function ResumeBuilderDialog({ data, onUpdate, children }: ResumeBuilderDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const currentYear = new Date().getFullYear();
 
   const form = useForm<ResumeFormValues>({
     resolver: zodResolver(resumeFormSchema),
+    mode: 'onChange',
     defaultValues: {
       contactInfo: { name: '', location: '', phone: '', email: '', linkedin: '', github: '' },
       summary: { title: '', text: '' },
@@ -104,20 +106,27 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
   useEffect(() => {
     if (open && data.resume) {
       const skillsArray = data.resume.skills ? Object.entries(data.resume.skills).map(([category, skillList]) => ({ category, skillList })) : [];
+      
+      const parseDate = (dateStr: string | null | undefined): Date | null => {
+        if (!dateStr) return null;
+        const date = new Date(dateStr);
+        return isNaN(date.getTime()) ? null : date;
+      };
+
       const workExperienceArray = data.resume.workExperience.map(w => ({
           ...w,
           descriptionPoints: w.descriptionPoints.join('\n'),
-          startDate: w.startDate ? new Date(w.startDate) : null,
-          endDate: w.endDate ? new Date(w.endDate) : null,
+          startDate: parseDate(w.startDate),
+          endDate: parseDate(w.endDate),
       }));
       const projectsArray = (data.resume.projects || []).map(p => ({
           ...p,
-          startDate: p.startDate ? new Date(p.startDate) : null,
-          endDate: p.endDate ? new Date(p.endDate) : null,
+          startDate: parseDate(p.startDate),
+          endDate: parseDate(p.endDate),
       }));
       const educationArray = (data.resume.education || []).map(e => ({
           ...e,
-          endDate: e.endDate ? new Date(e.endDate) : null,
+          endDate: parseDate(e.endDate),
       }));
       
       form.reset({
@@ -132,7 +141,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
         form.reset({
             contactInfo: { name: '', location: '', phone: '', email: '', linkedin: '', github: '' },
             summary: { title: '', text: '' },
-            skills: [],
+            skills: [{ category: '', skillList: '' }],
             workExperience: [],
             projects: [],
             education: [],
@@ -263,7 +272,9 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                                     {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
                                                 </Button>
                                             </FormControl></PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent>
+                                            <PopoverContent className="w-auto p-0">
+                                                <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value} onSelect={field.onChange} initialFocus />
+                                            </PopoverContent>
                                             </Popover><FormMessage />
                                         </FormItem>
                                     )} />
@@ -277,7 +288,9 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                                     {isCurrent ? 'Present' : field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
                                                 </Button>
                                             </FormControl></PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent>
+                                            <PopoverContent className="w-auto p-0">
+                                                <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value} onSelect={field.onChange} initialFocus />
+                                            </PopoverContent>
                                             </Popover><FormMessage />
                                         </FormItem>
                                     )}} />
@@ -315,7 +328,9 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                                     {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
                                                 </Button>
                                             </FormControl></PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent>
+                                            <PopoverContent className="w-auto p-0">
+                                                <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value} onSelect={field.onChange} initialFocus />
+                                            </PopoverContent>
                                             </Popover><FormMessage />
                                         </FormItem>
                                     )} />
@@ -329,7 +344,9 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                                     {isCurrent ? 'Present' : field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
                                                 </Button>
                                             </FormControl></PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent>
+                                            <PopoverContent className="w-auto p-0">
+                                                <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value} onSelect={field.onChange} initialFocus />
+                                            </PopoverContent>
                                             </Popover><FormMessage />
                                         </FormItem>
                                     )}} />
@@ -370,7 +387,9 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                                 {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
                                             </Button>
                                         </FormControl></PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus /></PopoverContent>
+                                        <PopoverContent className="w-auto p-0">
+                                            <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value} onSelect={field.onChange} initialFocus />
+                                        </PopoverContent>
                                         </Popover><FormMessage />
                                     </FormItem>
                                 )} />
@@ -382,7 +401,7 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                 </ScrollArea>
                 <DialogFooter className="pt-4 mt-auto border-t">
                   <Button variant="outline" onClick={() => setOpen(false)}>Close</Button>
-                  <Button type="submit" form="resume-form">Save Details</Button>
+                  <Button type="submit" form="resume-form" disabled={!form.formState.isValid}>Save Details</Button>
                 </DialogFooter>
               </form>
             </Form>
@@ -391,3 +410,5 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
     </Dialog>
   );
 }
+
+    
