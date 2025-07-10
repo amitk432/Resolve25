@@ -3,13 +3,14 @@
 
 import { useState } from 'react';
 import type { AppData, DailyTask, JobApplication, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP, Task } from '@/lib/types';
-import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, ListTodo, Globe, Menu } from 'lucide-react';
+import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, ListTodo, Globe, Menu, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 import DashboardOverview from './dashboard-overview';
 import GoalsTab from './goals-tab';
@@ -323,6 +324,9 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="p-0">
+                    <SheetHeader>
+                        <SheetTitle className="sr-only">Main Menu</SheetTitle>
+                    </SheetHeader>
                     <div className="flex flex-col h-full">
                         <div className="p-4 border-b">
                             <h2 className="text-xl font-bold">Menu</h2>
@@ -452,7 +456,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onUpdateEmergencyFundTarget={handleUpdateEmergencyFundTarget}
                     onAddSip={handleAddSip}
                     onUpdateSip={handleUpdateSip}
-                    onDeleteSip={handleDeleteSip}
+                    onDeleteSip={onDeleteSip}
                     onAddLoan={handleAddLoan}
                     onUpdateLoan={handleUpdateLoan}
                     onDeleteLoan={handleDeleteLoan}
