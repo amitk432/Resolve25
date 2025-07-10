@@ -1,3 +1,4 @@
+
 'use server';
 
 import { generateGoalTips, type GenerateGoalTipsInput } from '@/ai/flows/generate-goal-tips';
@@ -11,7 +12,7 @@ import { generateApplicationEmail, type GenerateApplicationEmailInput } from '@/
 import { generateRelocationAdvice, generateRelocationRoadmap, type RelocationRoadmapInput } from '@/ai/flows/generate-relocation-advice';
 import { generateTravelItinerary } from '@/ai/flows/generate-travel-itinerary';
 import type { GenerateTravelItineraryInput, GenerateTravelItineraryOutput, RelocationAdviceInput, GenerateTravelSuggestionOutput } from '@/lib/types';
-import { generateTravelSuggestion } from '@/ai/flows/generate-travel-suggestion';
+import { generateTravelSuggestion, type GenerateTravelSuggestionInput } from '@/ai/flows/generate-travel-suggestion';
 
 
 export async function getModuleSuggestions(input: ModuleSuggestionInput) {
@@ -135,9 +136,9 @@ export async function getTravelItinerary(input: GenerateTravelItineraryInput): P
   }
 }
 
-export async function getAITravelSuggestion(): Promise<GenerateTravelSuggestionOutput | { error: string }> {
+export async function getAITravelSuggestion(input?: GenerateTravelSuggestionInput): Promise<GenerateTravelSuggestionOutput | { error: string }> {
   try {
-    const result = await generateTravelSuggestion();
+    const result = await generateTravelSuggestion(input);
     return result;
   } catch (error) {
     console.error('Error getting AI travel suggestion:', error);

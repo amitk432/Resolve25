@@ -12,19 +12,31 @@ import {z} from 'genkit';
 import { GenerateTravelSuggestionOutputSchema } from '@/lib/types';
 import type { GenerateTravelSuggestionOutput } from '@/lib/types';
 
-export async function generateTravelSuggestion(): Promise<GenerateTravelSuggestionOutput> {
-  return generateTravelSuggestionFlow();
+export const GenerateTravelSuggestionInputSchema = z.object({
+    exclude: z.string().optional().describe('A destination to exclude from the suggestion.'),
+});
+export type GenerateTravelSuggestionInput = z.infer<typeof GenerateTravelSuggestionInputSchema>;
+
+export async function generateTravelSuggestion(input?: GenerateTravelSuggestionInput): Promise<GenerateTravelSuggestionOutput> {
+  return generateTravelSuggestionFlow(input);
 }
 
 const prompt = ai.definePrompt({
   name: 'generateTravelSuggestionPrompt',
-  input: { schema: z.object({ currentMonth: z.string() }) },
+  input: { schema: z.object({ 
+    currentMonth: z.string(),
+    exclude: z.string().optional(),
+   }) },
   output: {schema: GenerateTravelSuggestionOutputSchema},
   prompt: `You are a travel expert. The current month is {{currentMonth}}.
   
   Suggest one interesting travel destination in India that is particularly good to visit during this month.
   
   Consider factors like weather, local events, or seasonal beauty.
+
+  {{#if exclude}}
+  Do not suggest the following destination again: {{exclude}}.
+  {{/if}}
   
   Provide the output in the specified JSON format, including a destination and a brief reasoning.`,
 });
@@ -32,11 +44,12 @@ const prompt = ai.definePrompt({
 const generateTravelSuggestionFlow = ai.defineFlow(
   {
     name: 'generateTravelSuggestionFlow',
+    inputSchema: GenerateTravelSuggestionInputSchema.optional(),
     outputSchema: GenerateTravelSuggestionOutputSchema,
   },
-  async () => {
+  async (input) => {
     const currentMonth = new Date().toLocaleString('default', { month: 'long' });
-    const {output} = await prompt({ currentMonth });
+    const {output} = await prompt({ currentMonth, exclude: input?.exclude });
     if (!output) {
       throw new Error('The AI model failed to generate a travel suggestion. This may be a temporary issue.');
     }

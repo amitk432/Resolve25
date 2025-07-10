@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -39,8 +40,7 @@ const AISuggestionDialog = ({ onAddSuggestion }: { onAddSuggestion: (destination
 
     const handleGenerate = async () => {
         setIsLoading(true);
-        setSuggestion(null);
-        const result = await getAITravelSuggestion();
+        const result = await getAITravelSuggestion({ exclude: suggestion?.destination });
         setIsLoading(false);
 
         if (result && 'error' in result) {
@@ -60,6 +60,8 @@ const AISuggestionDialog = ({ onAddSuggestion }: { onAddSuggestion: (destination
     const handleOpenChange = (isOpen: boolean) => {
         setOpen(isOpen);
         if (isOpen) {
+            // Clear previous suggestion and fetch a new one when opening
+            setSuggestion(null);
             handleGenerate();
         }
     };
