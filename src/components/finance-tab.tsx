@@ -71,25 +71,25 @@ const LoanCalculations = ({ loan }: { loan: Loan }) => {
                 <>
                     <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">EMI</span>
-                        <span className="font-medium">₹{emi.toLocaleString('en-IN', { maximumFractionDigits: 0 })} / month</span>
+                        <span className="font-medium text-right">₹{emi.toLocaleString('en-IN', { maximumFractionDigits: 0 })} / month</span>
                     </div>
                     <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Total Interest</span>
-                        <span className="font-medium text-destructive">₹{totalInterest.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                        <span className="font-medium text-destructive text-right">₹{totalInterest.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Total Payable</span>
-                        <span className="font-medium">₹{totalPayable.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                        <span className="font-medium text-right">₹{totalPayable.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                     </div>
                      <div className="flex justify-between text-sm pt-2 mt-2 border-t">
                         <span className="text-muted-foreground">Remaining Payable</span>
-                        <span className="font-medium">₹{remainingAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                        <span className="font-medium text-right">₹{remainingAmount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                     </div>
                 </>
             ) : p > 0 && r !== undefined && r > 0 ? (
                 <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Simple Monthly Interest</span>
-                    <span className="font-medium">₹{(p * r).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                    <span className="font-medium text-right">₹{(p * r).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                 </div>
             ) : (
                  <p className="text-xs text-center text-muted-foreground pt-2">Enter a valid rate and tenure to see calculations.</p>
@@ -191,10 +191,10 @@ export default function FinanceTab({
                                     isClosed ? 'bg-muted/50 text-muted-foreground' : 'bg-background'
                                 )}>
                                     <div className="flex justify-between items-start">
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                                             <h4 className={cn("font-semibold text-lg", !isClosed && "text-card-foreground")}>{loan.name}</h4>
                                             <Select value={loan.status} onValueChange={(value: LoanStatus) => onUpdateLoanStatus(loan.id, value)}>
-                                                <SelectTrigger className="w-[120px] h-9 text-sm">
+                                                <SelectTrigger className="w-full sm:w-[120px] h-9 text-sm">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -203,7 +203,7 @@ export default function FinanceTab({
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        <div className="flex gap-1">
+                                        <div className="flex gap-1 shrink-0">
                                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleOpenDialog(loan)}>
                                                 <Pencil className="h-4 w-4" />
                                             </Button>
@@ -229,20 +229,20 @@ export default function FinanceTab({
                                         </div>
                                     </div>
                                     <Separator className="my-4" />
-                                    <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                                         <div className="space-y-2">
                                             <h5 className="text-sm font-medium text-muted-foreground">Loan Details</h5>
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-muted-foreground">Principal</span>
-                                                <span className="font-semibold">₹{parseFloat(loan.principal).toLocaleString('en-IN')}</span>
+                                                <span className="font-semibold text-right">₹{parseFloat(loan.principal).toLocaleString('en-IN')}</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-muted-foreground">Interest Rate</span>
-                                                <span className="font-medium">{loan.rate || 'N/A'}%</span>
+                                                <span className="font-medium text-right">{loan.rate || 'N/A'}%</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-muted-foreground">Tenure</span>
-                                                <span className="font-medium">{loan.tenure || 'N/A'} months</span>
+                                                <span className="font-medium text-right">{loan.tenure || 'N/A'} months</span>
                                             </div>
                                         </div>
                                         <div className="space-y-2">
