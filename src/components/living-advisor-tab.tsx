@@ -21,22 +21,7 @@ import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { Checkbox } from './ui/checkbox';
 
 
-const RoadmapView = ({ roadmap, country, onAddToGoals }: { roadmap: RelocationRoadmapOutput, country: string, onAddToGoals: (milestones: RoadmapMilestone[]) => void }) => {
-    const [selectedMilestones, setSelectedMilestones] = useState<RoadmapMilestone[]>([]);
-
-    const handleToggleMilestone = (milestone: RoadmapMilestone) => {
-        setSelectedMilestones(prev => 
-            prev.some(m => m.milestone === milestone.milestone)
-                ? prev.filter(m => m.milestone !== milestone.milestone)
-                : [...prev, milestone]
-        );
-    };
-    
-    const handleAddToGoals = () => {
-        onAddToGoals(selectedMilestones);
-        setSelectedMilestones([]);
-    };
-
+const RoadmapView = ({ roadmap, country, onAddToGoals }: { roadmap: RelocationRoadmapOutput, country: string, onAddToGoals: (milestone: RoadmapMilestone) => void }) => {
     return (
         <div className="space-y-6">
             <Accordion type="multiple" defaultValue={['item-0', 'item-1']} className="w-full space-y-4">
@@ -45,7 +30,7 @@ const RoadmapView = ({ roadmap, country, onAddToGoals }: { roadmap: RelocationRo
                         <AccordionTrigger className="p-4 hover:no-underline text-lg">
                             <div className="flex items-center gap-3">
                                 {section.title.includes("Visa") && <FileText className="h-5 w-5" />}
-                                {section.title.includes("Career") && <Briefcase className="h-5 w-5" />}
+                                {(section.title.includes("Career") || section.title.includes("Study")) && <Briefcase className="h-5 w-5" />}
                                 {section.title.includes("Housing") && <Home className="h-5 w-5" />}
                                 {section.title.includes("Cultural") && <Users className="h-5 w-5" />}
                                 {section.title.includes("Resources") && <Info className="h-5 w-5" />}
@@ -61,18 +46,15 @@ const RoadmapView = ({ roadmap, country, onAddToGoals }: { roadmap: RelocationRo
                                     </li>
                                 ))}
                                 {'milestones' in section && section.milestones.map((item, i) => (
-                                     <li key={i} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50">
-                                        <Checkbox
-                                            id={`milestone-${i}`}
-                                            className="mt-1"
-                                            onCheckedChange={() => handleToggleMilestone(item)}
-                                            checked={selectedMilestones.some(m => m.milestone === item.milestone)}
-                                        />
-                                        <label htmlFor={`milestone-${i}`} className="flex-grow">
+                                     <li key={i} className="flex items-center justify-between gap-3 p-3 rounded-lg hover:bg-muted/50">
+                                        <div className="flex-grow">
                                             <span className="font-semibold text-foreground">{item.milestone}</span>
                                             <p className="text-xs">Timeline: {item.timeline}</p>
                                             <p className="text-xs mt-1">Resources: {item.resources}</p>
-                                        </label>
+                                        </div>
+                                        <Button size="sm" variant="outline" onClick={() => onAddToGoals(item)}>
+                                            <Plus className="mr-2 h-4 w-4" /> Add Goal
+                                        </Button>
                                     </li>
                                 ))}
                             </ul>
@@ -80,15 +62,6 @@ const RoadmapView = ({ roadmap, country, onAddToGoals }: { roadmap: RelocationRo
                     </AccordionItem>
                 ))}
             </Accordion>
-            {selectedMilestones.length > 0 && (
-                <div className="p-4 bg-muted/50 rounded-lg flex items-center justify-between">
-                    <p className="text-sm font-medium">{selectedMilestones.length} milestone(s) selected.</p>
-                    <Button onClick={handleAddToGoals}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add to My Goals
-                    </Button>
-                </div>
-            )}
         </div>
     );
 };
@@ -101,13 +74,11 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
     const [roadmap, setRoadmap] = useState<RelocationRoadmapOutput | null>(null);
     const [isRoadmapLoading, setRoadmapLoading] = useState(false);
-    const [feedback, setFeedback] = useState('');
 
     const form = useForm<RelocationQuestionnaire>({
         resolver: zodResolver(RelocationQuestionnaireSchema),
         defaultValues: {
-            currentProfession: data.livingAdvisor?.questionnaire?.currentProfession || '',
-            currentCountry: data.livingAdvisor?.questionnaire?.currentCountry || '',
+            reasonForRelocation: data.livingAdvisor?.questionnaire?.reasonForRelocation || 'Jobs',
             familySize: data.livingAdvisor?.questionnaire?.familySize || 1,
             lifestyle: data.livingAdvisor?.questionnaire?.lifestyle || 'City',
             languageSkills: data.livingAdvisor?.questionnaire?.languageSkills || '',
@@ -116,12 +87,6 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
             careerGoals: data.livingAdvisor?.questionnaire?.careerGoals || '',
         },
     });
-    
-    useEffect(() => {
-        if (data.resume?.summary?.title && !form.getValues('currentProfession')) {
-            form.setValue('currentProfession', data.resume.summary.title, { shouldValidate: true });
-        }
-    }, [data.resume, form]);
 
     const onSubmit = async (values: RelocationQuestionnaire) => {
         setIsLoading(true);
@@ -185,30 +150,22 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
         }
     };
     
-    const handleFeedbackSubmit = () => {
-        console.log("Feedback submitted:", feedback);
-        toast({ title: 'Thank you for your feedback!' });
-        setFeedback('');
-    };
-
-    const handleAddToGoals = (milestones: RoadmapMilestone[]) => {
+    const handleAddGoal = (milestone: RoadmapMilestone) => {
         onUpdate(draft => {
-            for (const milestone of milestones) {
-                draft.goals.push({
-                    id: `goal-roadmap-${Date.now()}-${Math.random()}`,
-                    title: milestone.milestone,
-                    description: `A step towards relocating. Timeline: ${milestone.timeline}. Resources: ${milestone.resources}`,
-                    category: 'Career',
-                    deadline: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString(), // Default 6 month deadline
-                    steps: [
-                        { id: `step-${Date.now()}-1`, text: `Research: ${milestone.resources}`, completed: false },
-                        { id: `step-${Date.now()}-2`, text: `Take initial action for '${milestone.milestone}'`, completed: false },
-                    ]
-                });
-            }
+            draft.goals.push({
+                id: `goal-roadmap-${Date.now()}-${Math.random()}`,
+                title: milestone.milestone,
+                description: `A step towards relocating. Timeline: ${milestone.timeline}. Resources: ${milestone.resources}`,
+                category: 'Career',
+                deadline: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString(), // Default 6 month deadline
+                steps: [
+                    { id: `step-${Date.now()}-1`, text: `Research: ${milestone.resources}`, completed: false },
+                    { id: `step-${Date.now()}-2`, text: `Take initial action for '${milestone.milestone}'`, completed: false },
+                ]
+            });
         });
         toast({
-            title: `${milestones.length} Goal(s) Added`,
+            title: `Goal Added: "${milestone.milestone}"`,
             description: "Check your 'Goals' tab to track your progress.",
         });
     };
@@ -223,17 +180,24 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
             <Card>
                 <CardHeader>
                     <CardTitle>Your Relocation Profile</CardTitle>
-                    <CardDescription>Fill out this questionnaire to get personalized country recommendations. Your resume details will also be used if available.</CardDescription>
+                    <CardDescription>Fill out this questionnaire to get personalized country recommendations. Your resume details will be used automatically.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <FormField control={form.control} name="currentProfession" render={({ field }) => (
-                                    <FormItem><FormLabel>Current Profession</FormLabel><FormControl><Input placeholder="e.g., Software Engineer" {...field} /></FormControl><FormMessage /></FormItem>
-                                )} />
-                                <FormField control={form.control} name="currentCountry" render={({ field }) => (
-                                    <FormItem><FormLabel>Current Country of Residence</FormLabel><FormControl><Input placeholder="e.g., India" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormField control={form.control} name="reasonForRelocation" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Primary Reason for Relocation</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="Jobs">Jobs / Career</SelectItem>
+                                                <SelectItem value="Study">Study / Education</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
                                 )} />
                                 <FormField control={form.control} name="familySize" render={({ field }) => (
                                     <FormItem><FormLabel>Family Size (including yourself)</FormLabel><FormControl><Input type="number" min="1" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 1)}/></FormControl><FormMessage /></FormItem>
@@ -283,14 +247,19 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
                                         <FormMessage />
                                     </FormItem>
                                 )} />
+                                <FormField control={form.control} name="languageSkills" render={({ field }) => (
+                                    <FormItem><FormLabel>Language Skills</FormLabel><FormControl><Input placeholder="e.g., English (Fluent), French (Basic)" {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
                             </div>
-                            <FormField control={form.control} name="languageSkills" render={({ field }) => (
-                                <FormItem><FormLabel>Language Skills</FormLabel><FormControl><Input placeholder="e.g., English (Fluent), French (Basic)" {...field} /></FormControl><FormMessage /></FormItem>
-                            )} />
+                            
                             <FormField control={form.control} name="careerGoals" render={({ field }) => (
-                                <FormItem><FormLabel>Primary Career Goals for Relocation</FormLabel><FormControl><Textarea placeholder="e.g., Leadership roles in fintech, starting my own consultancy, higher earning potential..." {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem>
+                                    <FormLabel>Primary Goals for Relocation</FormLabel>
+                                    <FormControl><Textarea placeholder="e.g., Leadership roles in fintech, pursuing a Master's degree, higher earning potential..." {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
                             )} />
-                            <Button type="submit" disabled={isLoading}>
+                            <Button type="submit" disabled={isLoading || !data.resume}>
                                 {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Analyzing...</> : <><Wand2 className="mr-2 h-4 w-4"/>Get Recommendations</>}
                             </Button>
                         </form>
@@ -370,27 +339,10 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
                                         <p className="ml-4 text-muted-foreground">Building your roadmap...</p>
                                     </div>
                                 )}
-                                {roadmap && <RoadmapView roadmap={roadmap} country={selectedCountry} onAddToGoals={handleAddToGoals} />}
+                                {roadmap && <RoadmapView roadmap={roadmap} country={selectedCountry} onAddToGoals={handleAddGoal} />}
                             </CardContent>
                         </Card>
                     )}
-
-                    <Card className="mt-8 bg-muted/50">
-                        <CardHeader>
-                            <CardTitle>Improve Our Recommendations</CardTitle>
-                            <CardDescription>Your feedback helps our AI get smarter. Was this advice helpful? What could be better?</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex items-start gap-2">
-                                <Textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="e.g., The recommendations were great, but I'd love to see more about visa costs..."/>
-                                <Button onClick={handleFeedbackSubmit} disabled={!feedback.trim()}>
-                                    <Send className="h-4 w-4" />
-                                    <span className="sr-only">Submit Feedback</span>
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-
                 </div>
             )}
             

@@ -88,7 +88,7 @@ export const initialData: AppData = {
     ],
     livingAdvisor: {
         questionnaire: {
-            currentProfession: '',
+            reasonForRelocation: 'Jobs',
             familySize: 1,
             lifestyle: 'City',
             languageSkills: '',

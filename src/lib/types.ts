@@ -153,8 +153,7 @@ export interface ResumeData {
 // --- Global Living Advisor Schemas & Types ---
 
 export const RelocationQuestionnaireSchema = z.object({
-  currentProfession: z.string().min(1, 'Profession is required.').describe('The user\'s current profession or field of work.'),
-  currentCountry: z.string().min(1, 'Current country is required.').describe('The user\'s current country of residence.'),
+  reasonForRelocation: z.enum(['Jobs', 'Study']).describe('The primary reason for the user\'s relocation.'),
   lifestyle: z.enum(['City', 'Suburban', 'Rural', 'Flexible']).describe('The user\'s preferred lifestyle.'),
   familySize: z.number().int().positive().describe('The number of people in the user\'s family who would be relocating.'),
   languageSkills: z.string().describe('A comma-separated list of languages the user speaks and their proficiency (e.g., "English (Fluent), Spanish (Beginner)").'),
@@ -209,7 +208,7 @@ const CareerRoadmapSectionSchema = z.object({
 
 export const RelocationRoadmapOutputSchema = z.object({
     visa: RoadmapSectionSchema.describe('Visa and documentation requirements.'),
-    career: CareerRoadmapSectionSchema.describe('Career progression and job search strategies.'),
+    career: CareerRoadmapSectionSchema.describe('Career progression and job search strategies, or study plan and university information.'),
     housing: RoadmapSectionSchema.describe('Housing options and cost estimates.'),
     cultural: RoadmapSectionSchema.describe('Tips for cultural integration.'),
     resources: RoadmapSectionSchema.describe('List of helpful local resources.'),
