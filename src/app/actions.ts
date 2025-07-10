@@ -10,6 +10,8 @@ import { parseResume, type ParseResumeInput, type ResumeData } from '@/ai/flows/
 import { generateJobSuggestions, type GenerateJobSuggestionsInput } from '@/ai/flows/generate-job-suggestions';
 import { generateApplicationEmail, type GenerateApplicationEmailInput } from '@/ai/flows/generate-application-email';
 import { generateRelocationAdvice, type RelocationAdviceInput, generateRelocationRoadmap, type RelocationRoadmapInput } from '@/ai/flows/generate-relocation-advice';
+import { generateTravelItinerary, type GenerateTravelItineraryInput, type GenerateTravelItineraryOutput } from '@/ai/flows/generate-travel-itinerary';
+
 
 export async function getModuleSuggestions(input: ModuleSuggestionInput) {
     try {
@@ -119,4 +121,15 @@ export async function getRelocationRoadmap(input: RelocationRoadmapInput) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to generate AI roadmap. Please try again.';
         return { error: errorMessage };
     }
+}
+
+export async function getTravelItinerary(input: GenerateTravelItineraryInput): Promise<GenerateTravelItineraryOutput | { error: string }> {
+  try {
+    const result = await generateTravelItinerary(input);
+    return result;
+  } catch (error) {
+    console.error('Error getting AI travel itinerary:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to generate itinerary. Please try again.';
+    return { error: errorMessage };
+  }
 }

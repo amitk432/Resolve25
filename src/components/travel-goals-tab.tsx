@@ -8,7 +8,7 @@ import * as z from 'zod';
 import { format } from 'date-fns';
 import type { TravelGoal } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -16,12 +16,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, Trash2, CalendarIcon, CheckCircle, MapPin, Plane } from 'lucide-react';
+import { Plus, Trash2, CalendarIcon, CheckCircle, MapPin, Plane, Wand2, Loader2, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import AiSuggestionSection from './ai-suggestion-section';
+import type { GenerateTravelItineraryOutput } from '@/ai/flows/generate-travel-itinerary';
+import { getTravelItinerary } from '@/app/actions';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 
 interface TravelGoalsTabProps {
   travelGoals: TravelGoal[];
@@ -43,6 +46,89 @@ const travelGoalSchema = z.object({
     message: 'A travel date is required for planned trips.',
     path: ['travelDate'],
 });
+
+const ItineraryDialog = ({ destination }: { destination: string }) => {
+    const [open, setOpen] = useState(false);
+    const [itinerary, setItinerary] = useState<GenerateTravelItineraryOutput | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const { toast } = useToast();
+
+    const handleGenerate = async () => {
+        setIsLoading(true);
+        setItinerary(null);
+        const result = await getTravelItinerary({ destination });
+        setIsLoading(false);
+
+        if (result && 'error' in result) {
+            toast({ variant: 'destructive', title: 'Error generating itinerary', description: result.error });
+        } else if (result) {
+            setItinerary(result);
+        }
+    };
+
+    const handleOpenChange = (isOpen: boolean) => {
+        setOpen(isOpen);
+        if (isOpen && !itinerary) {
+            handleGenerate();
+        }
+    };
+    
+    const itinerarySections = itinerary ? [itinerary.flights, itinerary.accommodation, itinerary.attractions, itinerary.budgetTips] : [];
+
+    return (
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+            <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    AI Itinerary
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
+                <DialogHeader>
+                    <DialogTitle>AI-Powered Itinerary for {destination}</DialogTitle>
+                    <DialogDescription>
+                        Here's a budget-friendly travel plan to get you started.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="flex-grow overflow-y-auto pr-4 -mr-4">
+                    {isLoading ? (
+                        <div className="flex items-center justify-center p-16">
+                            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                        </div>
+                    ) : itinerary ? (
+                        <Accordion type="multiple" defaultValue={itinerarySections.map(s => s.title)} className="w-full space-y-4">
+                            {itinerarySections.map((section) => (
+                                <AccordionItem key={section.title} value={section.title} className="border rounded-lg bg-muted/50">
+                                    <AccordionTrigger className="p-4 hover:no-underline text-lg">
+                                        {section.title}
+                                    </AccordionTrigger>
+                                    <AccordionContent className="px-6 pb-6">
+                                        <ul className="space-y-2 list-none text-muted-foreground">
+                                        {(section.tips || section.places).map((item: string, i: number) => (
+                                             <li key={i} className="flex items-start gap-3">
+                                                <ArrowRight className="h-4 w-4 mt-1 text-primary flex-shrink-0" />
+                                                <span>{item}</span>
+                                            </li>
+                                        ))}
+                                        </ul>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            ))}
+                        </Accordion>
+                    ) : (
+                        <p className="text-center text-muted-foreground py-16">Could not generate an itinerary.</p>
+                    )}
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={handleGenerate} disabled={isLoading}>
+                        {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Generating...</> : 'Regenerate'}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 
 export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }: TravelGoalsTabProps) {
   const [isDialogOpen, setDialogOpen] = useState(false);
@@ -185,43 +271,48 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal }:
         <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {travelGoals.map(goal => (
-                <Card key={goal.id} className="flex flex-col overflow-hidden">
-                <CardHeader className="relative p-0">
-                    <Image src={goal.image} alt={goal.destination} width={400} height={250} className="rounded-t-lg object-cover aspect-[16/10]" data-ai-hint={goal.destination.split(',')[0].toLowerCase()} />
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg">
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Travel Goal?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This will permanently delete your goal to travel to "{goal.destination}".
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => onDeleteGoal(goal.id)}>Delete</AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                </CardHeader>
-                <CardContent className="pt-4 flex-grow">
-                    <CardTitle>{goal.destination}</CardTitle>
-                    {goal.status === 'Completed' ? (
-                    <div className="text-sm font-medium text-green-600 dark:text-green-500 flex items-center mt-1">
-                        <CheckCircle className="mr-1.5 h-4 w-4" />
-                        Completed
-                    </div>
-                    ) : (
-                    goal.travelDate && <div className="text-sm text-muted-foreground mt-1">
-                        <span className="font-semibold text-primary">Planned for:</span> {format(new Date(goal.travelDate), 'dd-MMMM-yyyy')}
-                    </div>
+                <Card key={goal.id} className="flex flex-col overflow-hidden group">
+                    <CardHeader className="relative p-0">
+                        <Image src={goal.image} alt={goal.destination} width={400} height={250} className="rounded-t-lg object-cover aspect-[16/10] group-hover:brightness-75 transition-all" data-ai-hint={goal.destination.split(',')[0].toLowerCase()} />
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete Travel Goal?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This will permanently delete your goal to travel to "{goal.destination}".
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => onDeleteGoal(goal.id)}>Delete</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </CardHeader>
+                    <CardContent className="pt-4 flex-grow flex flex-col">
+                        <CardTitle>{goal.destination}</CardTitle>
+                        {goal.status === 'Completed' ? (
+                        <div className="text-sm font-medium text-green-600 dark:text-green-500 flex items-center mt-1">
+                            <CheckCircle className="mr-1.5 h-4 w-4" />
+                            Completed
+                        </div>
+                        ) : (
+                        goal.travelDate && <div className="text-sm text-muted-foreground mt-1">
+                            <span className="font-semibold text-primary">Planned for:</span> {format(new Date(goal.travelDate), 'dd-MMMM-yyyy')}
+                        </div>
+                        )}
+                        {goal.notes && <CardDescription className="mt-2 text-sm flex-grow">{goal.notes}</CardDescription>}
+                    </CardContent>
+                    {goal.status === 'Planned' && (
+                        <CardFooter>
+                            <ItineraryDialog destination={goal.destination} />
+                        </CardFooter>
                     )}
-                    {goal.notes && <CardDescription className="mt-2 text-sm">{goal.notes}</CardDescription>}
-                </CardContent>
                 </Card>
             ))}
             </div>

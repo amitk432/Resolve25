@@ -239,7 +239,8 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
 
     // Travel Goal handlers
     const handleAddTravelGoal = (goal: Omit<TravelGoal, 'id' | 'image'> & { travelDate: Date | null }) => {
-        const imageUrl = `https://placehold.co/400x250.png`;
+        const query = encodeURIComponent(goal.destination.split(',')[0]);
+        const imageUrl = `https://source.unsplash.com/400x250/?${query}`;
         onUpdate((draft) => {
           draft.travelGoals.push({
             id: `travel-${Date.now()}`,
