@@ -9,9 +9,16 @@ export default {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
+        sans: ["var(--font-inter)", "sans-serif"],
       },
       colors: {
         background: 'hsl(var(--background))',

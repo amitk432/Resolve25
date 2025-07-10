@@ -297,22 +297,22 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
 
   return (
     <>
-    <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-card shadow-lg">
-      <header className="flex flex-col items-center gap-4 bg-primary p-4 text-center text-primary-foreground sm:flex-row sm:justify-between sm:p-6 sm:text-left">
+    <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-card shadow-xl border">
+      <header className="flex flex-col items-center gap-4 bg-card p-4 text-center sm:flex-row sm:justify-between sm:p-6 sm:text-left border-b">
         <div>
           <div className="flex items-center gap-3">
-            <Image src="/icon.svg" alt="Resolve25 Logo" width={36} height={36} />
-            <h1 className="text-2xl font-bold md:text-3xl">Resolve25</h1>
+            <Image src="/icon.svg" alt="Resolve25 Logo" width={36} height={36} className="bg-primary p-1.5 rounded-lg" />
+            <h1 className="text-2xl font-bold md:text-3xl tracking-tight text-foreground">Resolve25</h1>
           </div>
-          <p className="mt-1 text-muted-foreground">Your interactive dashboard to track career, financial, and skill goals.</p>
+          <p className="mt-1 text-muted-foreground">Your AI-Powered Life OS</p>
         </div>
         {user && (
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className="h-10 w-10 border-2 border-primary-foreground/50">
+                <Avatar className="h-10 w-10 border-2 border-primary/50">
                   <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
-                  <AvatarFallback className="bg-primary-foreground font-semibold text-primary">
+                  <AvatarFallback className="bg-primary/20 font-semibold text-primary">
                     {user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -343,9 +343,9 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
       </header>
 
       <Tabs defaultValue="dashboard" className="w-full" onValueChange={setActiveTab}>
-        <div className="border-b bg-muted/50">
+        <div className="border-b bg-card">
             <ScrollArea className="w-full whitespace-nowrap">
-                <TabsList className="-mb-px inline-flex h-auto gap-1 bg-transparent p-2 sm:gap-2">
+                <TabsList className="h-auto gap-1 bg-transparent p-2 sm:gap-2">
                     <TabsTrigger value="dashboard"><LayoutDashboard/>Dashboard</TabsTrigger>
                     <TabsTrigger value="goals"><Target/>Goals</TabsTrigger>
                     <TabsTrigger value="daily-todo"><ListTodo />Daily To-Do</TabsTrigger>
@@ -360,7 +360,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
             </ScrollArea>
         </div>
         
-        <div className="relative p-4 md:p-8">
+        <div className="relative p-4 md:p-8 bg-background">
             <TabsContent value="dashboard">
                 <DashboardOverview data={data} />
             </TabsContent>
