@@ -24,6 +24,7 @@ import AiTaskGeneratorDialog from './ai-task-generator-dialog';
 import type { SuggestedTask } from '@/ai/flows/generate-task-suggestions';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import { Progress } from './ui/progress';
 
 
 const taskSchema = z.object({
@@ -156,7 +157,7 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
     const groups: { [key: string]: DailyTask[] } = {};
 
     tasks.forEach(task => {
-        const dateKey = format(parseISO(task.dueDate), 'yyyy-MM-dd');
+        const dateKey = format(startOfDay(parseISO(task.dueDate)), 'yyyy-MM-dd');
         if (!groups[dateKey]) {
             groups[dateKey] = [];
         }
@@ -192,7 +193,11 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
   
   const defaultOpenGroups = useMemo(() => {
     return groupedTasks
-        .filter(g => isToday(parseISO(g.date)) || isPast(parseISO(g.date)))
+        .filter(g => {
+            const groupDate = startOfDay(parseISO(g.date));
+            const hasIncompleteTasks = g.tasks.some(t => !t.completed);
+            return (isToday(groupDate) || isPast(groupDate)) && hasIncompleteTasks;
+        })
         .map(g => g.date);
   }, [groupedTasks]);
 
@@ -220,12 +225,28 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
       <div className="space-y-2">
         {tasks.length > 0 ? (
             <Accordion type="multiple" defaultValue={defaultOpenGroups} className="w-full space-y-2">
-                {groupedTasks.map(group => (
+                {groupedTasks.map(group => {
+                    const totalTasks = group.tasks.length;
+                    const completedTasks = group.tasks.filter(t => t.completed).length;
+                    const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+                    
+                    return (
                     <AccordionItem value={group.date} key={group.date} className="border rounded-lg px-4 bg-muted/30">
                         <AccordionTrigger className="py-3 hover:no-underline">
-                             <div className="flex items-center gap-2">
-                                <h3 className="font-semibold text-lg">{format(parseISO(group.date), 'MMMM d, yyyy')}</h3>
-                                <Badge variant="secondary">{group.tasks.length}</Badge>
+                             <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
+                                <div className="flex-grow space-y-2 text-left">
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="font-semibold text-lg">{format(parseISO(group.date), 'MMMM d, yyyy')}</h3>
+                                        <Badge variant="secondary">{totalTasks}</Badge>
+                                    </div>
+                                </div>
+                                <div className="w-full md:w-56 shrink-0 space-y-1">
+                                    <div className="flex justify-between text-xs text-muted-foreground">
+                                        <span>Progress</span>
+                                        <span>{completedTasks}/{totalTasks}</span>
+                                    </div>
+                                    <Progress value={progress} className="h-2" />
+                                </div>
                             </div>
                         </AccordionTrigger>
                         <AccordionContent className="pt-2 pb-4 space-y-2">
@@ -234,7 +255,7 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
                             ))}
                         </AccordionContent>
                     </AccordionItem>
-                ))}
+                )})}
             </Accordion>
         ) : (
           <div className="text-center py-16 border-2 border-dashed rounded-lg">
