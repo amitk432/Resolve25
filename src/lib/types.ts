@@ -259,7 +259,6 @@ export type GenerateTravelSuggestionOutput = z.infer<typeof GenerateTravelSugges
 
 export interface LivingAdvisorData {
     questionnaire: RelocationQuestionnaire;
-    recommendations: CountryRecommendation[];
 }
 
 export interface AppData {

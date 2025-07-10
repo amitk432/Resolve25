@@ -96,7 +96,6 @@ export const initialData: AppData = {
             workLifeBalance: 'Balanced',
             careerGoals: '',
         },
-        recommendations: [],
     },
     lastJobSuggestionCheck: new Date(0).toISOString(),
 };

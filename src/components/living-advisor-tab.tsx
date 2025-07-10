@@ -70,21 +70,21 @@ const RoadmapView = ({ roadmap, country, onAddToGoals }: { roadmap: RelocationRo
 export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; onUpdate: (updater: (draft: AppData) => void) => void; }) {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
-    const [recommendations, setRecommendations] = useState<CountryRecommendation[]>(data.livingAdvisor?.recommendations || []);
+    const [recommendations, setRecommendations] = useState<CountryRecommendation[]>([]);
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
     const [roadmap, setRoadmap] = useState<RelocationRoadmapOutput | null>(null);
     const [isRoadmapLoading, setRoadmapLoading] = useState(false);
 
     const form = useForm<RelocationQuestionnaire>({
         resolver: zodResolver(RelocationQuestionnaireSchema),
-        defaultValues: {
-            reasonForRelocation: data.livingAdvisor?.questionnaire?.reasonForRelocation || 'Jobs',
-            familySize: data.livingAdvisor?.questionnaire?.familySize || 1,
-            lifestyle: data.livingAdvisor?.questionnaire?.lifestyle || 'City',
-            languageSkills: data.livingAdvisor?.questionnaire?.languageSkills || '',
-            climatePreference: data.livingAdvisor?.questionnaire?.climatePreference || 'No Preference',
-            workLifeBalance: data.livingAdvisor?.questionnaire?.workLifeBalance || 'Balanced',
-            careerGoals: data.livingAdvisor?.questionnaire?.careerGoals || '',
+        defaultValues: data.livingAdvisor?.questionnaire || {
+            reasonForRelocation: 'Jobs',
+            familySize: 1,
+            lifestyle: 'City',
+            languageSkills: '',
+            climatePreference: 'No Preference',
+            workLifeBalance: 'Balanced',
+            careerGoals: '',
         },
     });
 
@@ -95,11 +95,7 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
         setRoadmap(null);
 
         onUpdate(draft => {
-            if (!draft.livingAdvisor) {
-                draft.livingAdvisor = { questionnaire: values, recommendations: [] };
-            } else {
-                draft.livingAdvisor.questionnaire = values;
-            }
+            draft.livingAdvisor.questionnaire = values;
         });
 
         const result = await getRelocationAdvice({
@@ -117,11 +113,6 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
             });
         } else if (result) {
             setRecommendations(result.recommendations);
-            onUpdate(draft => {
-                if (draft.livingAdvisor) {
-                    draft.livingAdvisor.recommendations = result.recommendations;
-                }
-            });
             toast({
                 title: 'Recommendations Ready!',
                 description: 'We have generated a list of suitable countries for you.',
