@@ -317,7 +317,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
   return (
     <>
     <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-transparent shadow-xl border border-white/10">
-      <header className="flex flex-col items-center gap-4 bg-transparent p-4 text-center sm:flex-row sm:justify-between sm:p-6 sm:text-left border-b border-white/10">
+      <header className="flex items-center justify-between gap-4 bg-transparent p-4 sm:p-6 border-b border-white/10">
         <div className="flex items-center gap-3">
             <div className="bg-gradient-primary p-2 rounded-lg">
                 <Image src="/icon.svg" alt="Resolve25 Logo" width={24} height={24} />
@@ -366,6 +366,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="border-b border-white/10 bg-transparent">
+          <div className="px-2">
             <TabsList className="h-auto p-2">
                 <div className="md:hidden flex gap-1">
                     {mainTabs.map(tab => (
@@ -394,6 +395,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                   ))}
                 </div>
             </TabsList>
+          </div>
         </div>
         
         <div className={cn("relative p-4 md:p-8 bg-transparent transition-opacity duration-500", activeTab ? 'opacity-100' : 'opacity-0')}>
