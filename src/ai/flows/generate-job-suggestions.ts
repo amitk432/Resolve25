@@ -27,7 +27,7 @@ const SuggestedJobApplicationSchema = z.object({
     keyResponsibilities: z.array(z.string()).describe('A list of 2-3 key responsibilities for this role.'),
     requiredSkills: z.array(z.string()).describe('A list of 2-3 essential skills required for the job.'),
     reasoning: z.string().describe('A brief explanation (1-2 sentences) of why this job is a good fit for the user based on their resume.'),
-    applyLink: z.string().optional().describe('A plausible URL to the job application page. e.g., "https://careers.company.com/jobs/123"'),
+    applyLink: z.string().optional().describe('A URL to a Google search for the job. e.g., "https://www.google.com/search?q=Software+Engineer+at+Acme+Inc"'),
 });
 export type SuggestedJobApplication = z.infer<typeof SuggestedJobApplicationSchema>;
 
@@ -61,7 +61,7 @@ For each suggestion, provide:
 6.  **Key Responsibilities:** A list of 2-3 key responsibilities.
 7.  **Required Skills:** A list of 2-3 crucial skills for the role.
 8.  **Reasoning:** A short, 1-2 sentence explanation of why this role is a good match, referencing specific skills or experiences from their resume.
-9.  **Apply Link:** A plausible, but not necessarily real, URL to a job application page.
+9.  **Apply Link:** A URL that performs a Google search for the job role at the company. For example, for a "Software Engineer" role at "Acme Inc.", the URL should be "https://www.google.com/search?q=Software+Engineer+at+Acme+Inc". Make sure to URL-encode the query.
 
 **User's Resume Data:**
 \`\`\`json
