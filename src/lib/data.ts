@@ -86,5 +86,17 @@ export const initialData: AppData = {
     incomeSources: [
         { id: 'income-1', name: 'Primary Job', amount: '50000' }
     ],
+    livingAdvisor: {
+        questionnaire: {
+            currentProfession: '',
+            familySize: 1,
+            lifestyle: 'City',
+            languageSkills: '',
+            climatePreference: 'No Preference',
+            workLifeBalance: 'Balanced',
+            careerGoals: '',
+        },
+        recommendations: [],
+    },
     lastJobSuggestionCheck: new Date(0).toISOString(),
 };

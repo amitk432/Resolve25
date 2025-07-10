@@ -9,6 +9,7 @@ import { generateMonthlyPlanSuggestions, type GenerateMonthlyPlanSuggestionsInpu
 import { parseResume, type ParseResumeInput, type ResumeData } from '@/ai/flows/parse-resume';
 import { generateJobSuggestions, type GenerateJobSuggestionsInput } from '@/ai/flows/generate-job-suggestions';
 import { generateApplicationEmail, type GenerateApplicationEmailInput } from '@/ai/flows/generate-application-email';
+import { generateRelocationAdvice, type RelocationAdviceInput, generateRelocationRoadmap, type RelocationRoadmapInput } from '@/ai/flows/generate-relocation-advice';
 
 export async function getModuleSuggestions(input: ModuleSuggestionInput) {
     try {
@@ -96,4 +97,26 @@ export async function getAIEmailTemplate(input: GenerateApplicationEmailInput) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to generate email template. Please try again.';
     return { error: errorMessage };
   }
+}
+
+export async function getRelocationAdvice(input: RelocationAdviceInput) {
+    try {
+        const result = await generateRelocationAdvice(input);
+        return result;
+    } catch (error) {
+        console.error('Error getting relocation advice:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to generate AI advice. Please try again.';
+        return { error: errorMessage };
+    }
+}
+
+export async function getRelocationRoadmap(input: RelocationRoadmapInput) {
+    try {
+        const result = await generateRelocationRoadmap(input);
+        return result;
+    } catch (error) {
+        console.error('Error getting relocation roadmap:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to generate AI roadmap. Please try again.';
+        return { error: errorMessage };
+    }
 }

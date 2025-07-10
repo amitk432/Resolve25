@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import type { AppData, DailyTask, JobApplication, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP, Task } from '@/lib/types';
-import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, ListTodo } from 'lucide-react';
+import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, ListTodo, Globe } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { SuggestedMonthlyPlan } from '@/ai/flows/generate-monthly-plan-suggestions';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import Image from 'next/image';
+import LivingAdvisorTab from './living-advisor-tab';
 
 
 interface DashboardProps {
@@ -349,10 +350,11 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     <TabsTrigger value="goals"><Target/>Goals</TabsTrigger>
                     <TabsTrigger value="daily-todo"><ListTodo />Daily To-Do</TabsTrigger>
                     <TabsTrigger value="monthly-plan"><CalendarDays/>Monthly Plan</TabsTrigger>
+                    <TabsTrigger value="job-search"><Briefcase/>Job Search</TabsTrigger>
+                    <TabsTrigger value="living-advisor"><Globe/>Living Advisor</TabsTrigger>
+                    <TabsTrigger value="travel-goals"><Plane/>Travel Goals</TabsTrigger>
                     <TabsTrigger value="car-sale"><Car/>Car Sale</TabsTrigger>
                     <TabsTrigger value="finance"><PiggyBank/>Finance Tracker</TabsTrigger>
-                    <TabsTrigger value="job-search"><Briefcase/>Job Search</TabsTrigger>
-                    <TabsTrigger value="travel-goals"><Plane/>Travel Goals</TabsTrigger>
                 </TabsList>
                 <ScrollBar orientation="horizontal" className="invisible" />
             </ScrollArea>
@@ -427,6 +429,9 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     data={data}
                     onUpdate={onUpdate}
                 />
+            </TabsContent>
+            <TabsContent value="living-advisor">
+                <LivingAdvisorTab data={data} onUpdate={onUpdate} />
             </TabsContent>
             <TabsContent value="travel-goals">
                 <TravelGoalsTab 

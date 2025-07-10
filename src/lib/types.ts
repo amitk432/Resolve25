@@ -1,4 +1,6 @@
 
+import type { RelocationQuestionnaire, CountryRecommendation } from "@/ai/flows/generate-relocation-advice";
+
 export type GoalCategory = 'Health' | 'Career' | 'Personal';
 
 export interface Step {
@@ -147,6 +149,11 @@ export interface ResumeData {
   education: ResumeEducation[];
 }
 
+export interface LivingAdvisorData {
+    questionnaire: RelocationQuestionnaire;
+    recommendations: CountryRecommendation[];
+}
+
 export interface AppData {
     goals: Goal[];
     monthlyPlan: MonthlyPlan[];
@@ -162,5 +169,6 @@ export interface AppData {
     dailyTasks: DailyTask[];
     incomeSources: IncomeSource[];
     resume?: ResumeData | null;
+    livingAdvisor?: LivingAdvisorData;
     lastJobSuggestionCheck?: string;
 }
