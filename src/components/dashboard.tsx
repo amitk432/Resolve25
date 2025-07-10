@@ -397,11 +397,13 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="border-b border-white/10 bg-transparent hidden md:block">
           <div className="px-2">
-            <TabsList className="h-auto p-2">
-                  {[...allTabs].map(tab => (
-                    <TabsTrigger key={tab.value} value={tab.value}>{tab.icon}{tab.label}</TabsTrigger>
-                  ))}
-            </TabsList>
+            <ScrollArea className="w-full whitespace-nowrap">
+              <TabsList className="h-auto p-2">
+                    {[...allTabs].map(tab => (
+                      <TabsTrigger key={tab.value} value={tab.value}>{tab.icon}{tab.label}</TabsTrigger>
+                    ))}
+              </TabsList>
+            </ScrollArea>
           </div>
         </div>
         
@@ -456,7 +458,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onUpdateEmergencyFundTarget={handleUpdateEmergencyFundTarget}
                     onAddSip={handleAddSip}
                     onUpdateSip={handleUpdateSip}
-                    onDeleteSip={onDeleteSip}
+                    onDeleteSip={handleDeleteSip}
                     onAddLoan={handleAddLoan}
                     onUpdateLoan={handleUpdateLoan}
                     onDeleteLoan={handleDeleteLoan}
