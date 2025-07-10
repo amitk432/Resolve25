@@ -1,5 +1,5 @@
 
-import type { RelocationQuestionnaire, CountryRecommendation } from "@/ai/flows/generate-relocation-advice";
+import { z } from 'zod';
 
 export type GoalCategory = 'Health' | 'Career' | 'Personal';
 
@@ -148,6 +148,70 @@ export interface ResumeData {
   projects: ResumeProject[];
   education: ResumeEducation[];
 }
+
+
+// --- Global Living Advisor Schemas & Types ---
+
+export const RelocationQuestionnaireSchema = z.object({
+  currentProfession: z.string().describe('The user\'s current profession or field of work.'),
+  lifestyle: z.enum(['City', 'Suburban', 'Rural', 'Flexible']).describe('The user\'s preferred lifestyle.'),
+  familySize: z.number().int().positive().describe('The number of people in the user\'s family who would be relocating.'),
+  languageSkills: z.string().describe('A comma-separated list of languages the user speaks and their proficiency (e.g., "English (Fluent), Spanish (Beginner)").'),
+  climatePreference: z.enum(['Warm', 'Cold', 'Temperate', 'No Preference']).describe('The user\'s preferred climate.'),
+  workLifeBalance: z.enum(['Priority', 'Important', 'Balanced', 'Flexible']).describe('The importance of work-life balance to the user.'),
+  careerGoals: z.string().describe('The user\'s primary career goals for the relocation (e.g., "Growth in tech sector", "Start a business", "Better salary").'),
+});
+export type RelocationQuestionnaire = z.infer<typeof RelocationQuestionnaireSchema>;
+
+export const RelocationAdviceInputSchema = z.object({
+  resume: z.any().optional().describe("The user's full resume data as a JSON object."),
+  questionnaire: RelocationQuestionnaireSchema,
+});
+export type RelocationAdviceInput = z.infer<typeof RelocationAdviceInputSchema>;
+
+export const CountryRecommendationSchema = z.object({
+  country: z.string().describe('The name of the recommended country.'),
+  suitabilityScore: z.number().min(1).max(100).describe('A score from 1-100 indicating how suitable the country is for the user.'),
+  summary: z.string().describe('A brief, 2-3 sentence summary explaining why this country is a good match.'),
+  pros: z.array(z.string()).describe('A list of 3-5 key advantages (pros) for the user to relocate to this country.'),
+  cons: z.array(z.string()).describe('A list of 3-5 key disadvantages (cons) or challenges the user might face.'),
+});
+export type CountryRecommendation = z.infer<typeof CountryRecommendationSchema>;
+
+export const RelocationAdviceOutputSchema = z.object({
+  recommendations: z.array(CountryRecommendationSchema).describe('A list of 3-5 recommended countries for relocation, sorted by suitability score.'),
+});
+export type RelocationAdviceOutput = z.infer<typeof RelocationAdviceOutputSchema>;
+
+export const RelocationRoadmapInputSchema = z.object({
+    country: z.string().describe('The country selected by the user for the roadmap.'),
+    profile: RelocationAdviceInputSchema.describe('The user\'s full profile (resume + questionnaire).'),
+});
+export type RelocationRoadmapInput = z.infer<typeof RelocationRoadmapInputSchema>;
+
+export const RelocationRoadmapOutputSchema = z.object({
+    visa: z.object({
+        title: z.string().describe('Title for the visa section.'),
+        steps: z.array(z.string()).describe('Step-by-step visa requirements and application process.'),
+    }),
+    housing: z.object({
+        title: z.string().describe('Title for the housing section.'),
+        options: z.array(z.string()).describe('A list of typical housing options and their estimated monthly costs (e.g., "1-bedroom city apartment: $1500", "3-bedroom suburban house: $2500").'),
+    }),
+    jobSearch: z.object({
+        title: z.string().describe('Title for the job search section.'),
+        strategies: z.array(z.string()).describe('Actionable job search strategies and insights into the local market relevant to the user\'s profession.'),
+    }),
+    culturalAdaptation: z.object({
+        title: z.string().describe('Title for the cultural adaptation section.'),
+        tips: z.array(z.string()).describe('Tips for cultural integration and adaptation.'),
+    }),
+    localResources: z.object({
+        title: z.string().describe('Title for the local resources section.'),
+        resources: z.array(z.string()).describe('A list of useful local resources like expat forums, community groups, or official websites.'),
+    }),
+});
+export type RelocationRoadmapOutput = z.infer<typeof RelocationRoadmapOutputSchema>;
 
 export interface LivingAdvisorData {
     questionnaire: RelocationQuestionnaire;
