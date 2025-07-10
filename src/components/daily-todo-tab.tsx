@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format, isToday, isPast, parseISO, startOfDay, isTomorrow, isFuture } from 'date-fns';
+import { format, isToday, parseISO, startOfDay, isPast } from 'date-fns';
 import { DailyTask, DailyTaskCategory, DailyTaskPriority, AppData } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -73,10 +73,8 @@ const TaskItem = ({ task, onToggleTask, onEdit, onDelete }: { task: DailyTask, o
           {task.title}
         </label>
         <div className="text-sm text-muted-foreground flex items-center gap-x-4 gap-y-1 mt-1 flex-wrap">
-          <div className={cn("flex items-center gap-1", isOverdue && "text-destructive font-medium")}>
+           <div className={cn("flex items-center gap-1", isOverdue && "text-destructive font-medium")}>
             {isOverdue && <AlertTriangle className="h-3 w-3" />}
-            <CalendarIcon className="h-3 w-3" />
-            {format(parseISO(task.dueDate), 'dd-MMMM-yyyy')}
           </div>
           <Badge variant="outline" className={cn('text-xs', priorityConfig[task.priority].className)}>
             {task.priority}
@@ -155,34 +153,33 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
   };
 
   const groupedTasks = useMemo(() => {
-    const groups: { title: string; tasks: DailyTask[], defaultOpen?: boolean }[] = [];
+    const groups: { [key: string]: DailyTask[] } = {};
 
-    const sortTasks = (taskArray: DailyTask[]) => {
-        return taskArray.sort((a, b) => {
+    tasks.forEach(task => {
+        const dateKey = format(parseISO(task.dueDate), 'yyyy-MM-dd');
+        if (!groups[dateKey]) {
+            groups[dateKey] = [];
+        }
+        groups[dateKey].push(task);
+    });
+
+    // Sort tasks within each group: incomplete first, then by title
+    for (const dateKey in groups) {
+        groups[dateKey].sort((a, b) => {
             if (a.completed !== b.completed) {
-                return a.completed ? 1 : -1; // Incomplete tasks first
+                return a.completed ? 1 : -1;
             }
-            return parseISO(a.dueDate).getTime() - parseISO(b.dueDate).getTime(); // Then by due date
+            return a.title.localeCompare(b.title);
         });
     }
     
-    const activeTasks = tasks.filter(t => !t.completed);
-    const completedTasks = tasks.filter(t => t.completed);
+    // Sort the groups by date
+    const sortedGroupKeys = Object.keys(groups).sort((a,b) => new Date(a).getTime() - new Date(b).getTime());
 
-    const overdue = sortTasks(activeTasks.filter(t => isPast(startOfDay(parseISO(t.dueDate))) && !isToday(startOfDay(parseISO(t.dueDate)))));
-    const today = sortTasks(activeTasks.filter(t => isToday(startOfDay(parseISO(t.dueDate)))));
-    const tomorrow = sortTasks(activeTasks.filter(t => isTomorrow(startOfDay(parseISO(t.dueDate)))));
-    const upcoming = sortTasks(activeTasks.filter(t => isFuture(startOfDay(parseISO(t.dueDate))) && !isToday(startOfDay(parseISO(t.dueDate))) && !isTomorrow(startOfDay(parseISO(t.dueDate)))));
-    
-    const completed = sortTasks(completedTasks);
-
-    if (overdue.length > 0) groups.push({ title: 'Overdue', tasks: overdue, defaultOpen: true });
-    if (today.length > 0) groups.push({ title: 'Today', tasks: today, defaultOpen: true });
-    if (tomorrow.length > 0) groups.push({ title: 'Tomorrow', tasks: tomorrow, defaultOpen: true });
-    if (upcoming.length > 0) groups.push({ title: 'Upcoming', tasks: upcoming, defaultOpen: false });
-    if (completed.length > 0) groups.push({ title: 'Completed', tasks: completed, defaultOpen: false });
-    
-    return groups;
+    return sortedGroupKeys.map(key => ({
+        date: key,
+        tasks: groups[key]
+    }));
   }, [tasks]);
 
   const handleAiTaskAdd = (suggestedTask: SuggestedTask) => {
@@ -194,7 +191,9 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
   };
   
   const defaultOpenGroups = useMemo(() => {
-    return groupedTasks.filter(g => g.defaultOpen).map(g => g.title);
+    return groupedTasks
+        .filter(g => isToday(parseISO(g.date)) || isPast(parseISO(g.date)))
+        .map(g => g.date);
   }, [groupedTasks]);
 
 
@@ -222,10 +221,10 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
         {tasks.length > 0 ? (
             <Accordion type="multiple" defaultValue={defaultOpenGroups} className="w-full space-y-2">
                 {groupedTasks.map(group => (
-                    <AccordionItem value={group.title} key={group.title} className="border rounded-lg px-4 bg-muted/30">
+                    <AccordionItem value={group.date} key={group.date} className="border rounded-lg px-4 bg-muted/30">
                         <AccordionTrigger className="py-3 hover:no-underline">
                              <div className="flex items-center gap-2">
-                                <h3 className="font-semibold text-lg">{group.title}</h3>
+                                <h3 className="font-semibold text-lg">{format(parseISO(group.date), 'MMMM d, yyyy')}</h3>
                                 <Badge variant="secondary">{group.tasks.length}</Badge>
                             </div>
                         </AccordionTrigger>
