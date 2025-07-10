@@ -316,7 +316,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-transparent shadow-xl border border-white/10">
       <header className="flex items-center justify-between gap-4 bg-transparent p-4 sm:p-6 border-b border-white/10">
         <div className="flex items-center gap-3">
-            <div className="md:hidden">
+            <div className="lg:hidden">
               <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon">
@@ -395,7 +395,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
       </header>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="border-b border-white/10 bg-transparent hidden md:block">
+        <div className="border-b border-white/10 bg-transparent hidden lg:block">
           <div className="px-2">
             <ScrollArea className="w-full whitespace-nowrap">
               <TabsList className="h-auto p-2">
