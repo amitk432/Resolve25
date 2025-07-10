@@ -165,17 +165,22 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
             return parseISO(a.dueDate).getTime() - parseISO(b.dueDate).getTime(); // Then by due date
         });
     }
+    
+    const activeTasks = tasks.filter(t => !t.completed);
+    const completedTasks = tasks.filter(t => t.completed);
 
-    const overdue = sortTasks(tasks.filter(t => !t.completed && isPast(startOfDay(parseISO(t.dueDate))) && !isToday(startOfDay(parseISO(t.dueDate)))));
-    const today = sortTasks(tasks.filter(t => isToday(startOfDay(parseISO(t.dueDate)))));
-    const tomorrow = sortTasks(tasks.filter(t => isTomorrow(startOfDay(parseISO(t.dueDate)))));
-    const upcoming = sortTasks(tasks.filter(t => isFuture(startOfDay(parseISO(t.dueDate))) && !isToday(startOfDay(parseISO(t.dueDate))) && !isTomorrow(startOfDay(parseISO(t.dueDate)))));
-    const completed = sortTasks(tasks.filter(t => t.completed));
+    const overdue = sortTasks(activeTasks.filter(t => isPast(startOfDay(parseISO(t.dueDate))) && !isToday(startOfDay(parseISO(t.dueDate)))));
+    const today = sortTasks(activeTasks.filter(t => isToday(startOfDay(parseISO(t.dueDate)))));
+    const tomorrow = sortTasks(activeTasks.filter(t => isTomorrow(startOfDay(parseISO(t.dueDate)))));
+    const upcoming = sortTasks(activeTasks.filter(t => isFuture(startOfDay(parseISO(t.dueDate))) && !isToday(startOfDay(parseISO(t.dueDate))) && !isTomorrow(startOfDay(parseISO(t.dueDate)))));
+    
+    const completed = sortTasks(completedTasks);
 
     if (overdue.length > 0) groups.push({ title: 'Overdue', tasks: overdue, defaultOpen: true });
     if (today.length > 0) groups.push({ title: 'Today', tasks: today, defaultOpen: true });
     if (tomorrow.length > 0) groups.push({ title: 'Tomorrow', tasks: tomorrow, defaultOpen: true });
     if (upcoming.length > 0) groups.push({ title: 'Upcoming', tasks: upcoming, defaultOpen: false });
+    if (completed.length > 0) groups.push({ title: 'Completed', tasks: completed, defaultOpen: false });
     
     return groups;
   }, [tasks]);
