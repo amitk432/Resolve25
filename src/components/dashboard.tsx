@@ -24,6 +24,7 @@ import type { SuggestedMonthlyPlan } from '@/ai/flows/generate-monthly-plan-sugg
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import LivingAdvisorTab from './living-advisor-tab';
+import { cn } from '@/lib/utils';
 
 
 interface DashboardProps {
@@ -297,11 +298,13 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
 
   return (
     <>
-    <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-card shadow-xl border">
-      <header className="flex flex-col items-center gap-4 bg-card p-4 text-center sm:flex-row sm:justify-between sm:p-6 sm:text-left border-b">
+    <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-transparent shadow-xl border border-white/10">
+      <header className="flex flex-col items-center gap-4 bg-transparent p-4 text-center sm:flex-row sm:justify-between sm:p-6 sm:text-left border-b border-white/10">
         <div>
           <div className="flex items-center gap-3">
-            <Image src="/icon.svg" alt="Resolve25 Logo" width={36} height={36} className="bg-primary p-1.5 rounded-lg" />
+            <div className="bg-gradient-primary p-2 rounded-lg">
+                <Image src="/icon.svg" alt="Resolve25 Logo" width={24} height={24} />
+            </div>
             <h1 className="text-2xl font-bold md:text-3xl tracking-tight text-foreground">Resolve25</h1>
           </div>
           <p className="mt-1 text-muted-foreground">Your AI-Powered Life OS</p>
@@ -343,7 +346,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
       </header>
 
       <Tabs defaultValue="dashboard" className="w-full" onValueChange={setActiveTab}>
-        <div className="border-b bg-card">
+        <div className="border-b border-white/10 bg-transparent">
             <ScrollArea className="w-full whitespace-nowrap">
                 <TabsList className="h-auto gap-1 bg-transparent p-2 sm:gap-2">
                     <TabsTrigger value="dashboard"><LayoutDashboard/>Dashboard</TabsTrigger>
@@ -360,7 +363,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
             </ScrollArea>
         </div>
         
-        <div className="relative p-4 md:p-8 bg-background">
+        <div className={cn("relative p-4 md:p-8 bg-transparent transition-opacity duration-500", activeTab ? 'opacity-100' : 'opacity-0')}>
             <TabsContent value="dashboard">
                 <DashboardOverview data={data} />
             </TabsContent>

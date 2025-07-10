@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full`}>
+    <html lang="en" className={`${inter.variable} h-full dark`}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -38,7 +38,7 @@ export default function RootLayout({
           </main>
         </AuthProvider>
         <Toaster />
-        <footer className="border-t p-4 text-center text-sm text-muted-foreground">
+        <footer className="border-t border-white/10 p-4 text-center text-sm text-muted-foreground">
           Built with ❤️ by <strong>AmiT</strong>
         </footer>
       </body>

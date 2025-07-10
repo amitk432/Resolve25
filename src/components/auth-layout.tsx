@@ -1,9 +1,13 @@
+
 import React from 'react';
 import Image from 'next/image';
 
 const AuthIllustration = () => (
-    <div className="hidden lg:flex items-center justify-center bg-primary/5 rounded-l-2xl p-16">
-        <Image src="/icon.svg" alt="Resolve25 Logo" width={256} height={256} className="rounded-3xl shadow-2xl" />
+    <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-gray-900 to-black p-16 rounded-l-2xl">
+        <div className="relative w-72 h-72">
+            <div className="absolute inset-0 bg-gradient-primary rounded-full blur-2xl opacity-30 animate-pulse"></div>
+            <Image src="/icon.svg" alt="Resolve25 Logo" width={256} height={256} className="relative z-10 rounded-3xl" />
+        </div>
     </div>
 );
 

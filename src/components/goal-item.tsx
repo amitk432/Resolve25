@@ -38,10 +38,10 @@ interface GoalItemProps {
 }
 
 const categoryInfo: Record<GoalCategory, { icon: React.ReactNode; className: string }> = {
-  Health: { icon: <HeartPulse className="h-4 w-4" />, className: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800' },
-  Career: { icon: <Briefcase className="h-4 w-4" />, className: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800' },
-  Personal: { icon: <BookOpenText className="h-4 w-4" />, className: 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/50 dark:text-purple-300 dark:border-purple-800' },
-};
+    Health: { icon: <HeartPulse className="h-4 w-4" />, className: 'bg-green-900/50 text-green-300 border-green-800' },
+    Career: { icon: <Briefcase className="h-4 w-4" />, className: 'bg-blue-900/50 text-blue-300 border-blue-800' },
+    Personal: { icon: <BookOpenText className="h-4 w-4" />, className: 'bg-purple-900/50 text-purple-300 border-purple-800' },
+  };
 
 export default function GoalItem({ goal, onStepToggle, onStepAdd, onGoalDelete }: GoalItemProps) {
   const [newStepText, setNewStepText] = useState('');
@@ -66,7 +66,7 @@ export default function GoalItem({ goal, onStepToggle, onStepAdd, onGoalDelete }
 
   return (
     <Accordion type="single" collapsible className="w-full">
-      <AccordionItem value={goal.id} className="border rounded-lg bg-card shadow-sm hover:shadow-md transition-shadow">
+      <AccordionItem value={goal.id} className="border rounded-lg bg-secondary/40 shadow-sm hover:bg-secondary/60 transition-colors duration-300">
         <AccordionTrigger className="p-4 hover:no-underline">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
             <div className="flex-grow space-y-2 text-left">
@@ -102,7 +102,7 @@ export default function GoalItem({ goal, onStepToggle, onStepAdd, onGoalDelete }
             <div className="space-y-2 mb-4">
                 <h4 className="font-medium text-sm">Actionable Steps</h4>
                 {steps.map(step => (
-                    <div key={step.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50">
+                    <div key={step.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-secondary/50">
                     <Checkbox
                         id={`step-${step.id}`}
                         checked={step.completed}
@@ -118,7 +118,7 @@ export default function GoalItem({ goal, onStepToggle, onStepAdd, onGoalDelete }
                 ))}
                 {steps.length === 0 && <p className="text-sm text-muted-foreground p-2 text-center">No steps yet. Add one below!</p>}
             </div>
-            <div className="flex items-center gap-2 border-t pt-4">
+            <div className="flex items-center gap-2 border-t pt-4 border-white/10">
                 <Input 
                     placeholder="Add a new step..." 
                     value={newStepText}
