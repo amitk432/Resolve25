@@ -115,44 +115,6 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     };
 
     // Finance Handlers
-    const onAddLoan = (name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => {
-        onUpdate(draft => {
-            draft.loans.push({
-                id: `loan-${Date.now()}-${Math.random()}`,
-                name,
-                principal,
-                rate,
-                tenure,
-                emisPaid,
-                status: 'Active',
-                lastAutoUpdate: new Date().toISOString()
-            });
-        });
-    };
-
-    const onUpdateLoan = (id: string, name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => {
-        onUpdate(draft => {
-            const loan = draft.loans.find(l => l.id === id);
-            if (loan) {
-                loan.name = name;
-                loan.principal = principal;
-                loan.rate = rate;
-                loan.tenure = tenure;
-                loan.emisPaid = emisPaid;
-                loan.lastAutoUpdate = new Date().toISOString();
-            }
-        });
-    };
-    
-    const handleUpdateLoanStatus = (loanId: string, status: LoanStatus) => {
-        onUpdate(draft => {
-            const loanToUpdate = draft.loans.find(l => l.id === loanId);
-            if (loanToUpdate) {
-                loanToUpdate.status = status;
-            }
-        })
-    }
-    
     const handleAddLoan = (name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => {
         onUpdate(draft => {
             draft.loans.push({
@@ -181,7 +143,16 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
             }
         });
     };
-
+    
+    const handleUpdateLoanStatus = (loanId: string, status: LoanStatus) => {
+        onUpdate(draft => {
+            const loanToUpdate = draft.loans.find(l => l.id === loanId);
+            if (loanToUpdate) {
+                loanToUpdate.status = status;
+            }
+        })
+    }
+    
     const handleDeleteLoan = (id: string) => {
         onUpdate(draft => {
             draft.loans = draft.loans.filter(l => l.id !== id);
@@ -396,31 +367,26 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="border-b border-white/10 bg-transparent">
             <TabsList className="h-auto p-2">
-                <div className="md:hidden">
-                    <ScrollArea className="max-w-[calc(100vw-80px)] whitespace-nowrap">
-                        <div className="flex gap-1">
-                          {mainTabs.map(tab => (
-                            <TabsTrigger key={tab.value} value={tab.value}>{tab.icon}{tab.label}</TabsTrigger>
-                          ))}
-                           <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className={cn("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-gradient-primary after:scale-x-0 after:transition-transform after:duration-300", isMoreTabActive && "text-foreground after:scale-x-100")}>
-                                        <MoreHorizontal/> More
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    <DropdownMenuRadioGroup value={activeTab} onValueChange={setActiveTab}>
-                                    {moreTabs.map(tab => (
-                                        <DropdownMenuRadioItem key={tab.value} value={tab.value} className="gap-2">
-                                            {tab.icon} {tab.label}
-                                        </DropdownMenuRadioItem>
-                                    ))}
-                                    </DropdownMenuRadioGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                        <ScrollBar orientation="horizontal" className="invisible" />
-                    </ScrollArea>
+                <div className="md:hidden flex gap-1">
+                    {mainTabs.map(tab => (
+                      <TabsTrigger key={tab.value} value={tab.value}>{tab.icon}{tab.label}</TabsTrigger>
+                    ))}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className={cn("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-gradient-primary after:scale-x-0 after:transition-transform after:duration-300", isMoreTabActive && "text-foreground after:scale-x-100")}>
+                                <MoreHorizontal/> More
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuRadioGroup value={activeTab} onValueChange={setActiveTab}>
+                            {moreTabs.map(tab => (
+                                <DropdownMenuRadioItem key={tab.value} value={tab.value} className="gap-2">
+                                    {tab.icon} {tab.label}
+                                </DropdownMenuRadioItem>
+                            ))}
+                            </DropdownMenuRadioGroup>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
                 <div className="hidden md:flex md:gap-1">
                   {[...mainTabs, ...moreTabs].map(tab => (
@@ -482,8 +448,8 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onAddSip={handleAddSip}
                     onUpdateSip={handleUpdateSip}
                     onDeleteSip={handleDeleteSip}
-                    onAddLoan={onAddLoan}
-                    onUpdateLoan={onUpdateLoan}
+                    onAddLoan={handleAddLoan}
+                    onUpdateLoan={handleUpdateLoan}
                     onDeleteLoan={handleDeleteLoan}
                     onAddIncomeSource={handleAddIncomeSource}
                     onUpdateIncomeSource={handleUpdateIncomeSource}
@@ -517,5 +483,3 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     </>
   );
 }
-
-    
