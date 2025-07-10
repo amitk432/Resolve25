@@ -126,7 +126,7 @@ const travelGoalSchema = z.object({
 
 
 const TravelGoalItem = ({ goal, onDeleteGoal, onGetItinerary }: { goal: TravelGoal, onDeleteGoal: (id: string) => void, onGetItinerary: (destination: string, duration: number, travelDate: string) => void }) => {
-    const imageUrl = `https://source.unsplash.com/400x250/?${encodeURIComponent(goal.destination.split(',')[0])}`;
+    const imageUrl = `https://placehold.co/400x250.png`;
 
     return (
         <div className="flex flex-col md:flex-row gap-4 p-4 border rounded-lg bg-background hover:bg-muted/30 transition-colors">
