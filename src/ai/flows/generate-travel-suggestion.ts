@@ -9,13 +9,14 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { GenerateTravelSuggestionOutputSchema } from '@/lib/types';
-import type { GenerateTravelSuggestionOutput } from '@/lib/types';
-
-export const GenerateTravelSuggestionInputSchema = z.object({
-    exclude: z.string().optional().describe('A destination to exclude from the suggestion.'),
-});
-export type GenerateTravelSuggestionInput = z.infer<typeof GenerateTravelSuggestionInputSchema>;
+import { 
+    GenerateTravelSuggestionOutputSchema, 
+    GenerateTravelSuggestionInputSchema 
+} from '@/lib/types';
+import type { 
+    GenerateTravelSuggestionOutput, 
+    GenerateTravelSuggestionInput 
+} from '@/lib/types';
 
 export async function generateTravelSuggestion(input?: GenerateTravelSuggestionInput): Promise<GenerateTravelSuggestionOutput> {
   return generateTravelSuggestionFlow(input);
