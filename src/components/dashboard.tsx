@@ -115,6 +115,35 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     };
 
     // Finance Handlers
+    const onAddLoan = (name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => {
+        onUpdate(draft => {
+            draft.loans.push({
+                id: `loan-${Date.now()}-${Math.random()}`,
+                name,
+                principal,
+                rate,
+                tenure,
+                emisPaid,
+                status: 'Active',
+                lastAutoUpdate: new Date().toISOString()
+            });
+        });
+    };
+
+    const onUpdateLoan = (id: string, name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => {
+        onUpdate(draft => {
+            const loan = draft.loans.find(l => l.id === id);
+            if (loan) {
+                loan.name = name;
+                loan.principal = principal;
+                loan.rate = rate;
+                loan.tenure = tenure;
+                loan.emisPaid = emisPaid;
+                loan.lastAutoUpdate = new Date().toISOString();
+            }
+        });
+    };
+    
     const handleUpdateLoanStatus = (loanId: string, status: LoanStatus) => {
         onUpdate(draft => {
             const loanToUpdate = draft.loans.find(l => l.id === loanId);
@@ -417,8 +446,8 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onAddSip={handleAddSip}
                     onUpdateSip={handleUpdateSip}
                     onDeleteSip={handleDeleteSip}
-                    onAddLoan={handleAddLoan}
-                    onUpdateLoan={handleUpdateLoan}
+                    onAddLoan={onAddLoan}
+                    onUpdateLoan={onUpdateLoan}
                     onDeleteLoan={handleDeleteLoan}
                     onAddIncomeSource={handleAddIncomeSource}
                     onUpdateIncomeSource={handleUpdateIncomeSource}
