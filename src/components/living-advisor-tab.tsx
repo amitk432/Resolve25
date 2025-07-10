@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -5,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { AppData } from '@/lib/types';
 import { getRelocationAdvice, getRelocationRoadmap } from '@/app/actions';
-import { RelocationQuestionnaireSchema, type RelocationQuestionnaire, type CountryRecommendation, type RelocationRoadmapOutput } from '@/ai/flows/generate-relocation-advice';
+import { RelocationQuestionnaireSchema, type RelocationQuestionnaire, type CountryRecommendation, type RelocationRoadmapOutput } from '@/lib/types';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,7 +27,7 @@ interface LivingAdvisorTabProps {
 
 const RelocationRoadmapView = ({ roadmap }: { roadmap: RelocationRoadmapOutput }) => {
     const sections = [
-        { icon: <FileText className="h-5 w-5" />, data: roadmap.visa },
+        { icon: <FileText className="h-5 w-5" />, data: roadmap.visa, type: 'steps' },
         { icon: <Home className="h-5 w-5" />, data: roadmap.housing, type: 'options' },
         { icon: <Briefcase className="h-5 w-5" />, data: roadmap.jobSearch, type: 'strategies' },
         { icon: <Users className="h-5 w-5" />, data: roadmap.culturalAdaptation, type: 'tips' },
