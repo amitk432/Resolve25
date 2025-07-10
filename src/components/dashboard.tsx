@@ -25,6 +25,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import LivingAdvisorTab from './living-advisor-tab';
 import { cn } from '@/lib/utils';
+import { ThemeSwitcher } from './theme-switcher';
 
 
 interface DashboardProps {
@@ -300,49 +301,50 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     <>
     <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-transparent shadow-xl border border-white/10">
       <header className="flex flex-col items-center gap-4 bg-transparent p-4 text-center sm:flex-row sm:justify-between sm:p-6 sm:text-left border-b border-white/10">
-        <div>
-          <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3">
             <div className="bg-gradient-primary p-2 rounded-lg">
                 <Image src="/icon.svg" alt="Resolve25 Logo" width={24} height={24} />
             </div>
             <h1 className="text-2xl font-bold md:text-3xl tracking-tight text-foreground">Resolve25</h1>
-          </div>
-          <p className="mt-1 text-muted-foreground">Your AI-Powered Life OS</p>
         </div>
-        {user && (
-           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className="h-10 w-10 border-2 border-primary/50">
-                  <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
-                  <AvatarFallback className="bg-primary/20 font-semibold text-primary">
-                    {user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user.displayName || 'User'}</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {user.email}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-               <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
-                <Camera className="mr-2 h-4 w-4" />
-                <span>Change Picture</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={logout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        
+        <div className="flex items-center gap-2">
+            <ThemeSwitcher />
+            {user && (
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-10 w-10 border-2 border-primary/50">
+                    <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
+                    <AvatarFallback className="bg-primary/20 font-semibold text-primary">
+                        {user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                    </Avatar>
+                </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user.displayName || 'User'}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                    </p>
+                    </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
+                    <Camera className="mr-2 h-4 w-4" />
+                    <span>Change Picture</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            )}
+        </div>
       </header>
 
       <Tabs defaultValue="dashboard" className="w-full" onValueChange={setActiveTab}>
