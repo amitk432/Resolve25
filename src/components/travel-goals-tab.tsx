@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
-import type { AppData, Goal, TravelGoal, GenerateTravelItineraryOutput } from '@/lib/types';
+import type { AppData, Goal, TravelGoal, GenerateTravelItineraryOutput, Activity } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -16,12 +16,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, Trash2, CalendarIcon, Wand2, Loader2, ArrowRight, Plane, CheckCircle, Sparkles, Lightbulb, Target } from 'lucide-react';
+import { Plus, Trash2, CalendarIcon, Wand2, Loader2, Plane, CheckCircle, Sparkles, Lightbulb, Target, Star, IndianRupee } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import AiSuggestionSection from './ai-suggestion-section';
 import { getTravelItinerary, getAITravelSuggestion } from '@/app/actions';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 
@@ -126,7 +125,7 @@ const travelGoalSchema = z.object({
 });
 
 
-const TravelGoalItem = ({ goal, onDeleteGoal, onGetItinerary }: { goal: TravelGoal, onDeleteGoal: (id: string) => void, onGetItinerary: (destination: string, duration: number) => void }) => {
+const TravelGoalItem = ({ goal, onDeleteGoal, onGetItinerary }: { goal: TravelGoal, onDeleteGoal: (id: string) => void, onGetItinerary: (destination: string, duration: number, travelDate: string) => void }) => {
     const imageUrl = `https://source.unsplash.com/400x250/?${encodeURIComponent(goal.destination.split(',')[0])}`;
 
     return (
@@ -178,9 +177,9 @@ const TravelGoalItem = ({ goal, onDeleteGoal, onGetItinerary }: { goal: TravelGo
                     </AlertDialog>
                 </div>
                 {goal.notes && <p className="mt-2 text-sm text-muted-foreground flex-grow">{goal.notes}</p>}
-                {goal.status === 'Planned' && (
+                {goal.status === 'Planned' && goal.travelDate && (
                     <div className="mt-4 pt-4 border-t border-border/50">
-                        <Button variant="outline" size="sm" onClick={() => onGetItinerary(goal.destination, parseInt(goal.duration || '3'))}>
+                        <Button variant="outline" size="sm" onClick={() => onGetItinerary(goal.destination, parseInt(goal.duration || '3'), goal.travelDate!)}>
                             <Wand2 className="mr-2 h-4 w-4" />
                             AI Itinerary
                         </Button>
@@ -192,6 +191,33 @@ const TravelGoalItem = ({ goal, onDeleteGoal, onGetItinerary }: { goal: TravelGo
 }
 
 const ItineraryView = ({ itinerary, destination, onAddItineraryGoal }: { itinerary: GenerateTravelItineraryOutput, destination: string, onAddItineraryGoal: (attraction: string) => void }) => {
+    
+    const ActivityItem = ({ activity }: { activity: Activity }) => (
+         <li className="flex items-start justify-between gap-3 group p-2 rounded-md hover:bg-muted/50">
+            <div className="flex-grow">
+              <p className="font-semibold text-foreground">{activity.activity}</p>
+              <p className="text-sm">{activity.description}</p>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-2">
+                  {activity.rating && (
+                      <div className="flex items-center gap-1">
+                          <Star className="h-3.5 w-3.5 text-yellow-500" />
+                          <span>{activity.rating}</span>
+                      </div>
+                  )}
+                  {activity.budget && (
+                      <div className="flex items-center gap-1">
+                          <IndianRupee className="h-3.5 w-3.5" />
+                          <span>{activity.budget}</span>
+                      </div>
+                  )}
+              </div>
+            </div>
+            <Button size="sm" variant="outline" className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => onAddItineraryGoal(activity.activity)}>
+                <Plus className="mr-2 h-4 w-4" /> Add Goal
+            </Button>
+        </li>
+    );
+
     return (
         <Card className="mt-8">
             <CardHeader>
@@ -230,15 +256,7 @@ const ItineraryView = ({ itinerary, destination, onAddItineraryGoal }: { itinera
                                 <AccordionContent className="px-6 pb-6">
                                     <ul className="space-y-2 list-none text-muted-foreground">
                                         {day.activities.map((activity, i) => (
-                                            <li key={i} className="flex items-start justify-between gap-3 group p-2 rounded-md hover:bg-muted/50">
-                                                <div className="flex-grow">
-                                                  <p className="font-semibold text-foreground">{activity.activity}</p>
-                                                  <p className="text-sm">{activity.description}</p>
-                                                </div>
-                                                <Button size="sm" variant="outline" className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => onAddItineraryGoal(activity.activity)}>
-                                                    <Plus className="mr-2 h-4 w-4" /> Add Goal
-                                                </Button>
-                                            </li>
+                                            <ActivityItem key={i} activity={activity} />
                                         ))}
                                     </ul>
                                 </AccordionContent>
@@ -324,12 +342,12 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal, o
     });
   };
 
-  const handleGetItinerary = async (destination: string, duration: number) => {
+  const handleGetItinerary = async (destination: string, duration: number, travelDate: string) => {
     setSelectedDestination(destination);
     setItinerary(null);
     setIsItineraryLoading(true);
 
-    const result = await getTravelItinerary({ destination, duration });
+    const result = await getTravelItinerary({ destination, duration, travelDate });
     setIsItineraryLoading(false);
 
     if (result && 'error' in result) {

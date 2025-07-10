@@ -220,16 +220,23 @@ export type RelocationRoadmapOutput = z.infer<typeof RelocationRoadmapOutputSche
 export const GenerateTravelItineraryInputSchema = z.object({
   destination: z.string().describe('The travel destination, e.g., "Goa, India".'),
   duration: z.number().int().positive().describe('The duration of the trip in days.'),
+  travelDate: z.string().describe('The planned start date of the trip, in ISO format.'),
 });
 export type GenerateTravelItineraryInput = z.infer<typeof GenerateTravelItineraryInputSchema>;
+
+const ActivitySchema = z.object({
+    activity: z.string().describe('The name of the activity or place to visit.'),
+    description: z.string().describe('A brief, helpful description of the activity.'),
+    budget: z.string().optional().describe('An estimated budget for the activity, e.g., "Free", "₹200 - ₹500".'),
+    rating: z.string().optional().describe('A user rating for the activity, e.g., "4.5/5".'),
+});
+export type Activity = z.infer<typeof ActivitySchema>;
+
 
 const DailyPlanSchema = z.object({
     title: z.string().describe('The title for the day, e.g., "Day 1: Arrival and Beach Hopping".'),
     theme: z.string().describe('A brief theme for the day\'s activities, e.g., "Coastal Exploration".'),
-    activities: z.array(z.object({
-        activity: z.string().describe('The name of the activity or place to visit.'),
-        description: z.string().describe('A brief, helpful description of the activity.'),
-    })).describe('A list of 3-4 activities for the day.'),
+    activities: z.array(ActivitySchema).describe('A list of 3-4 activities for the day.'),
 });
 
 export const GenerateTravelItineraryOutputSchema = z.object({
