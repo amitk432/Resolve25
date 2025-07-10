@@ -1,63 +1,134 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { AppData } from '@/lib/types';
+import type { AppData, RoadmapMilestone } from '@/lib/types';
 import { getRelocationAdvice, getRelocationRoadmap } from '@/app/actions';
-import { RelocationQuestionnaireSchema, type RelocationQuestionnaire, type CountryRecommendation, type RelocationRoadmapOutput } from '@/lib/types';
+import { RelocationQuestionnaireSchema, type RelocationQuestionnaire, type CountryRecommendation, type RelocationRoadmapOutput, GoalCategory } from '@/lib/types';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Loader2, Wand2, Star, ThumbsUp, ThumbsDown, ArrowRight, FileText, CheckCircle, Info, Home, Briefcase, Users, Languages, Map } from 'lucide-react';
+import { Loader2, Wand2, Star, ThumbsUp, ThumbsDown, ArrowRight, FileText, CheckCircle, Info, Home, Briefcase, Users, Languages, Map, Target, Plus, Send } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { Checkbox } from './ui/checkbox';
 
-interface LivingAdvisorTabProps {
-  data: AppData;
-  onUpdate: (updater: (draft: AppData) => void) => void;
-}
 
-const RelocationRoadmapView = ({ roadmap }: { roadmap: RelocationRoadmapOutput }) => {
-    const sections = [
-        { icon: <FileText className="h-5 w-5" />, data: roadmap.visa, type: 'steps' },
-        { icon: <Home className="h-5 w-5" />, data: roadmap.housing, type: 'options' },
-        { icon: <Briefcase className="h-5 w-5" />, data: roadmap.jobSearch, type: 'strategies' },
-        { icon: <Users className="h-5 w-5" />, data: roadmap.culturalAdaptation, type: 'tips' },
-        { icon: <Info className="h-5 w-5" />, data: roadmap.localResources, type: 'resources' },
-    ];
+const RoadmapSection = ({ title, icon, items }: { title: string; icon: React.ReactNode; items: (string | RoadmapMilestone)[] }) => {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-3 text-xl">
+                    {icon} {title}
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ul className="space-y-3">
+                    {items.map((item, index) => (
+                        <li key={index} className="flex items-start gap-3 text-muted-foreground">
+                            <CheckCircle className="h-4 w-4 mt-1 text-green-500 flex-shrink-0" />
+                            <div>
+                                {typeof item === 'string' ? (
+                                    <span>{item}</span>
+                                ) : (
+                                    <>
+                                        <span className="font-semibold text-foreground">{item.milestone}</span>
+                                        <p className="text-xs">Timeline: {item.timeline}</p>
+                                        <p className="text-xs mt-1">Resources: {item.resources}</p>
+                                    </>
+                                )}
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </CardContent>
+        </Card>
+    );
+};
+
+
+const RoadmapView = ({ roadmap, country, onAddToGoals }: { roadmap: RelocationRoadmapOutput, country: string, onAddToGoals: (milestones: RoadmapMilestone[]) => void }) => {
+    const [selectedMilestones, setSelectedMilestones] = useState<RoadmapMilestone[]>([]);
+
+    const handleToggleMilestone = (milestone: RoadmapMilestone) => {
+        setSelectedMilestones(prev => 
+            prev.some(m => m.milestone === milestone.milestone)
+                ? prev.filter(m => m.milestone !== milestone.milestone)
+                : [...prev, milestone]
+        );
+    };
+    
+    const handleAddToGoals = () => {
+        onAddToGoals(selectedMilestones);
+        setSelectedMilestones([]);
+    };
 
     return (
-        <div className="space-y-4 mt-6">
-            {sections.map((section, index) => (
-                <Card key={index}>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-lg">
-                            {section.icon} {section.data.title}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <ul className="list-disc list-outside pl-5 space-y-2 text-muted-foreground">
-                            {section.data[section.type as keyof typeof section.data].map((item: string, i: number) => (
-                                <li key={i}>{item}</li>
-                            ))}
-                        </ul>
-                    </CardContent>
-                </Card>
-            ))}
+        <div className="space-y-6">
+            <Accordion type="multiple" defaultValue={['item-0', 'item-1']} className="w-full space-y-4">
+                {[roadmap.visa, roadmap.career, roadmap.housing, roadmap.cultural, roadmap.resources].map((section, index) => (
+                    <AccordionItem value={`item-${index}`} key={index} className="border rounded-lg bg-background">
+                        <AccordionTrigger className="p-4 hover:no-underline text-lg">
+                            <div className="flex items-center gap-3">
+                                {section.title.includes("Visa") && <FileText className="h-5 w-5" />}
+                                {section.title.includes("Career") && <Briefcase className="h-5 w-5" />}
+                                {section.title.includes("Housing") && <Home className="h-5 w-5" />}
+                                {section.title.includes("Cultural") && <Users className="h-5 w-5" />}
+                                {section.title.includes("Resources") && <Info className="h-5 w-5" />}
+                                {section.title}
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-6 pb-6">
+                             <ul className="space-y-3">
+                                {'points' in section && section.points.map((item, i) => (
+                                    <li key={i} className="flex items-start gap-3 text-muted-foreground">
+                                        <ArrowRight className="h-4 w-4 mt-1 text-primary flex-shrink-0" />
+                                        <span>{item}</span>
+                                    </li>
+                                ))}
+                                {'milestones' in section && section.milestones.map((item, i) => (
+                                     <li key={i} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50">
+                                        <Checkbox
+                                            id={`milestone-${i}`}
+                                            className="mt-1"
+                                            onCheckedChange={() => handleToggleMilestone(item)}
+                                            checked={selectedMilestones.some(m => m.milestone === item.milestone)}
+                                        />
+                                        <label htmlFor={`milestone-${i}`} className="flex-grow">
+                                            <span className="font-semibold text-foreground">{item.milestone}</span>
+                                            <p className="text-xs">Timeline: {item.timeline}</p>
+                                            <p className="text-xs mt-1">Resources: {item.resources}</p>
+                                        </label>
+                                    </li>
+                                ))}
+                            </ul>
+                        </AccordionContent>
+                    </AccordionItem>
+                ))}
+            </Accordion>
+            {selectedMilestones.length > 0 && (
+                <div className="p-4 bg-muted/50 rounded-lg flex items-center justify-between">
+                    <p className="text-sm font-medium">{selectedMilestones.length} milestone(s) selected.</p>
+                    <Button onClick={handleAddToGoals}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add to My Goals
+                    </Button>
+                </div>
+            )}
         </div>
     );
 };
 
 
-export default function LivingAdvisorTab({ data, onUpdate }: LivingAdvisorTabProps) {
+export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; onUpdate: (updater: (draft: AppData) => void) => void; }) {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
     const [recommendations, setRecommendations] = useState<CountryRecommendation[]>(data.livingAdvisor?.recommendations || []);
@@ -70,6 +141,7 @@ export default function LivingAdvisorTab({ data, onUpdate }: LivingAdvisorTabPro
         resolver: zodResolver(RelocationQuestionnaireSchema),
         defaultValues: data.livingAdvisor?.questionnaire || {
             currentProfession: '',
+            currentCountry: '',
             familySize: 1,
             lifestyle: 'City',
             languageSkills: '',
@@ -78,6 +150,12 @@ export default function LivingAdvisorTab({ data, onUpdate }: LivingAdvisorTabPro
             careerGoals: '',
         },
     });
+    
+    useEffect(() => {
+        if (data.resume?.summary?.title && !form.getValues('currentProfession')) {
+            form.setValue('currentProfession', data.resume.summary.title, { shouldValidate: true });
+        }
+    }, [data.resume, form]);
 
     const onSubmit = async (values: RelocationQuestionnaire) => {
         setIsLoading(true);
@@ -142,10 +220,31 @@ export default function LivingAdvisorTab({ data, onUpdate }: LivingAdvisorTabPro
     };
     
     const handleFeedbackSubmit = () => {
-        // This is where you would send the feedback to your backend/analytics
         console.log("Feedback submitted:", feedback);
         toast({ title: 'Thank you for your feedback!' });
         setFeedback('');
+    };
+
+    const handleAddToGoals = (milestones: RoadmapMilestone[]) => {
+        onUpdate(draft => {
+            for (const milestone of milestones) {
+                draft.goals.push({
+                    id: `goal-roadmap-${Date.now()}-${Math.random()}`,
+                    title: milestone.milestone,
+                    description: `A step towards relocating. Timeline: ${milestone.timeline}. Resources: ${milestone.resources}`,
+                    category: 'Career',
+                    deadline: new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString(), // Default 6 month deadline
+                    steps: [
+                        { id: `step-${Date.now()}-1`, text: `Research: ${milestone.resources}`, completed: false },
+                        { id: `step-${Date.now()}-2`, text: `Take initial action for '${milestone.milestone}'`, completed: false },
+                    ]
+                });
+            }
+        });
+        toast({
+            title: `${milestones.length} Goal(s) Added`,
+            description: "Check your 'Goals' tab to track your progress.",
+        });
     };
 
     return (
@@ -163,9 +262,12 @@ export default function LivingAdvisorTab({ data, onUpdate }: LivingAdvisorTabPro
                 <CardContent>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <FormField control={form.control} name="currentProfession" render={({ field }) => (
                                     <FormItem><FormLabel>Current Profession</FormLabel><FormControl><Input placeholder="e.g., Software Engineer" {...field} /></FormControl><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="currentCountry" render={({ field }) => (
+                                    <FormItem><FormLabel>Current Country of Residence</FormLabel><FormControl><Input placeholder="e.g., India" {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="familySize" render={({ field }) => (
                                     <FormItem><FormLabel>Family Size (including yourself)</FormLabel><FormControl><Input type="number" min="1" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))}/></FormControl><FormMessage /></FormItem>
@@ -200,9 +302,6 @@ export default function LivingAdvisorTab({ data, onUpdate }: LivingAdvisorTabPro
                                         <FormMessage />
                                     </FormItem>
                                 )} />
-                                <FormField control={form.control} name="languageSkills" render={({ field }) => (
-                                    <FormItem><FormLabel>Language Skills</FormLabel><FormControl><Input placeholder="e.g., English (Fluent), French (Basic)" {...field} /></FormControl><FormMessage /></FormItem>
-                                )} />
                                 <FormField control={form.control} name="workLifeBalance" render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Work-Life Balance</FormLabel>
@@ -219,6 +318,9 @@ export default function LivingAdvisorTab({ data, onUpdate }: LivingAdvisorTabPro
                                     </FormItem>
                                 )} />
                             </div>
+                            <FormField control={form.control} name="languageSkills" render={({ field }) => (
+                                <FormItem><FormLabel>Language Skills</FormLabel><FormControl><Input placeholder="e.g., English (Fluent), French (Basic)" {...field} /></FormControl><FormMessage /></FormItem>
+                            )} />
                             <FormField control={form.control} name="careerGoals" render={({ field }) => (
                                 <FormItem><FormLabel>Primary Career Goals for Relocation</FormLabel><FormControl><Textarea placeholder="e.g., Leadership roles in fintech, starting my own consultancy, higher earning potential..." {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
@@ -289,8 +391,11 @@ export default function LivingAdvisorTab({ data, onUpdate }: LivingAdvisorTabPro
                     {selectedCountry && (
                         <Card className="mt-8">
                             <CardHeader>
-                                <CardTitle>Relocation Roadmap for {selectedCountry}</CardTitle>
-                                <CardDescription>Your personalized step-by-step guide to moving to {selectedCountry}.</CardDescription>
+                                <CardTitle className="flex items-center gap-2">
+                                  <Target />
+                                  Relocation Roadmap for {selectedCountry}
+                                </CardTitle>
+                                <CardDescription>Your personalized step-by-step guide to moving to {selectedCountry}. Select milestones to add them to your goals.</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 {isRoadmapLoading && (
@@ -299,7 +404,7 @@ export default function LivingAdvisorTab({ data, onUpdate }: LivingAdvisorTabPro
                                         <p className="ml-4 text-muted-foreground">Building your roadmap...</p>
                                     </div>
                                 )}
-                                {roadmap && <RelocationRoadmapView roadmap={roadmap} />}
+                                {roadmap && <RoadmapView roadmap={roadmap} country={selectedCountry} onAddToGoals={handleAddToGoals} />}
                             </CardContent>
                         </Card>
                     )}
@@ -310,9 +415,12 @@ export default function LivingAdvisorTab({ data, onUpdate }: LivingAdvisorTabPro
                             <CardDescription>Your feedback helps our AI get smarter. Was this advice helpful? What could be better?</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-2">
+                            <div className="flex items-start gap-2">
                                 <Textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="e.g., The recommendations were great, but I'd love to see more about visa costs..."/>
-                                <Button onClick={handleFeedbackSubmit} disabled={!feedback.trim()}>Submit Feedback</Button>
+                                <Button onClick={handleFeedbackSubmit} disabled={!feedback.trim()}>
+                                    <Send className="h-4 w-4" />
+                                    <span className="sr-only">Submit Feedback</span>
+                                </Button>
                             </div>
                         </CardContent>
                     </Card>

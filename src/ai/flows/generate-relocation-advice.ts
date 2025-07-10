@@ -40,7 +40,9 @@ const relocationAdvicePrompt = ai.definePrompt({
   output: {schema: RelocationAdviceOutputSchema},
   prompt: `You are an expert global relocation advisor. Your task is to analyze the user's profile and recommend the most suitable countries for them to live and work in.
 
-Analyze the user's resume (if provided) and their answers to the detailed questionnaire. Based on their profession, skills, lifestyle preferences, family size, and career goals, generate a list of 3-5 suitable countries.
+Analyze the user's resume (if provided) and their answers to the detailed questionnaire. The resume is the primary source for their profession and skills. The questionnaire provides lifestyle and personal preferences.
+
+Based on their profession, skills, lifestyle preferences, family size, and career goals, generate a list of 3-5 suitable countries.
 
 For each country, provide:
 1.  A suitability score (1-100) based on how well it matches the user's entire profile.
@@ -56,7 +58,7 @@ Consider all factors: job market for their profession, cost of living vs. potent
 \`\`\`
 
 {{#if resume}}
-**User's Resume Data:**
+**User's Resume Data (Primary source for profession & skills):**
 \`\`\`json
 {{{resume}}}
 \`\`\`
@@ -117,12 +119,13 @@ Based on the selected country and the user's profile, generate a comprehensive r
 {{{profile}}}
 \`\`\`
 
-Create a roadmap with the following sections:
-1.  **Visa Requirements:** Outline the most likely visa pathway for the user (based on their profession) and the key steps to apply.
-2.  **Housing Options:** Describe typical housing options and provide realistic monthly cost estimates.
-3.  **Job Search:** Provide specific job search strategies tailored to the user's profession and the local market of the selected country.
-4.  **Cultural Adaptation:** Offer practical tips for integrating into the local culture.
-5.  **Local Resources:** List helpful online resources like specific expat forums, government sites, or community groups.
+Create a roadmap with the following sections. Each section must contain a title and a list of detailed, actionable points. For the career section, include a timeline.
+
+1.  **Visa & Documentation:** Outline the most likely visa pathway (based on their profession) and the key steps to apply. Include required documents.
+2.  **Career & Job Search:** Provide specific job search strategies tailored to the user's profession and the local market. Suggest key milestones for their career progression with estimated timelines (e.g., "0-3 Months: Network and apply", "3-6 Months: Secure first interviews"). Include suggested resources like local job boards or professional networks.
+3.  **Housing & Living:** Describe typical housing options and provide realistic monthly cost estimates. Include tips on finding accommodation.
+4.  **Cultural Integration:** Offer practical tips for integrating into the local culture, including social etiquette, networking, and language basics.
+5.  **Helpful Local Resources:** List helpful online resources like specific expat forums, government sites, or community groups.
 
 Provide the roadmap in the specified JSON format.
     `,

@@ -153,7 +153,8 @@ export interface ResumeData {
 // --- Global Living Advisor Schemas & Types ---
 
 export const RelocationQuestionnaireSchema = z.object({
-  currentProfession: z.string().describe('The user\'s current profession or field of work.'),
+  currentProfession: z.string().min(1, 'Profession is required.').describe('The user\'s current profession or field of work.'),
+  currentCountry: z.string().min(1, 'Current country is required.').describe('The user\'s current country of residence.'),
   lifestyle: z.enum(['City', 'Suburban', 'Rural', 'Flexible']).describe('The user\'s preferred lifestyle.'),
   familySize: z.number().int().positive().describe('The number of people in the user\'s family who would be relocating.'),
   languageSkills: z.string().describe('A comma-separated list of languages the user speaks and their proficiency (e.g., "English (Fluent), Spanish (Beginner)").'),
@@ -189,27 +190,29 @@ export const RelocationRoadmapInputSchema = z.object({
 });
 export type RelocationRoadmapInput = z.infer<typeof RelocationRoadmapInputSchema>;
 
+export const RoadmapMilestoneSchema = z.object({
+    milestone: z.string().describe('A specific, actionable career milestone.'),
+    timeline: z.string().describe('An estimated timeline for this milestone, e.g., "0-3 Months".'),
+    resources: z.string().describe('Suggested resources to achieve this milestone, e.g., "Local job boards (LinkedIn, Indeed), professional networking events".'),
+});
+export type RoadmapMilestone = z.infer<typeof RoadmapMilestoneSchema>;
+
+const RoadmapSectionSchema = z.object({
+    title: z.string(),
+    points: z.array(z.string()),
+});
+
+const CareerRoadmapSectionSchema = z.object({
+    title: z.string(),
+    milestones: z.array(RoadmapMilestoneSchema),
+});
+
 export const RelocationRoadmapOutputSchema = z.object({
-    visa: z.object({
-        title: z.string().describe('Title for the visa section.'),
-        steps: z.array(z.string()).describe('Step-by-step visa requirements and application process.'),
-    }),
-    housing: z.object({
-        title: z.string().describe('Title for the housing section.'),
-        options: z.array(z.string()).describe('A list of typical housing options and their estimated monthly costs (e.g., "1-bedroom city apartment: $1500", "3-bedroom suburban house: $2500").'),
-    }),
-    jobSearch: z.object({
-        title: z.string().describe('Title for the job search section.'),
-        strategies: z.array(z.string()).describe('Actionable job search strategies and insights into the local market relevant to the user\'s profession.'),
-    }),
-    culturalAdaptation: z.object({
-        title: z.string().describe('Title for the cultural adaptation section.'),
-        tips: z.array(z.string()).describe('Tips for cultural integration and adaptation.'),
-    }),
-    localResources: z.object({
-        title: z.string().describe('Title for the local resources section.'),
-        resources: z.array(z.string()).describe('A list of useful local resources like expat forums, community groups, or official websites.'),
-    }),
+    visa: RoadmapSectionSchema.describe('Visa and documentation requirements.'),
+    career: CareerRoadmapSectionSchema.describe('Career progression and job search strategies.'),
+    housing: RoadmapSectionSchema.describe('Housing options and cost estimates.'),
+    cultural: RoadmapSectionSchema.describe('Tips for cultural integration.'),
+    resources: RoadmapSectionSchema.describe('List of helpful local resources.'),
 });
 export type RelocationRoadmapOutput = z.infer<typeof RelocationRoadmapOutputSchema>;
 
