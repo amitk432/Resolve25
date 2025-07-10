@@ -26,7 +26,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './
 
 interface TravelGoalsTabProps {
   travelGoals: TravelGoal[];
-  onAddGoal: (goal: Omit<TravelGoal, 'id' | 'image'> & { travelDate: Date | null }) => void;
+  onAddGoal: (goal: Omit<TravelGoal, 'id'> & { travelDate: Date | null }) => void;
   onDeleteGoal: (id: string) => void;
   onUpdate: (updater: (draft: AppData) => void) => void;
 }
@@ -125,11 +125,13 @@ const travelGoalSchema = z.object({
 
 
 const TravelGoalItem = ({ goal, onDeleteGoal, onGetItinerary }: { goal: TravelGoal, onDeleteGoal: (id: string) => void, onGetItinerary: (destination: string, duration: number) => void }) => {
+    const imageUrl = `https://source.unsplash.com/400x250/?${encodeURIComponent(goal.destination.split(',')[0])}`;
+
     return (
         <div className="flex flex-col md:flex-row gap-4 p-4 border rounded-lg bg-background hover:bg-muted/30 transition-colors">
             <div className="w-full md:w-1/3 lg:w-1/4 shrink-0">
                 <Image 
-                    src={goal.image} 
+                    src={imageUrl} 
                     alt={goal.destination} 
                     width={400} 
                     height={250} 

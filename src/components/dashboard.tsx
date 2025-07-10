@@ -238,9 +238,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     }
 
     // Travel Goal handlers
-    const handleAddTravelGoal = (goal: Omit<TravelGoal, 'id' | 'image'> & { travelDate: Date | null }) => {
-        const query = encodeURIComponent(goal.destination.split(',')[0]);
-        const imageUrl = `https://source.unsplash.com/400x250/?${query}`;
+    const handleAddTravelGoal = (goal: Omit<TravelGoal, 'id'> & { travelDate: Date | null }) => {
         onUpdate((draft) => {
           draft.travelGoals.push({
             id: `travel-${Date.now()}`,
@@ -248,7 +246,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
             status: goal.status,
             notes: goal.notes || '',
             travelDate: goal.travelDate ? goal.travelDate.toISOString() : null,
-            image: imageUrl,
+            duration: goal.duration,
           });
         });
     

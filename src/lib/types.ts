@@ -73,7 +73,6 @@ export interface TravelGoal {
   travelDate: string | null; // Stored as ISO string
   duration?: string;
   notes?: string;
-  image: string;
 }
 
 export type DailyTaskPriority = 'Low' | 'Medium' | 'High';
