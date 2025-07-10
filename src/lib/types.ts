@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 export type GoalCategory = 'Health' | 'Career' | 'Personal';
@@ -72,6 +71,7 @@ export interface TravelGoal {
   destination: string;
   status: TravelGoalStatus;
   travelDate: string | null; // Stored as ISO string
+  duration?: string;
   notes?: string;
   image: string;
 }
@@ -220,26 +220,22 @@ export type RelocationRoadmapOutput = z.infer<typeof RelocationRoadmapOutputSche
 
 export const GenerateTravelItineraryInputSchema = z.object({
   destination: z.string().describe('The travel destination, e.g., "Goa, India".'),
+  duration: z.number().int().positive().describe('The duration of the trip in days.'),
 });
 export type GenerateTravelItineraryInput = z.infer<typeof GenerateTravelItineraryInputSchema>;
 
+const DailyPlanSchema = z.object({
+    title: z.string().describe('The title for the day, e.g., "Day 1: Arrival and Beach Hopping".'),
+    theme: z.string().describe('A brief theme for the day\'s activities, e.g., "Coastal Exploration".'),
+    activities: z.array(z.object({
+        activity: z.string().describe('The name of the activity or place to visit.'),
+        description: z.string().describe('A brief, helpful description of the activity.'),
+    })).describe('A list of 3-4 activities for the day.'),
+});
+
 export const GenerateTravelItineraryOutputSchema = z.object({
-  flights: z.object({
-    title: z.string().default('✈️ Budget Flights'),
-    tips: z.array(z.string()).describe('Tips for finding the cheapest flights.'),
-  }),
-  accommodation: z.object({
-    title: z.string().default('🏨 Affordable Accommodation'),
-    tips: z.array(z.string()).describe('Recommendations for budget-friendly places to stay.'),
-  }),
-  attractions: z.object({
-    title: z.string().default('🏞️ Top Attractions & Activities'),
-    places: z.array(z.string()).describe('A list of must-visit places and major attractions.'),
-  }),
-  budgetTips: z.object({
-    title: z.string().default('💰 Money-Saving Tips'),
-    tips: z.array(z.string()).describe('General budget-friendly travel tips for the destination.'),
-  }),
+  generalTips: z.array(z.string()).describe('A list of general tips for budget flights and accommodation.'),
+  dailyPlan: z.array(DailyPlanSchema).describe('A day-by-day plan for the trip.'),
 });
 export type GenerateTravelItineraryOutput = z.infer<typeof GenerateTravelItineraryOutputSchema>;
 

@@ -1,4 +1,3 @@
-
 'use server';
 
 import { generateGoalTips, type GenerateGoalTipsInput } from '@/ai/flows/generate-goal-tips';

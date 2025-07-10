@@ -1,7 +1,6 @@
-
 'use server';
 /**
- * @fileOverview A flow to generate a budget-friendly travel itinerary.
+ * @fileOverview A flow to generate a budget-friendly, day-by-day travel itinerary.
  *
  * - generateTravelItinerary - Generates the itinerary.
  * - GenerateTravelItineraryInput - The input type for the function.
@@ -25,15 +24,19 @@ const prompt = ai.definePrompt({
   name: 'generateTravelItineraryPrompt',
   input: {schema: GenerateTravelItineraryInputSchema},
   output: {schema: GenerateTravelItineraryOutputSchema},
-  prompt: `You are an expert budget travel agent. A user wants to travel to {{destination}}.
+  prompt: `You are an expert budget travel agent. A user wants to travel to {{destination}} for {{duration}} days.
 
-Your task is to create a structured, budget-friendly travel plan.
+Your task is to create a detailed, day-by-day, budget-friendly travel plan.
 
-Provide the following:
-1.  **Budget Flights:** Give 2-3 actionable tips on how to find the cheapest flights to {{destination}}. For example, mention the best time to book, budget airlines that fly there, or useful search websites.
-2.  **Affordable Accommodation:** Suggest 2-3 types of budget-friendly accommodation (e.g., hostels, guesthouses, budget hotel chains) and areas to stay in {{destination}}.
-3.  **Top Attractions & Activities:** List 4-5 must-visit places and major attractions in {{destination}} that are either free or low-cost.
-4.  **Money-Saving Tips:** Provide 2-3 general tips for saving money while traveling in {{destination}} (e.g., local transportation, food, etc.).
+**General Guidelines:**
+1.  **Budget Focus:** Suggest free or low-cost activities, affordable local food spots, and efficient public transportation options.
+2.  **Practicality:** Group activities logically by location for each day to minimize travel time.
+3.  **Variety:** Include a mix of popular attractions, local experiences, and some relaxation time.
+
+**Structure:**
+- First, provide a section with **General Tips** covering advice on finding budget flights and accommodation suitable for {{destination}}.
+- Then, create a detailed plan for each day of the {{duration}}-day trip.
+- For each day, provide a title (e.g., "Day 1: Arrival and Exploration"), a theme, and a list of 3-4 specific activities or places to visit. For each activity, provide a brief, helpful description.
 
 Present the information in the specified JSON format.
   `,
