@@ -3,11 +3,11 @@
 
 import type { AppData, Goal } from '@/lib/types';
 import AddGoalDialog from './add-goal-dialog';
-import GoalCard from './goal-card';
 import { Sparkles, Target } from 'lucide-react';
 import AiGoalGeneratorDialog from './ai-goal-generator-dialog';
 import { Button } from './ui/button';
 import type { SuggestedGoal } from '@/ai/flows/generate-goal-suggestions';
+import GoalItem from './goal-item';
 
 interface GoalsTabProps {
     data: AppData;
@@ -99,9 +99,9 @@ export default function GoalsTab({ data, onUpdate }: GoalsTabProps) {
             </div>
             
             {data.goals.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="space-y-4">
                     {data.goals.map(goal => (
-                       <GoalCard 
+                       <GoalItem
                             key={goal.id} 
                             goal={goal}
                             onStepToggle={handleStepToggle}
