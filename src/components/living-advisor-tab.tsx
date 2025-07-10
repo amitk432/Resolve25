@@ -281,15 +281,15 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
                         {recommendations.map((rec, index) => (
                             <AccordionItem value={`item-${index}`} key={index} className="border rounded-lg bg-background">
                                 <AccordionTrigger className="p-4 hover:no-underline">
-                                    <div className="flex items-center justify-between w-full">
-                                        <div className="flex items-center gap-4">
-                                            <Map className="h-8 w-8 text-primary"/>
-                                            <div>
-                                                <h4 className="text-lg font-semibold text-left">{rec.country}</h4>
-                                                <p className="text-sm text-muted-foreground text-left">{rec.summary}</p>
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-4">
+                                        <div className="flex items-start sm:items-center gap-4 flex-1">
+                                            <Map className="h-8 w-8 text-primary mt-1 sm:mt-0 flex-shrink-0"/>
+                                            <div className="text-left">
+                                                <h4 className="text-lg font-semibold">{rec.country}</h4>
+                                                <p className="text-sm text-muted-foreground">{rec.summary}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2 pr-4">
+                                        <div className="flex items-center gap-2 self-start sm:self-center ml-12 sm:ml-0">
                                             <Star className="h-5 w-5 text-yellow-500"/>
                                             <span className="text-xl font-bold">{rec.suitabilityScore}</span>
                                             <span className="text-xs text-muted-foreground">/100</span>
@@ -314,7 +314,7 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
                                     
                                     {selectedCountry !== rec.country && (
                                         <Button onClick={() => handleGetRoadmap(rec.country)} disabled={isRoadmapLoading}>
-                                            {isRoadmapLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
+                                            {isRoadmapLoading && selectedCountry === rec.country ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null}
                                             Create Relocation Roadmap <ArrowRight className="ml-2 h-4 w-4"/>
                                         </Button>
                                     )}
