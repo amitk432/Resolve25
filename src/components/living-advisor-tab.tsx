@@ -4,12 +4,12 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { AppData, RoadmapMilestone } from '@/lib/types';
+import type { AppData, RoadmapMilestone, RelocationQuestionnaire, CountryRecommendation, RelocationRoadmapOutput } from '@/lib/types';
 import { getRelocationAdvice, getRelocationRoadmap } from '@/app/actions';
-import { RelocationQuestionnaireSchema, type RelocationQuestionnaire, type CountryRecommendation, type RelocationRoadmapOutput, GoalCategory } from '@/lib/types';
+import { RelocationQuestionnaireSchema } from '@/lib/types';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -17,42 +17,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Loader2, Wand2, Star, ThumbsUp, ThumbsDown, ArrowRight, FileText, CheckCircle, Info, Home, Briefcase, Users, Languages, Map, Target, Plus, Send } from 'lucide-react';
-import { Badge } from './ui/badge';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { Checkbox } from './ui/checkbox';
-
-
-const RoadmapSection = ({ title, icon, items }: { title: string; icon: React.ReactNode; items: (string | RoadmapMilestone)[] }) => {
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-xl">
-                    {icon} {title}
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <ul className="space-y-3">
-                    {items.map((item, index) => (
-                        <li key={index} className="flex items-start gap-3 text-muted-foreground">
-                            <CheckCircle className="h-4 w-4 mt-1 text-green-500 flex-shrink-0" />
-                            <div>
-                                {typeof item === 'string' ? (
-                                    <span>{item}</span>
-                                ) : (
-                                    <>
-                                        <span className="font-semibold text-foreground">{item.milestone}</span>
-                                        <p className="text-xs">Timeline: {item.timeline}</p>
-                                        <p className="text-xs mt-1">Resources: {item.resources}</p>
-                                    </>
-                                )}
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            </CardContent>
-        </Card>
-    );
-};
 
 
 const RoadmapView = ({ roadmap, country, onAddToGoals }: { roadmap: RelocationRoadmapOutput, country: string, onAddToGoals: (milestones: RoadmapMilestone[]) => void }) => {
@@ -139,15 +105,15 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
 
     const form = useForm<RelocationQuestionnaire>({
         resolver: zodResolver(RelocationQuestionnaireSchema),
-        defaultValues: data.livingAdvisor?.questionnaire || {
-            currentProfession: '',
-            currentCountry: '',
-            familySize: 1,
-            lifestyle: 'City',
-            languageSkills: '',
-            climatePreference: 'No Preference',
-            workLifeBalance: 'Balanced',
-            careerGoals: '',
+        defaultValues: {
+            currentProfession: data.livingAdvisor?.questionnaire?.currentProfession || '',
+            currentCountry: data.livingAdvisor?.questionnaire?.currentCountry || '',
+            familySize: data.livingAdvisor?.questionnaire?.familySize || 1,
+            lifestyle: data.livingAdvisor?.questionnaire?.lifestyle || 'City',
+            languageSkills: data.livingAdvisor?.questionnaire?.languageSkills || '',
+            climatePreference: data.livingAdvisor?.questionnaire?.climatePreference || 'No Preference',
+            workLifeBalance: data.livingAdvisor?.questionnaire?.workLifeBalance || 'Balanced',
+            careerGoals: data.livingAdvisor?.questionnaire?.careerGoals || '',
         },
     });
     
@@ -270,7 +236,7 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
                                     <FormItem><FormLabel>Current Country of Residence</FormLabel><FormControl><Input placeholder="e.g., India" {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="familySize" render={({ field }) => (
-                                    <FormItem><FormLabel>Family Size (including yourself)</FormLabel><FormControl><Input type="number" min="1" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10))}/></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>Family Size (including yourself)</FormLabel><FormControl><Input type="number" min="1" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 1)}/></FormControl><FormMessage /></FormItem>
                                 )} />
                                  <FormField control={form.control} name="lifestyle" render={({ field }) => (
                                     <FormItem>
