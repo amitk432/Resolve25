@@ -215,6 +215,35 @@ export const RelocationRoadmapOutputSchema = z.object({
 });
 export type RelocationRoadmapOutput = z.infer<typeof RelocationRoadmapOutputSchema>;
 
+
+// --- Travel Itinerary Schemas & Types ---
+
+export const GenerateTravelItineraryInputSchema = z.object({
+  destination: z.string().describe('The travel destination, e.g., "Goa, India".'),
+});
+export type GenerateTravelItineraryInput = z.infer<typeof GenerateTravelItineraryInputSchema>;
+
+export const GenerateTravelItineraryOutputSchema = z.object({
+  flights: z.object({
+    title: z.string().default('✈️ Budget Flights'),
+    tips: z.array(z.string()).describe('Tips for finding the cheapest flights.'),
+  }),
+  accommodation: z.object({
+    title: z.string().default('🏨 Affordable Accommodation'),
+    tips: z.array(z.string()).describe('Recommendations for budget-friendly places to stay.'),
+  }),
+  attractions: z.object({
+    title: z.string().default('🏞️ Top Attractions & Activities'),
+    places: z.array(z.string()).describe('A list of must-visit places and major attractions.'),
+  }),
+  budgetTips: z.object({
+    title: z.string().default('💰 Money-Saving Tips'),
+    tips: z.array(z.string()).describe('General budget-friendly travel tips for the destination.'),
+  }),
+});
+export type GenerateTravelItineraryOutput = z.infer<typeof GenerateTravelItineraryOutputSchema>;
+
+
 export interface LivingAdvisorData {
     questionnaire: RelocationQuestionnaire;
     recommendations: CountryRecommendation[];

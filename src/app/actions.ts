@@ -9,8 +9,9 @@ import { generateMonthlyPlanSuggestions, type GenerateMonthlyPlanSuggestionsInpu
 import { parseResume, type ParseResumeInput, type ResumeData } from '@/ai/flows/parse-resume';
 import { generateJobSuggestions, type GenerateJobSuggestionsInput } from '@/ai/flows/generate-job-suggestions';
 import { generateApplicationEmail, type GenerateApplicationEmailInput } from '@/ai/flows/generate-application-email';
-import { generateRelocationAdvice, type RelocationAdviceInput, generateRelocationRoadmap, type RelocationRoadmapInput } from '@/ai/flows/generate-relocation-advice';
-import { generateTravelItinerary, type GenerateTravelItineraryInput, type GenerateTravelItineraryOutput } from '@/ai/flows/generate-travel-itinerary';
+import { generateRelocationAdvice, generateRelocationRoadmap, type RelocationRoadmapInput } from '@/ai/flows/generate-relocation-advice';
+import { generateTravelItinerary } from '@/ai/flows/generate-travel-itinerary';
+import type { GenerateTravelItineraryInput, GenerateTravelItineraryOutput, RelocationAdviceInput } from '@/lib/types';
 
 
 export async function getModuleSuggestions(input: ModuleSuggestionInput) {
