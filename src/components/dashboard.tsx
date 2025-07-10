@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { AppData, DailyTask, JobApplication, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP, Task } from '@/lib/types';
-import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, ListTodo, Globe } from 'lucide-react';
+import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, ListTodo, Globe, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import DashboardOverview from './dashboard-overview';
@@ -326,6 +326,23 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         });
     };
 
+    const mainTabs = [
+      { value: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard/> },
+      { value: 'goals', label: 'Goals', icon: <Target/> },
+      { value: 'daily-todo', label: 'Daily To-Do', icon: <ListTodo /> },
+      { value: 'monthly-plan', label: 'Monthly Plan', icon: <CalendarDays/> },
+      { value: 'job-search', label: 'Job Search', icon: <Briefcase/> },
+    ];
+    
+    const moreTabs = [
+      { value: 'living-advisor', label: 'Living Advisor', icon: <Globe/> },
+      { value: 'travel-goals', label: 'Travel Goals', icon: <Plane/> },
+      { value: 'car-sale', label: 'Car Sale', icon: <Car/> },
+      { value: 'finance', label: 'Finance Tracker', icon: <PiggyBank/> },
+    ];
+
+    const isMoreTabActive = moreTabs.some(tab => tab.value === activeTab);
+
   return (
     <>
     <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-transparent shadow-xl border border-white/10">
@@ -376,32 +393,51 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         </div>
       </header>
 
-      <Tabs defaultValue="dashboard" className="w-full" onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="border-b border-white/10 bg-transparent">
-            <ScrollArea className="w-full whitespace-nowrap">
-                <TabsList className="h-auto gap-1 bg-transparent p-2 sm:gap-2">
-                    <TabsTrigger value="dashboard"><LayoutDashboard/>Dashboard</TabsTrigger>
-                    <TabsTrigger value="goals"><Target/>Goals</TabsTrigger>
-                    <TabsTrigger value="daily-todo"><ListTodo />Daily To-Do</TabsTrigger>
-                    <TabsTrigger value="monthly-plan"><CalendarDays/>Monthly Plan</TabsTrigger>
-                    <TabsTrigger value="job-search"><Briefcase/>Job Search</TabsTrigger>
-                    <TabsTrigger value="living-advisor"><Globe/>Living Advisor</TabsTrigger>
-                    <TabsTrigger value="travel-goals"><Plane/>Travel Goals</TabsTrigger>
-                    <TabsTrigger value="car-sale"><Car/>Car Sale</TabsTrigger>
-                    <TabsTrigger value="finance"><PiggyBank/>Finance Tracker</TabsTrigger>
-                </TabsList>
-                <ScrollBar orientation="horizontal" className="invisible" />
-            </ScrollArea>
+            <TabsList className="h-auto p-2">
+                <div className="md:hidden">
+                    <ScrollArea className="max-w-[calc(100vw-80px)] whitespace-nowrap">
+                        <div className="flex gap-1">
+                          {mainTabs.map(tab => (
+                            <TabsTrigger key={tab.value} value={tab.value}>{tab.icon}{tab.label}</TabsTrigger>
+                          ))}
+                           <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" className={cn("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-gradient-primary after:scale-x-0 after:transition-transform after:duration-300", isMoreTabActive && "text-foreground after:scale-x-100")}>
+                                        <MoreHorizontal/> More
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                    <DropdownMenuRadioGroup value={activeTab} onValueChange={setActiveTab}>
+                                    {moreTabs.map(tab => (
+                                        <DropdownMenuRadioItem key={tab.value} value={tab.value} className="gap-2">
+                                            {tab.icon} {tab.label}
+                                        </DropdownMenuRadioItem>
+                                    ))}
+                                    </DropdownMenuRadioGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                        <ScrollBar orientation="horizontal" className="invisible" />
+                    </ScrollArea>
+                </div>
+                <div className="hidden md:flex md:gap-1">
+                  {[...mainTabs, ...moreTabs].map(tab => (
+                    <TabsTrigger key={tab.value} value={tab.value}>{tab.icon}{tab.label}</TabsTrigger>
+                  ))}
+                </div>
+            </TabsList>
         </div>
         
         <div className={cn("relative p-4 md:p-8 bg-transparent transition-opacity duration-500", activeTab ? 'opacity-100' : 'opacity-0')}>
-            <TabsContent value="dashboard">
+            <TabsContent value="dashboard" forceMount={activeTab === 'dashboard'}>
                 <DashboardOverview data={data} />
             </TabsContent>
-            <TabsContent value="goals">
+            <TabsContent value="goals" forceMount={activeTab === 'goals'}>
                 <GoalsTab data={data} onUpdate={onUpdate} />
             </TabsContent>
-            <TabsContent value="daily-todo">
+            <TabsContent value="daily-todo" forceMount={activeTab === 'daily-todo'}>
                 <DailyTodoTab 
                   tasks={data.dailyTasks}
                   onAddTask={handleAddDailyTask}
@@ -411,7 +447,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                   data={data}
                 />
             </TabsContent>
-            <TabsContent value="monthly-plan">
+            <TabsContent value="monthly-plan" forceMount={activeTab === 'monthly-plan'}>
                 <MonthlyPlanTab 
                     monthlyPlan={data.monthlyPlan} 
                     onToggleTask={handleToggleMonthlyTask}
@@ -422,7 +458,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     data={data}
                 />
             </TabsContent>
-            <TabsContent value="car-sale">
+            <TabsContent value="car-sale" forceMount={activeTab === 'car-sale'}>
                  <CarSaleTab 
                     checklist={data.carSaleChecklist}
                     salePrice={data.carSalePrice}
@@ -433,7 +469,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onUpdateDetails={handleUpdateCarSaleDetails}
                 />
             </TabsContent>
-            <TabsContent value="finance">
+            <TabsContent value="finance" forceMount={activeTab === 'finance'}>
                 <FinanceTab 
                     loans={data.loans} 
                     emergencyFund={data.emergencyFund}
@@ -454,7 +490,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onDeleteIncomeSource={handleDeleteIncomeSource}
                 />
             </TabsContent>
-            <TabsContent value="job-search">
+            <TabsContent value="job-search" forceMount={activeTab === 'job-search'}>
                 <JobSearchTab 
                     applications={data.jobApplications}
                     onAddApplication={handleAddApplication}
@@ -464,10 +500,10 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onUpdate={onUpdate}
                 />
             </TabsContent>
-            <TabsContent value="living-advisor">
+            <TabsContent value="living-advisor" forceMount={activeTab === 'living-advisor'}>
                 <LivingAdvisorTab data={data} onUpdate={onUpdate} />
             </TabsContent>
-            <TabsContent value="travel-goals">
+            <TabsContent value="travel-goals" forceMount={activeTab === 'travel-goals'}>
                 <TravelGoalsTab 
                     travelGoals={data.travelGoals}
                     onAddGoal={handleAddTravelGoal}
@@ -481,3 +517,5 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     </>
   );
 }
+
+    
