@@ -412,9 +412,9 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onAddSip={handleAddSip}
                     onUpdateSip={handleUpdateSip}
                     onDeleteSip={handleDeleteSip}
-                    onAddLoan={handleAddLoan}
-                    onUpdateLoan={handleUpdateLoan}
-                    onDeleteLoan={handleDeleteLoan}
+                    onAddLoan={onAddLoan}
+                    onUpdateLoan={onUpdateLoan}
+                    onDeleteLoan={onDeleteLoan}
                     onAddIncomeSource={handleAddIncomeSource}
                     onUpdateIncomeSource={handleUpdateIncomeSource}
                     onDeleteIncomeSource={handleDeleteIncomeSource}
