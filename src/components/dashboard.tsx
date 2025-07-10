@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { AppData, DailyTask, JobApplication, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP, Task } from '@/lib/types';
+import type { AppData, DailyTask, Goal, JobApplication, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP, Task } from '@/lib/types';
 import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, ListTodo, Globe, Menu, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -486,6 +486,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     travelGoals={data.travelGoals}
                     onAddGoal={handleAddTravelGoal}
                     onDeleteGoal={handleDeleteTravelGoal}
+                    onUpdate={onUpdate}
                 />
             </TabsContent>
         </div>
