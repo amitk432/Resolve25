@@ -11,7 +11,8 @@ import { generateJobSuggestions, type GenerateJobSuggestionsInput } from '@/ai/f
 import { generateApplicationEmail, type GenerateApplicationEmailInput } from '@/ai/flows/generate-application-email';
 import { generateRelocationAdvice, generateRelocationRoadmap, type RelocationRoadmapInput } from '@/ai/flows/generate-relocation-advice';
 import { generateTravelItinerary } from '@/ai/flows/generate-travel-itinerary';
-import type { GenerateTravelItineraryInput, GenerateTravelItineraryOutput, RelocationAdviceInput } from '@/lib/types';
+import type { GenerateTravelItineraryInput, GenerateTravelItineraryOutput, RelocationAdviceInput, GenerateTravelSuggestionOutput } from '@/lib/types';
+import { generateTravelSuggestion } from '@/ai/flows/generate-travel-suggestion';
 
 
 export async function getModuleSuggestions(input: ModuleSuggestionInput) {
@@ -131,6 +132,17 @@ export async function getTravelItinerary(input: GenerateTravelItineraryInput): P
   } catch (error) {
     console.error('Error getting AI travel itinerary:', error);
     const errorMessage = error instanceof Error ? error.message : 'Failed to generate itinerary. Please try again.';
+    return { error: errorMessage };
+  }
+}
+
+export async function getAITravelSuggestion(): Promise<GenerateTravelSuggestionOutput | { error: string }> {
+  try {
+    const result = await generateTravelSuggestion();
+    return result;
+  } catch (error) {
+    console.error('Error getting AI travel suggestion:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to generate suggestion. Please try again.';
     return { error: errorMessage };
   }
 }

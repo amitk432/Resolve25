@@ -243,6 +243,12 @@ export const GenerateTravelItineraryOutputSchema = z.object({
 });
 export type GenerateTravelItineraryOutput = z.infer<typeof GenerateTravelItineraryOutputSchema>;
 
+export const GenerateTravelSuggestionOutputSchema = z.object({
+    destination: z.string().describe('A suggested travel destination, e.g., "Kerala, India".'),
+    reasoning: z.string().describe('A brief reason why this place is a good choice for the current month.'),
+});
+export type GenerateTravelSuggestionOutput = z.infer<typeof GenerateTravelSuggestionOutputSchema>;
+
 
 export interface LivingAdvisorData {
     questionnaire: RelocationQuestionnaire;

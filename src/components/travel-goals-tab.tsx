@@ -15,14 +15,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, Trash2, CalendarIcon, Wand2, Loader2, ArrowRight, Plane, CheckCircle } from 'lucide-react';
+import { Plus, Trash2, CalendarIcon, Wand2, Loader2, ArrowRight, Plane, CheckCircle, Sparkles, Lightbulb } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import AiSuggestionSection from './ai-suggestion-section';
 import type { GenerateTravelItineraryOutput } from '@/lib/types';
-import { getTravelItinerary } from '@/app/actions';
+import { getTravelItinerary, getAITravelSuggestion } from '@/app/actions';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 
 interface TravelGoalsTabProps {
@@ -120,6 +120,82 @@ const ItineraryDialog = ({ destination, onAddItineraryGoal }: { destination: str
         </Dialog>
     )
 }
+
+const AISuggestionDialog = ({ onAddSuggestion }: { onAddSuggestion: (destination: string, notes: string) => void }) => {
+    const [open, setOpen] = useState(false);
+    const [suggestion, setSuggestion] = useState<{ destination: string; reasoning: string } | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const { toast } = useToast();
+
+    const handleGenerate = async () => {
+        setIsLoading(true);
+        setSuggestion(null);
+        const result = await getAITravelSuggestion();
+        setIsLoading(false);
+
+        if (result && 'error' in result) {
+            toast({ variant: 'destructive', title: 'Error', description: result.error });
+        } else if (result) {
+            setSuggestion(result);
+        }
+    };
+
+    const handleAddToWishlist = () => {
+        if (suggestion) {
+            onAddSuggestion(suggestion.destination, `AI Suggestion: ${suggestion.reasoning}`);
+            setOpen(false);
+        }
+    };
+
+    const handleOpenChange = (isOpen: boolean) => {
+        setOpen(isOpen);
+        if (isOpen) {
+            handleGenerate();
+        }
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+            <DialogTrigger asChild>
+                <Button variant="outline">
+                    <Sparkles className="mr-2 h-4 w-4" /> Suggest with AI
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>AI Travel Suggestion</DialogTitle>
+                    <DialogDescription>
+                        Let our AI suggest a destination for you based on the current season.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="min-h-[150px] flex items-center justify-center">
+                    {isLoading ? (
+                        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                    ) : suggestion ? (
+                        <div className="text-center space-y-4">
+                            <p className="text-2xl font-bold text-primary">{suggestion.destination}</p>
+                            <p className="text-muted-foreground flex items-center justify-center gap-2">
+                                <Lightbulb className="h-4 w-4 text-yellow-400" />
+                                {suggestion.reasoning}
+                            </p>
+                        </div>
+                    ) : (
+                        <p>Could not generate a suggestion.</p>
+                    )}
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={handleGenerate} disabled={isLoading}>
+                        {isLoading ? 'Thinking...' : 'Suggest Another'}
+                    </Button>
+                    <Button onClick={handleAddToWishlist} disabled={!suggestion || isLoading}>
+                        <Plus className="mr-2 h-4 w-4" /> Add to Wishlist
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
 
 const travelGoalSchema = z.object({
   destination: z.string().min(3, 'Destination must be at least 3 characters.'),
@@ -259,6 +335,19 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal, o
       description: `"${attraction}" has been added to your goals.`,
     });
   };
+  
+  const handleAddSuggestionToWishlist = (destination: string, notes: string) => {
+    onAddGoal({
+        destination,
+        notes,
+        status: 'Planned',
+        travelDate: new Date(new Date().setMonth(new Date().getMonth() + 1)) // Default to next month
+    });
+    toast({
+        title: 'Suggestion Added!',
+        description: `${destination} has been added to your planned trips.`
+    });
+  };
 
   return (
     <div>
@@ -267,83 +356,86 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal, o
             <h2 className="text-2xl font-bold text-foreground">Travel Goals & Wishlist</h2>
             <p className="mt-1 text-muted-foreground">Dream, plan, and cherish your adventures.</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto"><Plus className="mr-2" /> Add Travel Goal</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add a New Travel Goal</DialogTitle>
-              <DialogDescription>
-                Add a past adventure or plan your next one.
-              </DialogDescription>
-            </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField control={form.control} name="destination" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Destination</FormLabel>
-                    <FormControl><Input placeholder="e.g., Goa, India" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+        <div className="flex w-full shrink-0 gap-2 sm:w-auto">
+            <AISuggestionDialog onAddSuggestion={handleAddSuggestionToWishlist} />
+            <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="w-full sm:w-auto"><Plus className="mr-2" /> Add Travel Goal</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add a New Travel Goal</DialogTitle>
+                  <DialogDescription>
+                    Add a past adventure or plan your next one.
+                  </DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <FormField control={form.control} name="destination" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Destination</FormLabel>
+                        <FormControl><Input placeholder="e.g., Goa, India" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
 
-                <FormField control={form.control} name="status" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <FormControl>
-                      <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4">
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl><RadioGroupItem value="Planned" id="planned" /></FormControl>
-                          <FormLabel htmlFor="planned" className="font-normal">Planned</FormLabel>
+                    <FormField control={form.control} name="status" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <FormControl>
+                          <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4">
+                            <FormItem className="flex items-center space-x-2">
+                              <FormControl><RadioGroupItem value="Planned" id="planned" /></FormControl>
+                              <FormLabel htmlFor="planned" className="font-normal">Planned</FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-2">
+                              <FormControl><RadioGroupItem value="Completed" id="completed" /></FormControl>
+                              <FormLabel htmlFor="completed" className="font-normal">Completed</FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                      </FormItem>
+                    )} />
+
+                    {status === 'Planned' && (
+                      <FormField control={form.control} name="travelDate" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Travel Date</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {field.value ? format(field.value, "dd-MMMM-yyyy") : <span>Pick a date</span>}
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                              <Calendar mode="single" selected={field.value ?? undefined} onSelect={field.onChange} initialFocus disabled={minDate ? { before: minDate } : true} />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
                         </FormItem>
-                        <FormItem className="flex items-center space-x-2">
-                          <FormControl><RadioGroupItem value="Completed" id="completed" /></FormControl>
-                          <FormLabel htmlFor="completed" className="font-normal">Completed</FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                  </FormItem>
-                )} />
+                      )} />
+                    )}
 
-                {status === 'Planned' && (
-                  <FormField control={form.control} name="travelDate" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Travel Date</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {field.value ? format(field.value, "dd-MMMM-yyyy") : <span>Pick a date</span>}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar mode="single" selected={field.value ?? undefined} onSelect={field.onChange} initialFocus disabled={minDate ? { before: minDate } : true} />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                )}
+                    <FormField control={form.control} name="notes" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Notes (Optional)</FormLabel>
+                        <FormControl><Textarea placeholder="e.g., Book flights, check visa requirements..." {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
 
-                <FormField control={form.control} name="notes" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Notes (Optional)</FormLabel>
-                    <FormControl><Textarea placeholder="e.g., Book flights, check visa requirements..." {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
-                <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                    <Button type="submit">Add Goal</Button>
-                </DialogFooter>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+                    <DialogFooter>
+                        <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                        <Button type="submit">Add Goal</Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
+        </div>
       </div>
 
       {travelGoals.length === 0 ? (
