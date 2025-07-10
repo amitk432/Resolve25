@@ -1,14 +1,15 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { AppData, DailyTask, JobApplication, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP, Task } from '@/lib/types';
-import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, ListTodo, Globe, MoreHorizontal } from 'lucide-react';
+import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, ListTodo, Globe, Menu } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 
 import DashboardOverview from './dashboard-overview';
 import GoalsTab from './goals-tab';
@@ -21,7 +22,6 @@ import DailyTodoTab from './daily-todo-tab';
 import { EditProfileDialog } from './edit-profile-dialog';
 import { useToast } from '@/hooks/use-toast';
 import type { SuggestedMonthlyPlan } from '@/ai/flows/generate-monthly-plan-suggestions';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import LivingAdvisorTab from './living-advisor-tab';
 import { cn } from '@/lib/utils';
@@ -297,28 +297,54 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         });
     };
 
-    const mainTabs = [
+    const allTabs = [
       { value: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard/> },
       { value: 'goals', label: 'Goals', icon: <Target/> },
       { value: 'daily-todo', label: 'Daily To-Do', icon: <ListTodo /> },
       { value: 'monthly-plan', label: 'Monthly Plan', icon: <CalendarDays/> },
       { value: 'job-search', label: 'Job Search', icon: <Briefcase/> },
-    ];
-    
-    const moreTabs = [
       { value: 'living-advisor', label: 'Living Advisor', icon: <Globe/> },
       { value: 'travel-goals', label: 'Travel Goals', icon: <Plane/> },
       { value: 'car-sale', label: 'Car Sale', icon: <Car/> },
       { value: 'finance', label: 'Finance Tracker', icon: <PiggyBank/> },
     ];
 
-    const isMoreTabActive = moreTabs.some(tab => tab.value === activeTab);
 
   return (
     <>
     <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-transparent shadow-xl border border-white/10">
       <header className="flex items-center justify-between gap-4 bg-transparent p-4 sm:p-6 border-b border-white/10">
         <div className="flex items-center gap-3">
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-6 w-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="p-0">
+                    <div className="flex flex-col h-full">
+                        <div className="p-4 border-b">
+                            <h2 className="text-xl font-bold">Menu</h2>
+                        </div>
+                        <nav className="flex-grow p-4 space-y-2">
+                           {allTabs.map(tab => (
+                             <SheetClose asChild key={tab.value}>
+                               <Button
+                                 variant={activeTab === tab.value ? 'secondary' : 'ghost'}
+                                 className="w-full justify-start"
+                                 onClick={() => setActiveTab(tab.value)}
+                               >
+                                 {tab.icon}
+                                 <span>{tab.label}</span>
+                               </Button>
+                             </SheetClose>
+                           ))}
+                        </nav>
+                    </div>
+                </SheetContent>
+              </Sheet>
+            </div>
             <div className="bg-gradient-primary p-2 rounded-lg">
                 <Image src="/icon.svg" alt="Resolve25 Logo" width={24} height={24} />
             </div>
@@ -365,35 +391,12 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
       </header>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="border-b border-white/10 bg-transparent">
+        <div className="border-b border-white/10 bg-transparent hidden md:block">
           <div className="px-2">
             <TabsList className="h-auto p-2">
-                <div className="md:hidden flex gap-1">
-                    {mainTabs.map(tab => (
-                      <TabsTrigger key={tab.value} value={tab.value}>{tab.icon}{tab.label}</TabsTrigger>
-                    ))}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className={cn("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-gradient-primary after:scale-x-0 after:transition-transform after:duration-300", isMoreTabActive && "text-foreground after:scale-x-100")}>
-                                <MoreHorizontal/> More
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuRadioGroup value={activeTab} onValueChange={setActiveTab}>
-                            {moreTabs.map(tab => (
-                                <DropdownMenuRadioItem key={tab.value} value={tab.value} className="gap-2">
-                                    {tab.icon} {tab.label}
-                                </DropdownMenuRadioItem>
-                            ))}
-                            </DropdownMenuRadioGroup>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-                <div className="hidden md:flex md:gap-1">
-                  {[...mainTabs, ...moreTabs].map(tab => (
+                  {[...allTabs].map(tab => (
                     <TabsTrigger key={tab.value} value={tab.value}>{tab.icon}{tab.label}</TabsTrigger>
                   ))}
-                </div>
             </TabsList>
           </div>
         </div>
