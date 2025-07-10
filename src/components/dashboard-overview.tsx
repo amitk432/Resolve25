@@ -5,7 +5,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { AppData } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, CheckCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, Target, PiggyBank, CalendarClock } from 'lucide-react';
 import AiSuggestionSection from './ai-suggestion-section';
 
 interface DashboardOverviewProps {
@@ -23,7 +23,16 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
         setDaysLeft(diffDays);
     }, []);
 
-    const { overallProgress, goalsCompleted, goalsInProgress, criticalTasks } = useMemo(() => {
+    const {
+        overallProgress,
+        goalsCompletedCount,
+        totalGoals,
+        goalsInProgress,
+        criticalTasks,
+        emergencyFundProgress,
+        yearProgress,
+        completedGoalsProgress,
+    } = useMemo(() => {
         const allGoals = data.goals || [];
         const allTasks = allGoals.flatMap(g => g.steps || []);
         const completedTasks = allTasks.filter(t => t.completed).length;
@@ -35,13 +44,26 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
         
         const nextTasks = allTasks.filter(t => !t.completed).slice(0, 3);
         
+        const fund = parseFloat(data.emergencyFund) || 0;
+        const target = parseFloat(data.emergencyFundTarget) || 40000;
+        const fundProgress = target > 0 ? Math.min((fund / target) * 100, 100) : 0;
+        
+        const totalDaysInYear = 365;
+        const yrProgress = totalDaysInYear > 0 ? ((totalDaysInYear - daysLeft) / totalDaysInYear) * 100 : 0;
+
+        const goalsProgress = allGoals.length > 0 ? (gCompleted / allGoals.length) * 100 : 0;
+        
         return {
             overallProgress: progress,
-            goalsCompleted: `${gCompleted}/${allGoals.length}`,
+            goalsCompletedCount: gCompleted,
+            totalGoals: allGoals.length,
             goalsInProgress: `${gInProgress}/${allGoals.length}`,
-            criticalTasks: nextTasks
+            criticalTasks: nextTasks,
+            emergencyFundProgress: fundProgress,
+            yearProgress: yrProgress,
+            completedGoalsProgress: goalsProgress,
         };
-    }, [data]);
+    }, [data, daysLeft]);
 
     const emergencyFundFormatted = useMemo(() => {
         const totalAmount = parseFloat(data.emergencyFund) || 0;
@@ -61,46 +83,47 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card>
-                    <CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-semibold text-muted-foreground">Overall Progress</CardTitle>
+                        <Target className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <Progress value={overallProgress} className="h-3" />
-                        <p className="text-2xl font-bold mt-2">{overallProgress}%</p>
-                        <p className="text-xs text-muted-foreground mt-1">Based on completed steps.</p>
+                        <p className="text-2xl font-bold">{overallProgress}%</p>
+                        <p className="text-xs text-muted-foreground mt-1">Based on all completed steps.</p>
+                         <Progress value={overallProgress} className="h-2 mt-4" />
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-semibold text-muted-foreground">Emergency Fund</CardTitle>
+                        <PiggyBank className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                         <p className="text-3xl font-bold text-foreground">₹{emergencyFundFormatted}</p>
-                        <p className="text-sm text-green-600 dark:text-green-500 font-medium">Target: ₹{emergencyFundTargetFormatted}</p>
+                         <p className="text-2xl font-bold text-foreground">₹{emergencyFundFormatted}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Target: ₹{emergencyFundTargetFormatted}</p>
+                        <Progress value={emergencyFundProgress} className="h-2 mt-4" />
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-semibold text-muted-foreground">Goals Status</CardTitle>
+                        <CheckCircle className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="flex justify-between items-center mt-2">
-                            <span className="text-sm text-foreground">Completed</span>
-                            <span className="font-bold text-green-600 dark:text-green-500">{goalsCompleted}</span>
-                        </div>
-                         <div className="flex justify-between items-center mt-1">
-                            <span className="text-sm text-foreground">In Progress</span>
-                            <span className="font-bold text-chart-4">{goalsInProgress}</span>
-                        </div>
+                        <p className="text-2xl font-bold">{goalsCompletedCount} / {totalGoals}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Completed Goals</p>
+                        <Progress value={completedGoalsProgress} className="h-2 mt-4" />
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-semibold text-muted-foreground">Days Left in 2025</CardTitle>
+                        <CalendarClock className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <p className="text-3xl font-bold text-foreground">{daysLeft}</p>
-                        <p className="text-xs text-muted-foreground mt-2">Let's make them count!</p>
+                        <p className="text-2xl font-bold">{daysLeft}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{Math.round(100 - yearProgress)}% of the year remaining</p>
+                        <Progress value={yearProgress} className="h-2 mt-4" />
                     </CardContent>
                 </Card>
             </div>
@@ -110,8 +133,8 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                 <div className="space-y-3">
                     {criticalTasks.length > 0 ? (
                         criticalTasks.map((task, index) => (
-                           <div key={index} className="bg-muted p-3 rounded-lg flex items-center">
-                                <ArrowRight className="text-primary mr-3 h-4 w-4" />
+                           <div key={index} className="bg-muted/50 p-3 rounded-lg flex items-center">
+                                <ArrowRight className="text-primary mr-3 h-4 w-4 flex-shrink-0" />
                                 <span className="text-sm">{task.text}</span>
                            </div>
                         ))
