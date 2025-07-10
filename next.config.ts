@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -45,8 +46,8 @@ const nextConfig: NextConfig = {
       test: /node_modules\/handlebars\/lib\/index\.js$/,
       loader: 'string-replace-loader',
       options: {
-        search: `require.extensions\\['.handlebars'\\]`,
-        replace: `''`,
+        search: `require.extensions['.handlebars'] = extension;`,
+        replace: ``,
         flags: 'g',
       },
     });
