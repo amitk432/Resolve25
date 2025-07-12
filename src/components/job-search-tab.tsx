@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Trash2, Plus, FileText, Download, Sparkles, ChevronDown, Clock, IndianRupee, Star, ListChecks, LinkIcon, MapPin, Rocket, Mail, CheckCircle } from 'lucide-react';
+import { Trash2, Plus, FileText, Download, Sparkles, ChevronDown, Clock, IndianRupee, Star, ListChecks, LinkIcon, MapPin, Rocket, Mail, CheckCircle, MoreVertical } from 'lucide-react';
 import AiSuggestionSection from './ai-suggestion-section';
 import ResumeBuilderDialog from './resume-builder-dialog';
 import ResumeTemplate from './resume-template';
@@ -27,6 +27,8 @@ import GenerateEmailDialog from './generate-email-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { ScrollArea } from './ui/scroll-area';
 import { Textarea } from './ui/textarea';
+import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
 
 interface JobSearchTabProps {
     applications: JobApplication[];
@@ -140,6 +142,132 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
             description: "Good luck! You can now update its status from the dropdown."
         });
     };
+    
+    const JobApplicationCard = ({ app, index }: { app: JobApplication, index: number }) => {
+      const [isDetailsOpen, setDetailsOpen] = useState(false);
+
+      return (
+        <Card>
+            <CardHeader>
+                <div className="flex justify-between items-start gap-2">
+                    <div className="flex-grow">
+                        <div className="flex items-center gap-2 mb-1">
+                            {app.source === 'AI' && (
+                                <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger><Sparkles className="h-4 w-4 text-primary" /></TooltipTrigger>
+                                    <TooltipContent><p>Suggested by AI</p></TooltipContent>
+                                </Tooltip>
+                                </TooltipProvider>
+                            )}
+                            <p className="font-semibold text-foreground">{app.role}</p>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{app.company}</p>
+                    </div>
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {app.status === 'Need to Apply' && (
+                                <DropdownMenuItem onSelect={() => handleMarkAsApplied(index)}>
+                                    <Rocket className="mr-2 h-4 w-4" /> Mark as Applied
+                                </DropdownMenuItem>
+                            )}
+                            {data.resume && (
+                                <GenerateEmailDialog resumeData={data.resume} jobApplication={app}>
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                        <Mail className="mr-2 h-4 w-4" /> Generate Email
+                                    </DropdownMenuItem>
+                                </GenerateEmailDialog>
+                            )}
+                            {app.applyLink && (
+                                <DropdownMenuItem asChild>
+                                    <a href={app.applyLink} target="_blank" rel="noopener noreferrer">
+                                        <LinkIcon className="mr-2 h-4 w-4" /> Open Link
+                                    </a>
+                                </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                             <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
+                                        <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                    </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This will permanently delete the application for "{app.role}" at {app.company}.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => onDelete(index)}>Delete</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            </CardHeader>
+            <CardContent>
+                {app.status === 'Need to Apply' ? (
+                    <Badge variant="outline">Need to Apply</Badge>
+                ) : (
+                    <Select value={app.status} onValueChange={(value: JobStatus) => onUpdateStatus(index, value)}>
+                        <SelectTrigger className="w-full">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Applied">Applied</SelectItem>
+                            <SelectItem value="Interviewing">Interviewing</SelectItem>
+                            <SelectItem value="Offer">Offer</SelectItem>
+                            <SelectItem value="Rejected">Rejected</SelectItem>
+                        </SelectContent>
+                    </Select>
+                )}
+                 {(app.keyResponsibilities || app.requiredSkills || app.salaryRange || app.jobType || app.location) && (
+                  <div className="mt-4">
+                      <Button variant="link" size="sm" className="p-0 h-auto" onClick={() => setDetailsOpen(!isDetailsOpen)}>
+                          {isDetailsOpen ? 'Hide' : 'Show'} Details
+                          <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${isDetailsOpen ? 'rotate-180' : ''}`} />
+                      </Button>
+                      {isDetailsOpen && (
+                          <div className="mt-2 space-y-4 text-sm">
+                              <div className="flex flex-wrap gap-x-4 gap-y-2 text-muted-foreground">
+                                  {app.location && <div className="flex items-center gap-1.5"><MapPin className="h-4 w-4"/> {app.location}</div>}
+                                  {app.jobType && <div className="flex items-center gap-1.5"><Clock className="h-4 w-4"/> {app.jobType}</div>}
+                                  {app.salaryRange && <div className="flex items-center gap-1.5"><IndianRupee className="h-4 w-4"/> {app.salaryRange}</div>}
+                              </div>
+                              {app.keyResponsibilities && app.keyResponsibilities.length > 0 && (
+                                  <div>
+                                      <h4 className="font-semibold text-foreground flex items-center gap-2"><ListChecks className="h-4 w-4" /> Key Responsibilities</h4>
+                                      <ul className="list-disc list-inside text-muted-foreground space-y-1 pl-2 mt-1">
+                                          {app.keyResponsibilities.map((resp, i) => <li key={i}>{resp}</li>)}
+                                      </ul>
+                                  </div>
+                              )}
+                              {app.requiredSkills && app.requiredSkills.length > 0 && (
+                                  <div>
+                                      <h4 className="font-semibold text-foreground flex items-center gap-2"><Star className="h-4 w-4" /> Required Skills</h4>
+                                      <ul className="list-disc list-inside text-muted-foreground space-y-1 pl-2 mt-1">
+                                          {app.requiredSkills.map((skill, i) => <li key={i}>{skill}</li>)}
+                                      </ul>
+                                  </div>
+                              )}
+                          </div>
+                      )}
+                  </div>
+                 )}
+            </CardContent>
+        </Card>
+      )
+    }
 
 
     return (
@@ -221,7 +349,23 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
               </div>
             </div>
 
-            <div className="rounded-lg border overflow-x-auto">
+            {/* Mobile View: Cards */}
+            <div className="space-y-4 md:hidden">
+                 {applications.length > 0 ? (
+                    applications.map((app, index) => (
+                        <JobApplicationCard key={index} app={app} index={index} />
+                    ))
+                ) : (
+                    <div className="text-center py-16 border-2 border-dashed rounded-lg">
+                        <Briefcase className="mx-auto h-12 w-12 text-muted-foreground" />
+                        <h3 className="mt-2 text-lg font-medium">No Applications Yet</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">Click "Add Application" to start tracking.</p>
+                    </div>
+                )}
+            </div>
+
+            {/* Desktop View: Table */}
+            <div className="hidden rounded-lg border overflow-x-auto md:block">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -236,7 +380,7 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                     <TableBody>
                         {applications.length === 0 ? (
                              <TableRow>
-                                <TableCell colSpan={7} className="text-center text-muted-foreground">No applications added yet.</TableCell>
+                                <TableCell colSpan={7} className="text-center text-muted-foreground h-24">No applications added yet.</TableCell>
                              </TableRow>
                         ) : (
                             applications.map((app, index) => (
