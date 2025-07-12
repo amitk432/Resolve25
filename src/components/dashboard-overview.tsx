@@ -76,12 +76,12 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
     }, [data.emergencyFundTarget]);
 
     return (
-        <div>
+        <div className="space-y-8">
             <div className="mb-6">
                 <h2 className="text-2xl font-bold text-foreground">Dashboard Overview</h2>
                 <p className="mt-1 text-muted-foreground">A high-level look at your progress and key metrics.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-semibold text-muted-foreground">Overall Progress</CardTitle>
@@ -89,7 +89,7 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                     </CardHeader>
                     <CardContent>
                         <p className="text-2xl font-bold">{overallProgress}%</p>
-                        <p className="text-xs text-muted-foreground mt-1">Based on all completed steps.</p>
+                        <p className="text-xs text-muted-foreground mt-1 truncate">Based on all steps</p>
                          <Progress value={overallProgress} className="h-2 mt-4" />
                     </CardContent>
                 </Card>
@@ -100,7 +100,7 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                     </CardHeader>
                     <CardContent>
                          <p className="text-2xl font-bold text-foreground">₹{emergencyFundFormatted}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Target: ₹{emergencyFundTargetFormatted}</p>
+                        <p className="text-xs text-muted-foreground mt-1 truncate">Target: ₹{emergencyFundTargetFormatted}</p>
                         <Progress value={emergencyFundProgress} className="h-2 mt-4" />
                     </CardContent>
                 </Card>
@@ -111,40 +111,44 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                     </CardHeader>
                     <CardContent>
                         <p className="text-2xl font-bold">{goalsCompletedCount} / {totalGoals}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Completed Goals</p>
+                        <p className="text-xs text-muted-foreground mt-1 truncate">Completed Goals</p>
                         <Progress value={completedGoalsProgress} className="h-2 mt-4" />
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-semibold text-muted-foreground">Days Left in 2025</CardTitle>
+                        <CardTitle className="text-sm font-semibold text-muted-foreground">Days Left '25</CardTitle>
                         <CalendarClock className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <p className="text-2xl font-bold">{daysLeft}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{Math.round(100 - yearProgress)}% of the year remaining</p>
+                        <p className="text-xs text-muted-foreground mt-1 truncate">{Math.round(100 - yearProgress)}% of year left</p>
                         <Progress value={yearProgress} className="h-2 mt-4" />
                     </CardContent>
                 </Card>
             </div>
 
-             <div className="mt-8">
-                <h3 className="text-lg font-bold text-foreground mb-4">Next 3 Critical Steps</h3>
-                <div className="space-y-3">
-                    {criticalTasks.length > 0 ? (
-                        criticalTasks.map((task, index) => (
-                           <div key={index} className="bg-muted/50 p-3 rounded-lg flex items-center">
-                                <ArrowRight className="text-primary mr-3 h-4 w-4 flex-shrink-0" />
-                                <span className="text-sm">{task.text}</span>
-                           </div>
-                        ))
-                    ) : (
-                         <div className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 p-3 rounded-lg flex items-center">
-                            <CheckCircle className="mr-3 h-4 w-4"/>
-                            <span className="text-sm font-medium">All goals and steps completed! Great job!</span>
-                        </div>
-                    )}
-                </div>
+             <div className="mt-2">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">Next 3 Critical Steps</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        {criticalTasks.length > 0 ? (
+                            criticalTasks.map((task, index) => (
+                               <div key={index} className="bg-muted/50 p-3 rounded-lg flex items-center">
+                                    <ArrowRight className="text-primary mr-3 h-4 w-4 flex-shrink-0" />
+                                    <span className="text-sm">{task.text}</span>
+                               </div>
+                            ))
+                        ) : (
+                             <div className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 p-3 rounded-lg flex items-center">
+                                <CheckCircle className="mr-3 h-4 w-4"/>
+                                <span className="text-sm font-medium">All goals and steps completed! Great job!</span>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
 
             <AiSuggestionSection
