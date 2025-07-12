@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import type { AppData, DailyTask, Goal, JobApplication, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP, Task } from '@/lib/types';
 import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, ListTodo, Globe, Menu, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
