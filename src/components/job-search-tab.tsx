@@ -277,16 +277,16 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                 <h2 className="text-2xl font-bold text-foreground">Job Application Tracker</h2>
                 <p className="mt-1 text-muted-foreground">Manage your job search pipeline from start to finish.</p>
               </div>
-              <div className="flex w-full shrink-0 gap-2 sm:w-auto">
+              <div className="flex w-full flex-col sm:flex-row shrink-0 gap-2">
                 <AiJobSuggestionDialog resumeData={data.resume} onAddApplication={onAddApplication}>
-                  <Button variant="outline" className="w-full justify-center sm:w-auto"><Sparkles className="mr-2 h-4 w-4"/> Generate with AI</Button>
+                  <Button variant="outline" className="w-full justify-center"><Sparkles className="mr-2 h-4 w-4"/> Generate with AI</Button>
                 </AiJobSuggestionDialog>
                 <ResumeBuilderDialog data={data} onUpdate={onUpdate}>
-                    <Button variant="outline" className="w-full justify-center sm:w-auto"><FileText className="mr-2"/> Add Details</Button>
+                    <Button variant="outline" className="w-full justify-center"><FileText className="mr-2"/> Add Details</Button>
                 </ResumeBuilderDialog>
                 <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button className="w-full justify-center sm:w-auto"><Plus className="mr-2 h-4 w-4"/>Add Application</Button>
+                        <Button className="w-full justify-center"><Plus className="mr-2 h-4 w-4"/>Add Application</Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl">
                         <DialogHeader>
@@ -574,8 +574,8 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                             Download PDF
                         </Button>
                     </div>
-                    <div className="border rounded-lg overflow-hidden">
-                        <div ref={resumeRef} className="bg-white">
+                    <div className="border rounded-lg overflow-auto">
+                        <div ref={resumeRef} className="bg-white p-4">
                             <ResumeTemplate resume={data.resume} />
                         </div>
                     </div>
