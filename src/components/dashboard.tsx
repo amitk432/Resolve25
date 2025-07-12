@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 import DashboardOverview from './dashboard-overview';
@@ -27,6 +27,7 @@ import Image from 'next/image';
 import LivingAdvisorTab from './living-advisor-tab';
 import { cn } from '@/lib/utils';
 import { ThemeSwitcher } from './theme-switcher';
+import { Separator } from './ui/separator';
 
 
 interface DashboardProps {
@@ -322,29 +323,40 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     <Menu className="h-6 w-6" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="p-0">
-                    <SheetHeader>
-                        <SheetTitle className="sr-only">Main Menu</SheetTitle>
-                    </SheetHeader>
-                    <div className="flex flex-col h-full">
-                        <div className="p-4 border-b">
-                            <h2 className="text-xl font-bold">Menu</h2>
+                <SheetContent side="left" className="p-0 flex flex-col">
+                    <SheetHeader className="p-4 border-b">
+                         <div className="flex items-center gap-3">
+                            <Avatar className="h-10 w-10">
+                                <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
+                                <AvatarFallback>{user?.displayName?.charAt(0) ?? user?.email?.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <SheetTitle className="text-left">Welcome!</SheetTitle>
+                                <p className="text-sm text-muted-foreground text-left">{user?.displayName || user?.email}</p>
+                            </div>
                         </div>
-                        <nav className="flex-grow p-4 space-y-2">
-                           {allTabs.map(tab => (
-                             <SheetClose asChild key={tab.value}>
-                               <Button
-                                 variant={activeTab === tab.value ? 'secondary' : 'ghost'}
-                                 className="w-full justify-start"
-                                 onClick={() => setActiveTab(tab.value)}
-                               >
-                                 {tab.icon}
-                                 <span>{tab.label}</span>
-                               </Button>
-                             </SheetClose>
-                           ))}
-                        </nav>
-                    </div>
+                    </SheetHeader>
+                    <nav className="flex-grow p-4 space-y-1">
+                        {allTabs.map(tab => (
+                            <SheetClose asChild key={tab.value}>
+                            <Button
+                                variant={activeTab === tab.value ? 'secondary' : 'ghost'}
+                                className="w-full justify-start text-base py-6"
+                                onClick={() => setActiveTab(tab.value)}
+                            >
+                                {React.cloneElement(tab.icon, { className: 'h-5 w-5' })}
+                                <span>{tab.label}</span>
+                            </Button>
+                            </SheetClose>
+                        ))}
+                    </nav>
+                    <SheetFooter className="p-4 mt-auto border-t flex flex-row sm:flex-col gap-2">
+                        <ThemeSwitcher />
+                        <Button variant="outline" onClick={logout} className="w-full">
+                            <LogOut className="mr-2 h-4 w-4"/>
+                            Log Out
+                        </Button>
+                    </SheetFooter>
                 </SheetContent>
               </Sheet>
             </div>
