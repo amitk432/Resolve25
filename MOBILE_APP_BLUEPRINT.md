@@ -15,7 +15,7 @@ The application is for individuals seeking a single, integrated platform to orga
 
 #### **Key Features & User Workflows**
 
-*   **User Authentication:** Users can create an account using email/password or sign in via Google and GitHub. All user data is tied to their unique account.
+*   **User Authentication:** Users can create an account using email/password or sign in via Google and GitHub (via Auth0). All user data is tied to their unique account.
 *   **Main Dashboard:** This is the central hub, providing a high-level overview of the user's progress. It features:
     *   **Key Metric Cards:** Quick stats on overall progress, emergency fund status, completed goals, and a countdown to the end of the year.
     *   **Critical Next Steps:** A focused list of the next three uncompleted tasks from all goals.
@@ -71,7 +71,7 @@ The interface uses a modern, dark theme with vibrant accents.
 *   **Responsive Design:** The application is fully responsive. Key modules like the Job Search and Daily To-Do list transform from table/grid layouts on desktop to card-based layouts on mobile to ensure usability.
 *   **AI Integration:** AI is a core part of the UX. It's used proactively (daily job suggestions) and on-demand (generating goals, tips, emails, itineraries). This is designed to reduce user effort and provide intelligent assistance. Loading states (spinners) are used during AI generation.
 *   **Feedback:** The app uses `toast` notifications for user feedback on actions like adding a goal, saving data, or encountering an error.
-*   **Onboarding:** For new users or misconfigured projects, the dashboard page provides clear, actionable instructions on how to set up Firestore rules or create a database, including links to the Firebase Console.
+*   **Onboarding:** For new users or misconfigured projects, the dashboard page provides clear, actionable instructions on how to set up Supabase tables and Auth0 configuration.
 
 ---
 
@@ -80,10 +80,10 @@ The interface uses a modern, dark theme with vibrant accents.
 *   **Framework:** Next.js 15 (with App Router).
 *   **Language:** TypeScript.
 *   **Styling:** Tailwind CSS with ShadCN UI components. This means the UI is built from a set of pre-styled, accessible, and composable React components.
-*   **Backend & Database:** Firebase is used for all backend services.
-    *   **Authentication:** Firebase Auth (Email/Password, Google, GitHub).
-    *   **Database:** Firestore (NoSQL). All user data is stored in a single document per user under the `users/{userId}` path. This makes data management straightforward for a mobile app.
-*   **Generative AI:** **Genkit for Firebase** is used to interface with Google's Gemini models.
+*   **Backend & Database:** Supabase is used for all backend services.
+    *   **Authentication:** Auth0 (Email/Password, Google, GitHub).
+    *   **Database:** Supabase (Postgres/JSONB). All user data is stored in a single row per user in the `users` table. This makes data management straightforward for a mobile app.
+*   **Generative AI:** **Genkit** is used to interface with Google's Gemini models.
     *   All AI logic is encapsulated in server-side "flows" located in `src/ai/flows/`. These flows handle tasks like parsing resumes, generating suggestions, and creating itineraries.
     *   The frontend communicates with these flows via Next.js Server Actions defined in `src/app/actions.ts`. A mobile app would need to call these server actions through a dedicated API layer.
 *   **Data Models:** The core data structure is defined in `src/lib/types.ts` within the `AppData` interface. This provides a clear schema for all user data that the mobile app would need to read and write.

@@ -2,6 +2,7 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
+import { UserProvider } from '@auth0/nextjs-auth0/client';
 import { AuthProvider } from '@/hooks/use-auth';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -39,11 +40,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <main className="flex-grow">
-              {children}
-            </main>
-          </AuthProvider>
+          <UserProvider>
+            <AuthProvider>
+              <main className="flex-grow">
+                {children}
+              </main>
+            </AuthProvider>
+          </UserProvider>
           <Toaster />
           <footer className="border-t border-white/10 p-4 text-center text-sm text-muted-foreground">
             Built with ❤️ by <strong>AmiT</strong>

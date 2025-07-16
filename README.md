@@ -79,12 +79,11 @@ Ready to take control of your year? Follow these simple steps:
     npm install
     ```
 
-3.  **Set up Firebase:**
-    *   Create a project in the [Firebase Console](https://console.firebase.google.com/).
-    *   Enable **Email/Password** and **Google** authentication in the *Authentication* section.
-    *   Create a **Firestore Database** in production mode.
-    *   Update your Firestore security rules to allow user-specific access (see `src/app/dashboard/page.tsx` for the required rules if you encounter permission errors).
-    *   Copy your Firebase project configuration into your `.env` file for local development. You can find this in your Firebase project settings.
+3.  **Set up Supabase & Auth0:**
+    *   Create a project in [Supabase](https://supabase.com/) and [Auth0](https://auth0.com/).
+    *   In Supabase, create a `users` table with columns: `id` (text, primary key), `data` (jsonb).
+    *   In Auth0, configure your application and connection (e.g., Email/Password, Google, GitHub).
+    *   Copy your Supabase and Auth0 project configuration into your `.env` file for local development. See `.env.example` for required variables.
 
 4.  **Set up Genkit (Google AI):**
     *   Get a Google AI API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
@@ -99,31 +98,22 @@ Ready to take control of your year? Follow these simple steps:
 
 ## ☁️ Deployment
 
-This application is configured for deployment with **Firebase App Hosting**.
+This application can be deployed to any modern hosting platform that supports Next.js and Node.js. For example, you can use Vercel, Netlify, or your own server.
 
-1.  **Install the Firebase CLI:** If you don't have it installed, run this command in your terminal:
+1.  **Build the app:**
     ```bash
-    npm install -g firebase-tools
+    npm run build
     ```
 
-2.  **Log in to Firebase:**
+2.  **Start the app:**
     ```bash
-    firebase login
-    ```
-    This will open a browser window for you to sign in with your Google account.
-
-3.  **Connect your project:** If you haven't already, link your local directory to your Firebase project:
-    ```bash
-    firebase use --add
-    ```
-    Then select the Firebase project you created earlier.
-
-4.  **Deploy!** Run the following command to build and deploy your application:
-    ```bash
-    firebase deploy
+    npm start
     ```
 
-After a few moments, the CLI will provide you with the URL of your live application.
+3.  **Or deploy to Vercel:**
+    - Push your code to GitHub and import the repo in [Vercel](https://vercel.com/).
+    - Set your environment variables in the Vercel dashboard.
+    - Deploy!
 
 ## 🛠️ Tech Stack
 
@@ -131,11 +121,12 @@ Resolve25 is built with a modern, powerful, and scalable tech stack:
 
 *   **Framework:** [Next.js](https://nextjs.org/) (React)
 *   **Generative AI:** [Google's Genkit](https://firebase.google.com/docs/genkit)
-*   **Authentication & Database:** [Firebase](https://firebase.google.com/)
+*   **Authentication:** [Auth0](https://auth0.com/)
+*   **Database:** [Supabase](https://supabase.com/)
 *   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
 *   **UI Components:** [ShadCN UI](https://ui.shadcn.com/)
-*   **Deployment:** [Firebase App Hosting](https://firebase.google.com/docs/app-hosting)
+*   **Deployment:** [Vercel](https://vercel.com/) or any Next.js-compatible host
 
 ---
 
-Built with ❤️ by the Firebase team.
+Built with ❤️ by the Resolve25 team.

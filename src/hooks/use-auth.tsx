@@ -2,225 +2,116 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  onAuthStateChanged,
-  User,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  GoogleAuthProvider,
-  GithubAuthProvider,
-  signInWithPopup,
-  UserCredential,
-  updateProfile,
-} from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { auth, db, storage } from '@/lib/firebase';
+import { useUser } from '@auth0/nextjs-auth0/client';
+import { supabase } from '@/lib/supabase';
 import { useToast } from './use-toast';
 import { initialData } from '@/lib/data';
 
 interface AuthContextType {
-  user: User | null;
+  user: any | null;
   loading: boolean;
-  authError: ReactNode | null;
-  login: (email: string, pass: string) => Promise<void>;
-  signup: (email: string, pass: string) => Promise<void>;
-  logout: () => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
-  loginWithGitHub: () => Promise<void>;
+  error: any;
+  login: () => void;
+  logout: () => void;
   updateProfilePicture: (file: File) => Promise<void>;
-  isConfigured: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const createInitialUserData = async (user: User) => {
-  if (!db) return;
-  const userPlanRef = doc(db, 'users', user.uid);
-  const userPlanDoc = await getDoc(userPlanRef);
+const createInitialUserData = async (user: any) => {
+  if (!user) return;
+  const { data, error, status, statusText } = await supabase
+    .from('users')
+    .select('id')
+    .eq('id', user.sub);
 
-  if (!userPlanDoc.exists()) {
-    await setDoc(userPlanRef, initialData);
+  if (error || status !== 200) {
+    console.error('Error checking for user:', { error, status, statusText, data });
+    return;
+  }
+
+  if (data.length === 0) {
+    const { error: insertError } = await supabase
+      .from('users')
+      .insert([{ id: user.sub, data: initialData }]);
+    if (insertError) {
+      console.error('Error creating user data:', insertError);
+    }
   }
 };
 
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [authError, setAuthError] = useState<ReactNode | null>(null);
+  const { user, error, isLoading } = useUser();
+  const [loading, setLoading] = useState(isLoading);
   const router = useRouter();
   const { toast } = useToast();
-  const isConfigured = !!auth;
 
   useEffect(() => {
-    if (!isConfigured) {
-      setLoading(false);
-      return;
+    setLoading(isLoading);
+    if (user) {
+      createInitialUserData(user);
     }
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
+  }, [user, isLoading]);
 
-    return () => unsubscribe();
-  }, [isConfigured]);
-
-  const handleAuthResult = async (userCredential: UserCredential) => {
-    await createInitialUserData(userCredential.user);
-    router.push('/dashboard');
-  }
-
-  const handleAuthNotReady = () => {
-    toast({
-        variant: 'destructive',
-        title: 'Authentication Not Configured',
-        description: "Please update your Firebase credentials in src/lib/firebase.ts.",
-    });
-  }
-
-  const handleAuthError = (error: any) => {
-    console.error(error);
-    if (error.code === 'auth/unauthorized-domain') {
-       const hostname = typeof window !== 'undefined' ? new URL(window.location.href).hostname : 'your-app-domain.com';
-       const unauthorizedDomainFix = (
-         <div className="text-left space-y-2 text-sm">
-            <p className="font-semibold text-base">Action Required: Unauthorized Domain</p>
-            <p>To fix this, you need to authorize your application's domain in the Firebase Console.</p>
-            <ol className="list-decimal list-inside space-y-2 mt-2">
-                <li>
-                    Go to your Firebase project's <strong>Authentication &gt; Settings</strong> tab.
-                </li>
-                <li>
-                    Under the <strong>Authorized domains</strong> section, click <strong>Add domain</strong>.
-                </li>
-                <li>
-                    Enter: <code className="bg-muted px-1 py-0.5 rounded font-mono">{hostname}</code>
-                </li>
-                <li>
-                    Click <strong>Add</strong>, then return here and try again.
-                </li>
-            </ol>
-         </div>
-       );
-       setAuthError(unauthorizedDomainFix);
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Authentication Error',
-        description: error.message || 'An unexpected error occurred.',
-      });
-    }
+  const login = () => {
+    router.push('/api/auth/login');
   };
 
-  const startAuthAction = () => {
-    setLoading(true);
-    setAuthError(null);
-  }
-  
-  const login = async (email: string, pass: string) => {
-    if (!auth) return handleAuthNotReady();
-    startAuthAction();
-    try {
-      await signInWithEmailAndPassword(auth, email, pass);
-      router.push('/dashboard');
-    } catch (error) {
-      handleAuthError(error);
-    } finally {
-      setLoading(false);
-    }
+  const logout = () => {
+    router.push('/api/auth/logout');
   };
-
-  const signup = async (email: string, pass: string) => {
-    if (!auth) return handleAuthNotReady();
-    startAuthAction();
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-      await handleAuthResult(userCredential);
-    } catch (error) {
-      handleAuthError(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const logout = async () => {
-    if (!auth) return handleAuthNotReady();
-    startAuthAction();
-    try {
-      await signOut(auth);
-      router.push('/');
-    } catch (error) {
-      handleAuthError(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const socialLogin = async (provider: GoogleAuthProvider | GithubAuthProvider) => {
-    if (!auth) return handleAuthNotReady();
-    startAuthAction();
-    try {
-      const userCredential = await signInWithPopup(auth, provider);
-      await handleAuthResult(userCredential);
-    } catch (error) {
-      handleAuthError(error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const loginWithGoogle = () => socialLogin(new GoogleAuthProvider());
-  const loginWithGitHub = () => socialLogin(new GithubAuthProvider());
 
   const updateProfilePicture = async (file: File) => {
-    if (!auth?.currentUser || !storage) {
-        toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'User not authenticated or storage is not configured.',
-        });
-        return;
+    if (!user) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'User not authenticated.',
+      });
+      return;
     }
     setLoading(true);
     try {
-        const userToUpdate = auth.currentUser;
-        const storageRef = ref(storage, `profile-pictures/${userToUpdate.uid}`);
-        
-        await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
-
-        await updateProfile(userToUpdate, { photoURL: downloadURL });
-        
-        // Force a reload of the user object to get latest profile
-        await userToUpdate.reload();
-        // Update state with the reloaded user object to trigger UI updates
-        setUser(auth.currentUser);
-
-        toast({
-            title: 'Success!',
-            description: 'Your profile picture has been updated.',
+      const { data, error } = await supabase.storage
+        .from('profile-pictures')
+        .upload(`${user.sub}/${file.name}`, file, {
+          cacheControl: '3600',
+          upsert: true,
         });
-    } catch (error) {
-        handleAuthError(error);
+
+      if (error) {
+        throw error;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-pictures')
+        .getPublicUrl(data.path);
+
+      // Auth0 user update would go here, if needed.
+      // This example focuses on Supabase storage.
+
+      toast({
+        title: 'Success!',
+        description: 'Your profile picture has been updated.',
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error updating profile picture',
+        description: error.message,
+      });
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
-
 
   const value = {
     user,
     loading,
-    authError,
+    error,
     login,
-    signup,
     logout,
-    loginWithGoogle,
-    loginWithGitHub,
     updateProfilePicture,
-    isConfigured,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

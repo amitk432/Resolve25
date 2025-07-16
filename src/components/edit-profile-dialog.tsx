@@ -23,7 +23,7 @@ export function EditProfileDialog({ open, onOpenChange }: EditProfileDialogProps
 
     useEffect(() => {
         if (open) {
-            setPreview(user?.photoURL || null);
+            setPreview(user?.picture || null);
         } else {
             // Reset state when dialog closes
             setFile(null);

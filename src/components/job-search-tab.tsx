@@ -1,4 +1,3 @@
-
 'use client'
 
 import React, { useState, useRef } from 'react';
@@ -29,6 +28,7 @@ import { ScrollArea } from './ui/scroll-area';
 import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { Briefcase } from 'lucide-react';
 
 interface JobSearchTabProps {
     applications: JobApplication[];
@@ -351,17 +351,17 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
 
             {/* Mobile View: Cards */}
             <div className="space-y-4 md:hidden">
-                 {applications.length > 0 ? (
-                    applications.map((app, index) => (
-                        <JobApplicationCard key={index} app={app} index={index} />
-                    ))
-                ) : (
-                    <div className="text-center py-16 border-2 border-dashed rounded-lg">
-                        <Briefcase className="mx-auto h-12 w-12 text-muted-foreground" />
-                        <h3 className="mt-2 text-lg font-medium">No Applications Yet</h3>
-                        <p className="mt-1 text-sm text-muted-foreground">Click "Add Application" to start tracking.</p>
-                    </div>
-                )}
+              {applications.length > 0 ? (
+                applications.map((app, index) => (
+                  <JobApplicationCard key={index} app={app} index={index} />
+                ))
+              ) : (
+                <div className="text-center py-16 border-2 border-dashed rounded-lg">
+                  <Briefcase className="mx-auto h-12 w-12 text-muted-foreground" />
+                  <h3 className="mt-2 text-lg font-medium">No Applications Yet</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">Click "Add Application" to start tracking.</p>
+                </div>
+              )}
             </div>
 
             {/* Desktop View: Table */}
