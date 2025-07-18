@@ -17,7 +17,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Plus, Trash2, CalendarIcon, Wand2, Loader2, Plane, CheckCircle, Sparkles, Lightbulb, Target, Star, IndianRupee } from 'lucide-react';
-import Image from 'next/image';
+import ImageLoader from './ui/image-loader';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -26,7 +26,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './
 
 interface TravelGoalsTabProps {
   travelGoals: TravelGoal[];
-  onAddGoal: (goal: Omit<TravelGoal, 'id'> & { travelDate: Date | null }) => void;
+  onAddGoal: (goal: Omit<TravelGoal, 'id'>) => void;
   onDeleteGoal: (id: string) => void;
   onUpdate: (updater: (draft: AppData) => void) => void;
 }
@@ -126,18 +126,17 @@ const travelGoalSchema = z.object({
 
 
 const TravelGoalItem = ({ goal, onDeleteGoal, onGetItinerary }: { goal: TravelGoal, onDeleteGoal: (id: string) => void, onGetItinerary: (destination: string, duration: number, travelDate: string) => void }) => {
-    const imageUrl = `https://placehold.co/400x250.png`;
+    const query = goal.destination.split(',')[0];
 
     return (
         <div className="flex flex-col md:flex-row gap-4 p-4 border rounded-lg bg-background hover:bg-muted/30 transition-colors">
             <div className="w-full md:w-1/3 lg:w-1/4 shrink-0">
-                <Image 
-                    src={imageUrl} 
+                <ImageLoader 
+                    query={query} 
                     alt={goal.destination} 
                     width={400} 
                     height={250} 
-                    className="rounded-lg object-cover w-full aspect-[16/10]" 
-                    data-ai-hint={goal.destination.split(',')[0].toLowerCase().replace(/\s+/g, '%20')} 
+                    className="rounded-lg object-cover w-full aspect-[16/10]"
                 />
             </div>
             <div className="flex-grow flex flex-col">
@@ -314,7 +313,7 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal, o
         destination: values.destination,
         status: values.status,
         notes: values.notes,
-        travelDate: values.status === 'Planned' ? values.travelDate! : null,
+        travelDate: values.status === 'Planned' && values.travelDate ? values.travelDate.toISOString() : null,
         duration: values.duration
     });
     setDialogOpen(false);
@@ -362,7 +361,7 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal, o
         destination,
         notes,
         status: 'Planned',
-        travelDate: new Date(new Date().setMonth(new Date().getMonth() + 1)), // Default to next month
+        travelDate: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString(), // Default to next month
         duration: '5' // Default duration for suggestions
     });
     toast({

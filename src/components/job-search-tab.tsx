@@ -273,12 +273,111 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
     return (
         <div>
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="w-full sm:w-auto">
+              <div>
                 <h2 className="text-2xl font-bold text-foreground">Job Application Tracker</h2>
                 <p className="mt-1 text-muted-foreground">Manage your job search pipeline from start to finish.</p>
               </div>
-              <div className="flex w-full sm:w-auto justify-end">
-                <Button className="w-full sm:w-auto px-6 py-2 font-semibold text-white bg-blue-600 rounded hover:bg-blue-700">Login / Signup</Button>
+              <div className="flex items-center gap-2">
+                <AiJobSuggestionDialog resumeData={data.resume} onAddApplication={onAddApplication}>
+                    <Button variant="outline" size="icon">
+                        <Sparkles className="h-4 w-4" />
+                    </Button>
+                </AiJobSuggestionDialog>
+                <ResumeBuilderDialog data={data} onUpdate={onUpdate}>
+                    <Button variant="outline">
+                        <FileText className="mr-2 h-4 w-4" /> Add Details
+                    </Button>
+                </ResumeBuilderDialog>
+                <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button>
+                            <Plus className="mr-2 h-4 w-4" /> Add Application
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-2xl">
+                        <DialogHeader>
+                            <DialogTitle>Add Job Application</DialogTitle>
+                            <DialogDescription>
+                                Manually enter the details of a job application.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)}>
+                                <ScrollArea className="h-[60vh] pr-6">
+                                    <div className="space-y-4 py-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <FormField control={form.control} name="company" render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Company</FormLabel>
+                                                    <FormControl><Input placeholder="e.g. Google" {...field} /></FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )} />
+                                            <FormField control={form.control} name="role" render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Role</FormLabel>
+                                                    <FormControl><Input placeholder="e.g. Software Engineer" {...field} /></FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )} />
+                                        </div>
+                                        <FormField control={form.control} name="applyLink" render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Application Link</FormLabel>
+                                                <FormControl><Input placeholder="https://..." {...field} /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )} />
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                            <FormField control={form.control} name="location" render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Location</FormLabel>
+                                                    <FormControl><Input placeholder="e.g. San Francisco, CA" {...field} /></FormControl>
+                                                </FormItem>
+                                            )} />
+                                            <FormField control={form.control} name="jobType" render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Job Type</FormLabel>
+                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                        <FormControl><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger></FormControl>
+                                                        <SelectContent>
+                                                            <SelectItem value="Full-time">Full-time</SelectItem>
+                                                            <SelectItem value="Part-time">Part-time</SelectItem>
+                                                            <SelectItem value="Contract">Contract</SelectItem>
+                                                            <SelectItem value="Internship">Internship</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormItem>
+                                            )} />
+                                            <FormField control={form.control} name="salaryRange" render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Salary Range</FormLabel>
+                                                    <FormControl><Input placeholder="e.g. $100k - $120k" {...field} /></FormControl>
+                                                </FormItem>
+                                            )} />
+                                        </div>
+                                        <FormField control={form.control} name="keyResponsibilities" render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Key Responsibilities</FormLabel>
+                                                <FormControl><Textarea placeholder="One responsibility per line..." {...field} rows={5} /></FormControl>
+                                            </FormItem>
+                                        )} />
+                                        <FormField control={form.control} name="requiredSkills" render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Required Skills</FormLabel>
+                                                <FormControl><Textarea placeholder="One skill per line..." {...field} rows={5} /></FormControl>
+                                            </FormItem>
+                                        )} />
+                                    </div>
+                                </ScrollArea>
+                                <DialogFooter className="pt-4 border-t">
+                                    <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                                    <Button type="submit">Add Application</Button>
+                                </DialogFooter>
+                            </form>
+                        </Form>
+                    </DialogContent>
+                </Dialog>
               </div>
             </div>
 

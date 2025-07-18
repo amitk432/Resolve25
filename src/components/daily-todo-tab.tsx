@@ -64,18 +64,22 @@ const TaskItem = ({ task, onToggleTask, onEdit, onDelete, onMoveToNextDay }: { t
   const shouldShowWarning = !task.completed && (isOverdue || isToday(startOfDay(parseISO(task.dueDate))));
 
   return (
-    <div className="flex items-center p-3 rounded-lg bg-background hover:bg-muted/50 border transition-all group">
+    <div className="flex items-start p-3 rounded-lg bg-background hover:bg-muted/50 border transition-all group">
       <Checkbox
         id={`task-${task.id}`}
         checked={task.completed}
         onCheckedChange={(checked) => onToggleTask(task.id, !!checked)}
-        className="mr-4"
+        className="mr-4 mt-1"
       />
-      <div className="flex-grow">
-        <label htmlFor={`task-${task.id}`} className={cn('font-medium', task.completed && 'line-through text-muted-foreground', "flex items-center gap-2")}>
-          {shouldShowWarning && <AlertTriangle className="h-4 w-4 text-destructive" />}
-          {task.title}
-          <div className="text-sm text-muted-foreground flex items-center gap-x-2 gap-y-1 flex-wrap">
+      <div className="flex-grow min-w-0">
+        <label htmlFor={`task-${task.id}`} className={cn('font-medium flex items-center gap-2', task.completed && 'line-through text-muted-foreground')}>
+          <span className="line-clamp-2">{task.title}</span>
+          {shouldShowWarning && <Badge variant="destructive" className="flex items-center gap-1 text-xs shrink-0"><AlertTriangle className="h-3 w-3" /> Overdue</Badge>}
+        </label>
+        {task.description && (
+          <p className="text-sm text-muted-foreground mt-1 line-clamp-3">{task.description}</p>
+        )}
+        <div className="text-sm text-muted-foreground flex items-center gap-x-2 gap-y-1 mt-2 flex-wrap">
             <Badge variant="outline" className={cn('text-xs', priorityConfig[task.priority].className)}>
               {task.priority}
             </Badge>
@@ -83,15 +87,9 @@ const TaskItem = ({ task, onToggleTask, onEdit, onDelete, onMoveToNextDay }: { t
               {categoryIcons[task.category]}
               {task.category}
             </Badge>
-          </div>
-        </label>
-        {task.description && (
-          <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
-        )}
-        <div className="text-sm text-muted-foreground flex items-center gap-x-4 gap-y-1 mt-1 flex-wrap">
         </div>
       </div>
-      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+      <div className="flex-shrink-0 hidden group-hover:flex items-center gap-1 ml-2">
         {isToday(startOfDay(parseISO(task.dueDate))) && (
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onMoveToNextDay(task.id)}>
             <ArrowRight className="h-4 w-4" />
@@ -238,14 +236,14 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
           <h2 className="text-2xl font-bold text-foreground">Daily To-Do List</h2>
           <p className="mt-1 text-muted-foreground">Organize your day and stay on top of your tasks.</p>
         </div>
-        <div className="flex w-full shrink-0 gap-2 sm:w-auto">
+        <div className="flex w-full sm:w-auto gap-2">
             <AiTaskGeneratorDialog data={data} onTaskAdd={handleAiTaskAdd}>
-                <Button variant="outline" className="w-full justify-center sm:w-auto">
+                <Button variant="outline" className="flex-1 justify-center sm:flex-none sm:w-auto">
                     <Sparkles className="mr-2 h-4 w-4" />
                     Generate with AI
                 </Button>
             </AiTaskGeneratorDialog>
-            <Button onClick={() => handleOpenDialog(null)} className="w-full sm:w-auto">
+            <Button onClick={() => handleOpenDialog(null)} className="flex-1 sm:flex-none sm:w-auto">
                 <Plus className="mr-2 h-4 w-4" /> Add Task
             </Button>
         </div>
@@ -262,14 +260,14 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
                     return (
                     <AccordionItem value={group.date} key={group.date} className="border rounded-lg px-4 bg-muted/30">
                         <AccordionTrigger className="py-3 hover:no-underline">
-                             <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
-                                <div className="flex-grow space-y-2 text-left">
+                             <div className="flex flex-col md:flex-row items-start md:items-center gap-2 w-full">
+                                <div className="flex-grow text-left">
                                     <div className="flex items-center gap-2">
                                         <h3 className="font-semibold text-lg">{format(parseISO(group.date), 'MMMM d, yyyy')}</h3>
                                         <Badge variant="secondary">{totalTasks}</Badge>
                                     </div>
                                 </div>
-                                <div className="w-full md:w-56 shrink-0 space-y-1">
+                                <div className="w-full md:w-56 shrink-0 space-y-1 mt-2 md:mt-0">
                                     <div className="flex justify-between text-xs text-muted-foreground">
                                         <span>Progress</span>
                                         <span>{completedTasks}/{totalTasks}</span>
@@ -391,12 +389,14 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
           </Form>
         </DialogContent>
       </Dialog>
-      <AiSuggestionSection
-          moduleName="DailyTodo"
-          title="AI Productivity Assistant"
-          description="Get smart suggestions to organize your day and tackle your to-do list efficiently."
-          contextData={{ tasks }}
-      />
+      <div className="mt-8">
+        <AiSuggestionSection
+            moduleName="DailyTodo"
+            title="AI Productivity Assistant"
+            description="Get smart suggestions to organize your day and tackle your to-do list efficiently."
+            contextData={{ tasks }}
+        />
+      </div>
     </div>
   );
 }

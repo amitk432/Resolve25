@@ -440,16 +440,16 @@ function MonthlyIncomeCard({
         <>
             <Card>
                 <CardHeader>
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <CardTitle>Monthly Income</CardTitle>
                             <CardDescription>Track all your sources of income.</CardDescription>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex w-full shrink-0 gap-2 sm:w-auto">
                             <Button variant="ghost" size="icon" onClick={() => setIsVisible(!isVisible)}>
                                 {isVisible ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                             </Button>
-                            <Button size="sm" onClick={() => handleOpenDialog(null)}>
+                            <Button size="sm" onClick={() => handleOpenDialog(null)} className="w-full sm:w-auto">
                                 <Plus className="mr-2 h-4 w-4" /> Add Source
                             </Button>
                         </div>
@@ -459,8 +459,8 @@ function MonthlyIncomeCard({
                     <div className="space-y-3">
                         {incomeSources.map(source => (
                             <div key={source.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                                <span className="font-medium">{source.name}</span>
-                                <div className="flex items-center gap-4">
+                                <span className="font-medium flex-grow min-w-0">{source.name}</span>
+                                <div className="flex items-center gap-4 shrink-0">
                                     <span className="text-lg font-mono">
                                         {isVisible ? `₹${parseFloat(source.amount || '0').toLocaleString('en-IN')}` : '₹ ••••••'}
                                     </span>
@@ -715,13 +715,6 @@ function SavingsAndInvestmentsCard({
                                     <Plus className="mr-2 h-4 w-4" /> Add SIP
                                 </Button>
                             </div>
-                        </div>
-                        <div className="flex items-center gap-2 mt-2">
-                            <Badge variant="outline" className="border-yellow-300 bg-yellow-50 text-yellow-800 dark:border-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300">
-                            <Target className="h-3 w-3 mr-1.5" />
-                            Goal
-                            </Badge>
-                            <p className="text-sm text-muted-foreground">Start with ₹1,000–₹2,000/month after the car is sold.</p>
                         </div>
                         <div className="mt-4 bg-muted/50 p-4 rounded-lg space-y-3">
                             {sips.length > 0 ? (
