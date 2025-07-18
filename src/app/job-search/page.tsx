@@ -1,3 +1,5 @@
+"use client";
+
 import JobSearchTab from '@/components/job-search-tab';
 import { useState } from 'react';
 import type { JobApplication, AppData } from '@/lib/types';

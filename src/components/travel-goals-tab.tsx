@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -150,7 +149,11 @@ const TravelGoalItem = ({ goal, onDeleteGoal, onGetItinerary }: { goal: TravelGo
                             </div>
                         ) : (
                              <div className="text-sm text-muted-foreground mt-1 space-x-4">
-                                {goal.travelDate && <span><span className="font-semibold text-primary">Planned for:</span> {format(new Date(goal.travelDate), 'dd-MMMM-yyyy')}</span>}
+                                {goal.travelDate && <span><span className="font-semibold text-primary">Planned for:</span> {(() => {
+                                    const dateValue = goal.travelDate;
+                                    if (dateValue === null) return '';
+                                    return format(dateValue instanceof Date ? dateValue : new Date(dateValue), 'dd-MMMM-yyyy');
+                                })()}</span>}
                                 {goal.duration && <span><span className="font-semibold text-primary">Duration:</span> {goal.duration} days</span>}
                             </div>
                         )}
@@ -178,7 +181,17 @@ const TravelGoalItem = ({ goal, onDeleteGoal, onGetItinerary }: { goal: TravelGo
                 {goal.notes && <p className="mt-2 text-sm text-muted-foreground flex-grow">{goal.notes}</p>}
                 {goal.status === 'Planned' && goal.travelDate && (
                     <div className="mt-4 pt-4 border-t border-border/50">
-                        <Button variant="outline" size="sm" onClick={() => onGetItinerary(goal.destination, parseInt(goal.duration || '3'), goal.travelDate!)}>
+                        <Button variant="outline" size="sm" onClick={() => {
+                            const currentTravelDate = goal.travelDate;
+                            const formattedTravelDate = typeof currentTravelDate === 'string'
+                                ? currentTravelDate
+                                : (currentTravelDate as Date).toISOString();
+                            onGetItinerary(
+                                goal.destination,
+                                parseInt(goal.duration || '3'),
+                                formattedTravelDate
+                            );
+                        }}>
                             <Wand2 className="mr-2 h-4 w-4" />
                             AI Itinerary
                         </Button>
@@ -313,7 +326,7 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal, o
         destination: values.destination,
         status: values.status,
         notes: values.notes,
-        travelDate: values.status === 'Planned' && values.travelDate ? values.travelDate.toISOString() : null,
+        travelDate: values.status === 'Planned' && values.travelDate ? values.travelDate : null, // Pass Date object directly
         duration: values.duration
     });
     setDialogOpen(false);

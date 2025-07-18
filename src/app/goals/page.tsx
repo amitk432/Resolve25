@@ -1,3 +1,5 @@
+"use client";
+
 import GoalsTab from '@/components/goals-tab';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';

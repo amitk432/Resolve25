@@ -70,7 +70,7 @@ export interface TravelGoal {
   id: string;
   destination: string;
   status: TravelGoalStatus;
-  travelDate: string | null; // Stored as ISO string
+  travelDate: string | Date | null; // Stored as ISO string or Date object
   duration?: string;
   notes?: string;
 }
@@ -97,9 +97,13 @@ export interface IncomeSource {
 
 export interface SIP {
     id: string;
+    name: string;
     amount: string;
-    mutualFund: string;
-    platform?: string;
+    frequency: 'Monthly' | 'Quarterly' | 'Annually';
+    startDate?: string;
+    targetAmount?: string;
+    mutualFund?: string; // Making this optional as it's not used in finance-tab.tsx
+    platform?: string; // Making this optional as it's not used in finance-tab.tsx
 }
 
 export interface ResumeContactInfo {

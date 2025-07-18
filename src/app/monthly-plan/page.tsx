@@ -1,3 +1,5 @@
+"use client";
+
 import MonthlyPlanTab from '@/components/monthly-plan-tab';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';

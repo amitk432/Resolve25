@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
 import TravelGoalsTab from '@/components/travel-goals-tab';
 import { supabase } from '@/lib/supabase';
@@ -31,13 +33,13 @@ export default function TravelGoalsPage() {
   }, [data]);
 
   // Handler to add a new travel goal
-  const handleAddGoal = (goal: Omit<import('@/lib/types').TravelGoal, 'id'> & { travelDate: Date | null }) => {
+  const handleAddGoal = (goal: Omit<import('@/lib/types').TravelGoal, 'id'>) => {
     setData(prev => {
       if (!prev) return prev;
       const newGoal = {
         ...goal,
         id: `travelgoal-${Date.now()}`,
-        travelDate: goal.travelDate ? goal.travelDate.toISOString() : null,
+        travelDate: goal.travelDate instanceof Date ? goal.travelDate.toISOString() : goal.travelDate,
       };
       return {
         ...prev,

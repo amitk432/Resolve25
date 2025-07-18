@@ -1,3 +1,5 @@
+"use client";
+
 import DailyTasksTab from '@/components/daily-tasks-tab';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
