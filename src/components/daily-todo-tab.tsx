@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format, isToday, parseISO, startOfDay, isPast } from 'date-fns';
+import { format, isToday, parseISO, startOfDay, isPast, addDays } from 'date-fns';
 import { DailyTask, DailyTaskCategory, DailyTaskPriority, AppData } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Edit, CalendarIcon, Briefcase, User, ShoppingCart, AlertTriangle, ListTodo, Sparkles } from 'lucide-react';
+import { Plus, Trash2, Edit, CalendarIcon, Briefcase, User, ShoppingCart, AlertTriangle, ListTodo, Sparkles, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AiSuggestionSection from './ai-suggestion-section';
 import AiTaskGeneratorDialog from './ai-task-generator-dialog';
@@ -38,9 +38,9 @@ const taskSchema = z.object({
 type TaskFormValues = z.infer<typeof taskSchema>;
 
 const priorityConfig: Record<DailyTaskPriority, { className: string }> = {
-  High: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800',
-  Medium: 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-800',
-  Low: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800',
+  High: { className: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800' },
+  Medium: { className: 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-800' },
+  Low: { className: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800' },
 };
 
 const categoryIcons: Record<DailyTaskCategory, React.ReactNode> = {
@@ -55,11 +55,13 @@ interface DailyTodoTabProps {
   onUpdateTask: (task: DailyTask) => void;
   onDeleteTask: (taskId: string) => void;
   onToggleTask: (taskId: string, completed: boolean) => void;
+  onMoveToNextDay: (taskId: string) => void;
   data: AppData;
 }
 
-const TaskItem = ({ task, onToggleTask, onEdit, onDelete }: { task: DailyTask, onToggleTask: (id: string, completed: boolean) => void, onEdit: (task: DailyTask) => void, onDelete: (id: string) => void }) => {
+const TaskItem = ({ task, onToggleTask, onEdit, onDelete, onMoveToNextDay }: { task: DailyTask, onToggleTask: (id: string, completed: boolean) => void, onEdit: (task: DailyTask) => void, onDelete: (id: string) => void, onMoveToNextDay: (id: string) => void }) => {
   const isOverdue = !task.completed && isPast(startOfDay(parseISO(task.dueDate))) && !isToday(startOfDay(parseISO(task.dueDate)));
+  const shouldShowWarning = !task.completed && (isOverdue || isToday(startOfDay(parseISO(task.dueDate))));
 
   return (
     <div className="flex items-center p-3 rounded-lg bg-background hover:bg-muted/50 border transition-all group">
@@ -70,23 +72,31 @@ const TaskItem = ({ task, onToggleTask, onEdit, onDelete }: { task: DailyTask, o
         className="mr-4"
       />
       <div className="flex-grow">
-        <label htmlFor={`task-${task.id}`} className={cn('font-medium', task.completed && 'line-through text-muted-foreground')}>
+        <label htmlFor={`task-${task.id}`} className={cn('font-medium', task.completed && 'line-through text-muted-foreground', "flex items-center gap-2")}>
+          {shouldShowWarning && <AlertTriangle className="h-4 w-4 text-destructive" />}
           {task.title}
-        </label>
-        <div className="text-sm text-muted-foreground flex items-center gap-x-4 gap-y-1 mt-1 flex-wrap">
-           <div className={cn("flex items-center gap-1", isOverdue && "text-destructive font-medium")}>
-            {isOverdue && <AlertTriangle className="h-3 w-3" />}
+          <div className="text-sm text-muted-foreground flex items-center gap-x-2 gap-y-1 flex-wrap">
+            <Badge variant="outline" className={cn('text-xs', priorityConfig[task.priority].className)}>
+              {task.priority}
+            </Badge>
+            <Badge variant="secondary" className="flex items-center gap-1 text-xs">
+              {categoryIcons[task.category]}
+              {task.category}
+            </Badge>
           </div>
-          <Badge variant="outline" className={cn('text-xs', priorityConfig[task.priority].className)}>
-            {task.priority}
-          </Badge>
-          <Badge variant="secondary" className="flex items-center gap-1 text-xs">
-            {categoryIcons[task.category]}
-            {task.category}
-          </Badge>
+        </label>
+        {task.description && (
+          <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
+        )}
+        <div className="text-sm text-muted-foreground flex items-center gap-x-4 gap-y-1 mt-1 flex-wrap">
         </div>
       </div>
       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+        {isToday(startOfDay(parseISO(task.dueDate))) && (
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onMoveToNextDay(task.id)}>
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        )}
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(task)}><Edit className="h-4 w-4" /></Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -110,7 +120,7 @@ const TaskItem = ({ task, onToggleTask, onEdit, onDelete }: { task: DailyTask, o
   )
 }
 
-export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteTask, onToggleTask, data }: DailyTodoTabProps) {
+export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteTask, onToggleTask, data, onMoveToNextDay }: DailyTodoTabProps) {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<DailyTask | null>(null);
 
@@ -144,6 +154,7 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
     const taskData = {
       ...values,
       dueDate: values.dueDate.toISOString(),
+      source: 'manual' as const,
     };
     if (editingTask) {
       onUpdateTask({ ...editingTask, ...taskData });
@@ -151,6 +162,14 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
       onAddTask(taskData);
     }
     setDialogOpen(false);
+  };
+
+  const handleMoveToNextDay = (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      const nextDay = addDays(parseISO(task.dueDate), 1);
+      onUpdateTask({ ...task, dueDate: nextDay.toISOString() });
+    }
   };
 
   const groupedTasks = useMemo(() => {
@@ -175,7 +194,16 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
     }
     
     // Sort the groups by date
-    const sortedGroupKeys = Object.keys(groups).sort((a,b) => new Date(a).getTime() - new Date(b).getTime());
+    const sortedGroupKeys = Object.keys(groups).sort((a, b) => {
+      const dateA = startOfDay(new Date(a));
+      const dateB = startOfDay(new Date(b));
+      const today = startOfDay(new Date());
+
+      if (isToday(dateA) && !isToday(dateB)) return -1;
+      if (!isToday(dateA) && isToday(dateB)) return 1;
+
+      return dateA.getTime() - dateB.getTime();
+    });
 
     return sortedGroupKeys.map(key => ({
         date: key,
@@ -187,6 +215,7 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
     const newTask = {
       ...suggestedTask,
       dueDate: new Date().toISOString(),
+      source: 'ai' as const,
     };
     onAddTask(newTask);
   };
@@ -196,7 +225,7 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
         .filter(g => {
             const groupDate = startOfDay(parseISO(g.date));
             const hasIncompleteTasks = g.tasks.some(t => !t.completed);
-            return (isToday(groupDate) || isPast(groupDate)) && hasIncompleteTasks;
+            return isToday(groupDate) && hasIncompleteTasks;
         })
         .map(g => g.date);
   }, [groupedTasks]);
@@ -251,7 +280,7 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
                         </AccordionTrigger>
                         <AccordionContent className="pt-2 pb-4 space-y-2">
                             {group.tasks.map(task => (
-                                <TaskItem key={task.id} task={task} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} />
+                                <TaskItem key={task.id} task={task} onToggleTask={onToggleTask} onEdit={handleOpenDialog} onDelete={onDeleteTask} onMoveToNextDay={handleMoveToNextDay} />
                             ))}
                         </AccordionContent>
                     </AccordionItem>

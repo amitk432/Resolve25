@@ -272,80 +272,13 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
 
     return (
         <div>
-            <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="w-full sm:w-auto">
                 <h2 className="text-2xl font-bold text-foreground">Job Application Tracker</h2>
                 <p className="mt-1 text-muted-foreground">Manage your job search pipeline from start to finish.</p>
               </div>
-              <div className="flex w-full flex-col sm:flex-row shrink-0 gap-2">
-                <AiJobSuggestionDialog resumeData={data.resume} onAddApplication={onAddApplication}>
-                  <Button variant="outline" className="w-full justify-center"><Sparkles className="mr-2 h-4 w-4"/> Generate with AI</Button>
-                </AiJobSuggestionDialog>
-                <ResumeBuilderDialog data={data} onUpdate={onUpdate}>
-                    <Button variant="outline" className="w-full justify-center"><FileText className="mr-2"/> Add Details</Button>
-                </ResumeBuilderDialog>
-                <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button className="w-full justify-center"><Plus className="mr-2 h-4 w-4"/>Add Application</Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                            <DialogTitle>Add New Application</DialogTitle>
-                            <DialogDescription>
-                                Track a new job application. More details help the AI give better advice.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)}>
-                                <ScrollArea className="h-[60vh] pr-4 -mr-4">
-                                  <div className="space-y-4 p-1">
-                                    <FormField control={form.control} name="company" render={({ field }) => (
-                                        <FormItem><FormLabel>Company</FormLabel><FormControl><Input placeholder="e.g., Thoughtworks" {...field} /></FormControl><FormMessage /></FormItem>
-                                    )} />
-                                    <FormField control={form.control} name="role" render={({ field }) => (
-                                        <FormItem><FormLabel>Role</FormLabel><FormControl><Input placeholder="e.g., Sr. QA Engineer" {...field} /></FormControl><FormMessage /></FormItem>
-                                    )} />
-                                     <FormField control={form.control} name="location" render={({ field }) => (
-                                        <FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="e.g., Bengaluru, India" {...field} /></FormControl><FormMessage /></FormItem>
-                                    )} />
-                                    <FormField control={form.control} name="applyLink" render={({ field }) => (
-                                        <FormItem><FormLabel>Application Link (Optional)</FormLabel><FormControl><Input placeholder="https://careers.example.com/job/123" {...field} /></FormControl><FormMessage /></FormItem>
-                                    )} />
-                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                        <FormField control={form.control} name="jobType" render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Job Type</FormLabel>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger></FormControl>
-                                                    <SelectContent>
-                                                        {(['Full-time', 'Part-time', 'Contract', 'Internship'] as JobType[]).map(c => (
-                                                           <SelectItem key={c} value={c}>{c}</SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )} />
-                                         <FormField control={form.control} name="salaryRange" render={({ field }) => (
-                                            <FormItem><FormLabel>Salary Range (Optional)</FormLabel><FormControl><Input placeholder="e.g., ₹12-15 LPA" {...field} /></FormControl><FormMessage /></FormItem>
-                                        )} />
-                                    </div>
-                                     <FormField control={form.control} name="keyResponsibilities" render={({ field }) => (
-                                        <FormItem><FormLabel>Key Responsibilities (one per line)</FormLabel><FormControl><Textarea className="h-24" {...field} /></FormControl><FormMessage /></FormItem>
-                                    )} />
-                                     <FormField control={form.control} name="requiredSkills" render={({ field }) => (
-                                        <FormItem><FormLabel>Required Skills (one per line)</FormLabel><FormControl><Textarea className="h-24" {...field} /></FormControl><FormMessage /></FormItem>
-                                    )} />
-                                  </div>
-                                </ScrollArea>
-                                <DialogFooter className="pt-4 mt-4 border-t">
-                                    <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                                    <Button type="submit">Add Application</Button>
-                                </DialogFooter>
-                            </form>
-                        </Form>
-                    </DialogContent>
-                </Dialog>
+              <div className="flex w-full sm:w-auto justify-end">
+                <Button className="w-full sm:w-auto px-6 py-2 font-semibold text-white bg-blue-600 rounded hover:bg-blue-700">Login / Signup</Button>
               </div>
             </div>
 

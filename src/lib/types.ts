@@ -86,6 +86,7 @@ export interface DailyTask {
     priority: DailyTaskPriority;
     category: DailyTaskCategory;
     completed: boolean;
+    source?: 'manual' | 'ai'; // Track if task was created manually or by AI
 }
 
 export interface IncomeSource {

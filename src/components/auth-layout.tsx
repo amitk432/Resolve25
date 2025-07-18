@@ -2,6 +2,12 @@
 import React from 'react';
 import Image from 'next/image';
 
+interface AuthLayoutProps {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}
+
 const AuthIllustration = () => (
     <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-gray-900 to-black p-16 rounded-l-2xl">
         <div className="relative w-72 h-72">
@@ -11,11 +17,15 @@ const AuthIllustration = () => (
     </div>
 );
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default function AuthLayout({ title, description, children }: AuthLayoutProps) {
   return (
-    <div className="w-full h-full lg:grid lg:grid-cols-2 bg-background">
-      <div className="flex items-center justify-center p-6 lg:p-12">
-        {children}
+    <div className="w-full h-full lg:grid lg:grid-cols-2 bg-black">
+      <div className="flex flex-col items-center justify-center p-6 lg:p-12">
+        <div className="w-full max-w-md">
+            <h1 className="text-3xl font-bold text-white mb-2">{title}</h1>
+            <p className="text-muted-foreground mb-8">{description}</p>
+            {children}
+        </div>
       </div>
       <AuthIllustration />
     </div>

@@ -1,9 +1,7 @@
 
-'use client';
-
 import React, { useState } from 'react';
 import type { AppData, DailyTask, Goal, JobApplication, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP, Task } from '@/lib/types';
-import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, Camera, LogOut, ListTodo, Globe, Menu, MoreHorizontal } from 'lucide-react';
+import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, LogOut, ListTodo, Globe, Menu } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -27,7 +25,6 @@ import Image from 'next/image';
 import LivingAdvisorTab from './living-advisor-tab';
 import { cn } from '@/lib/utils';
 import { ThemeSwitcher } from './theme-switcher';
-import { Separator } from './ui/separator';
 
 
 interface DashboardProps {
@@ -239,16 +236,12 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
     }
 
     // Travel Goal handlers
-    const handleAddTravelGoal = (goal: Omit<TravelGoal, 'id'> & { travelDate: Date | null }) => {
+    const handleAddTravelGoal = (goal: Omit<TravelGoal, 'id'>) => {
         onUpdate((draft) => {
-          draft.travelGoals.push({
-            id: `travel-${Date.now()}`,
-            destination: goal.destination,
-            status: goal.status,
-            notes: goal.notes || '',
-            travelDate: goal.travelDate ? goal.travelDate.toISOString() : null,
-            duration: goal.duration,
-          });
+            draft.travelGoals.push({
+                id: `travel-${Date.now()}`,
+                ...goal,
+            });
         });
     
         toast({
@@ -298,6 +291,17 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         });
     };
 
+    const handleMoveToNextDay = (taskId: string) => {
+        onUpdate(draft => {
+            const task = draft.dailyTasks.find(t => t.id === taskId);
+            if (task) {
+                const nextDay = new Date(task.dueDate);
+                nextDay.setDate(nextDay.getDate() + 1);
+                task.dueDate = nextDay.toISOString();
+            }
+        });
+    };
+
     const allTabs = [
       { value: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard/> },
       { value: 'goals', label: 'Goals', icon: <Target/> },
@@ -341,10 +345,10 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                             <SheetClose asChild key={tab.value}>
                             <Button
                                 variant={activeTab === tab.value ? 'secondary' : 'ghost'}
-                                className="w-full justify-start text-base py-6"
+                                className="w-full justify-start text-base py-6 gap-2"
                                 onClick={() => setActiveTab(tab.value)}
                             >
-                                {React.cloneElement(tab.icon, { className: 'h-5 w-5' })}
+                                {tab.icon}
                                 <span>{tab.label}</span>
                             </Button>
                             </SheetClose>
@@ -391,7 +395,6 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
-                    <Camera className="mr-2 h-4 w-4" />
                     <span>Change Picture</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -419,23 +422,24 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         </div>
         
         <div className={cn("relative p-4 md:p-8 bg-transparent transition-opacity duration-500", activeTab ? 'opacity-100' : 'opacity-0')}>
-            <TabsContent value="dashboard" forceMount={activeTab === 'dashboard'}>
+            <TabsContent value="dashboard">
                 <DashboardOverview data={data} />
             </TabsContent>
-            <TabsContent value="goals" forceMount={activeTab === 'goals'}>
+            <TabsContent value="goals">
                 <GoalsTab data={data} onUpdate={onUpdate} />
             </TabsContent>
-            <TabsContent value="daily-todo" forceMount={activeTab === 'daily-todo'}>
+            <TabsContent value="daily-todo">
                 <DailyTodoTab 
                   tasks={data.dailyTasks}
                   onAddTask={handleAddDailyTask}
                   onUpdateTask={handleUpdateDailyTask}
                   onDeleteTask={handleDeleteDailyTask}
                   onToggleTask={handleToggleDailyTask}
+                  onMoveToNextDay={handleMoveToNextDay}
                   data={data}
                 />
             </TabsContent>
-            <TabsContent value="monthly-plan" forceMount={activeTab === 'monthly-plan'}>
+            <TabsContent value="monthly-plan">
                 <MonthlyPlanTab 
                     monthlyPlan={data.monthlyPlan} 
                     onToggleTask={handleToggleMonthlyTask}
@@ -446,7 +450,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     data={data}
                 />
             </TabsContent>
-            <TabsContent value="car-sale" forceMount={activeTab === 'car-sale'}>
+            <TabsContent value="car-sale">
                  <CarSaleTab 
                     checklist={data.carSaleChecklist}
                     salePrice={data.carSalePrice}
@@ -457,7 +461,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onUpdateDetails={handleUpdateCarSaleDetails}
                 />
             </TabsContent>
-            <TabsContent value="finance" forceMount={activeTab === 'finance'}>
+            <TabsContent value="finance">
                 <FinanceTab 
                     loans={data.loans} 
                     emergencyFund={data.emergencyFund}
@@ -478,7 +482,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onDeleteIncomeSource={handleDeleteIncomeSource}
                 />
             </TabsContent>
-            <TabsContent value="job-search" forceMount={activeTab === 'job-search'}>
+            <TabsContent value="job-search">
                 <JobSearchTab 
                     applications={data.jobApplications}
                     onAddApplication={handleAddApplication}
@@ -488,10 +492,10 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onUpdate={onUpdate}
                 />
             </TabsContent>
-            <TabsContent value="living-advisor" forceMount={activeTab === 'living-advisor'}>
+            <TabsContent value="living-advisor">
                 <LivingAdvisorTab data={data} onUpdate={onUpdate} />
             </TabsContent>
-            <TabsContent value="travel-goals" forceMount={activeTab === 'travel-goals'}>
+            <TabsContent value="travel-goals">
                 <TravelGoalsTab 
                     travelGoals={data.travelGoals}
                     onAddGoal={handleAddTravelGoal}

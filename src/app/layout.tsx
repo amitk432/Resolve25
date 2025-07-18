@@ -48,9 +48,6 @@ export default function RootLayout({
             </AuthProvider>
           </UserProvider>
           <Toaster />
-          <footer className="border-t border-white/10 p-4 text-center text-sm text-muted-foreground">
-            Built with ❤️ by <strong>AmiT</strong>
-          </footer>
         </ThemeProvider>
       </body>
     </html>

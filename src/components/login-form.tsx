@@ -23,23 +23,14 @@ export default function LoginForm() {
           </Alert>
         )}
         <div className="flex flex-col gap-4">
-          <Button className="w-full" disabled={loading} onClick={() => window.location.href = '/api/auth/login?connection=google-oauth2'}>
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Sign in with Google
-          </Button>
-          <Button className="w-full" disabled={loading} onClick={() => window.location.href = '/api/auth/login?connection=github'}>
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Sign in with GitHub
-          </Button>
-          <Button asChild className="w-full" disabled={loading}>
+          <Button
+            asChild
+            className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white"
+            disabled={loading}
+          >
             <a href="/api/auth/login">
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Login with Username/Password
-            </a>
-          </Button>
-          <Button asChild className="w-full" variant="outline" disabled={loading}>
-            <a href="/api/auth/login?screen_hint=signup">
-              Sign Up
+              Login/Signup
             </a>
           </Button>
         </div>
