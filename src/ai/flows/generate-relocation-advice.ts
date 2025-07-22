@@ -19,13 +19,17 @@ import {
     type RelocationRoadmapInput,
     type RelocationRoadmapOutput
 } from '@/lib/types';
+import { executeAIFlow } from '@/ai/error-handler';
 
 
 /**
  * Generates relocation advice based on resume and questionnaire.
  */
 export async function generateRelocationAdvice(input: RelocationAdviceInput): Promise<RelocationAdviceOutput> {
-  return relocationAdviceFlow(input);
+  return executeAIFlow(
+    () => relocationAdviceFlow(input),
+    'relocation advice'
+  );
 }
 
 const relocationAdvicePrompt = ai.definePrompt({
@@ -101,7 +105,10 @@ const relocationAdviceFlow = ai.defineFlow(
  * Generates a detailed relocation roadmap for a specific country.
  */
 export async function generateRelocationRoadmap(input: RelocationRoadmapInput): Promise<RelocationRoadmapOutput> {
-    return relocationRoadmapFlow(input);
+    return executeAIFlow(
+        () => relocationRoadmapFlow(input),
+        'relocation roadmap'
+    );
 }
 
 const relocationRoadmapPrompt = ai.definePrompt({

@@ -12,6 +12,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import type { AppData } from '@/lib/types';
+import { executeAIFlow } from '@/ai/error-handler';
 
 const GenerateMonthlyPlanSuggestionsInputSchema = z.object({
   context: z.any().describe('A JSON object containing the complete data for the user\'s dashboard.'),
@@ -31,7 +32,10 @@ const GenerateMonthlyPlanSuggestionsOutputSchema = z.object({
 export type GenerateMonthlyPlanSuggestionsOutput = z.infer<typeof GenerateMonthlyPlanSuggestionsOutputSchema>;
 
 export async function generateMonthlyPlanSuggestions(input: { context: AppData }): Promise<GenerateMonthlyPlanSuggestionsOutput> {
-  return generateMonthlyPlanSuggestionsFlow(input);
+  return executeAIFlow(
+    () => generateMonthlyPlanSuggestionsFlow(input),
+    'monthly plan suggestions'
+  );
 }
 
 const prompt = ai.definePrompt({

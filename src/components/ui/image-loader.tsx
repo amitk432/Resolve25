@@ -13,7 +13,7 @@ interface ImageLoaderProps {
 }
 
 export default function ImageLoader({ query, alt, className, width, height }: ImageLoaderProps) {
-  const [imgSrc, setImgSrc] = useState(`https://placehold.co/${width}x${height}.png`);
+  const [imgSrc, setImgSrc] = useState(`https://picsum.photos/${width}/${height}?random=1`);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -25,10 +25,14 @@ export default function ImageLoader({ query, alt, className, width, height }: Im
         if (response.ok) {
           setImgSrc(data.url);
         } else {
-          console.error('Failed to fetch image from Unsplash:', data.error);
+          console.warn('Unsplash not available, using fallback:', data.error);
+          // Use a fallback image service when Unsplash is not configured
+          setImgSrc(`https://picsum.photos/${width}/${height}?random=${Math.floor(Math.random() * 1000)}`);
         }
       } catch (error) {
-        console.error('Error fetching image:', error);
+        console.warn('Error fetching image, using fallback:', error);
+        // Use a fallback image service when there's an error
+        setImgSrc(`https://picsum.photos/${width}/${height}?random=${Math.floor(Math.random() * 1000)}`);
       }
     }
 
@@ -40,7 +44,7 @@ export default function ImageLoader({ query, alt, className, width, height }: Im
   return (
     <div className={cn("relative", className)}>
       {isLoading && (
-        <div className="absolute inset-0 bg-muted/50 flex items-center justify-center rounded-lg">
+        <div className="absolute inset-0 bg-white/90 dark:bg-card/90 flex items-center justify-center rounded-lg">
           <div className="h-8 w-8 border-4 border-background border-t-primary rounded-full animate-spin"></div>
         </div>
       )}

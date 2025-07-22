@@ -46,7 +46,7 @@ const RoadmapView = ({ roadmap, country, onAddToGoals }: { roadmap: RelocationRo
                                     </li>
                                 ))}
                                 {'milestones' in section && section.milestones.map((item, i) => (
-                                     <li key={i} className="flex items-center justify-between gap-3 p-3 rounded-lg hover:bg-muted/50">
+                                     <li key={i} className="flex items-center justify-between gap-3 p-3 rounded-lg hover:bg-accent/30">
                                         <div className="flex-grow">
                                             <span className="font-semibold text-foreground">{item.milestone}</span>
                                             <p className="text-xs">Timeline: {item.timeline}</p>

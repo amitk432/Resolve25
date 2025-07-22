@@ -1,5 +1,8 @@
 
 import type {NextConfig} from 'next';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: './.env.local' });
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -38,6 +41,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
         port: '',
         pathname: '/**',
       },

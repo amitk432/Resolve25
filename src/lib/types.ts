@@ -252,6 +252,7 @@ export type GenerateTravelItineraryOutput = z.infer<typeof GenerateTravelItinera
 
 export const GenerateTravelSuggestionInputSchema = z.object({
     exclude: z.string().optional().describe('A destination to exclude from the suggestion.'),
+    userData: z.any().optional().describe('Complete user data to personalize the suggestion.'),
 });
 export type GenerateTravelSuggestionInput = z.infer<typeof GenerateTravelSuggestionInputSchema>;
 

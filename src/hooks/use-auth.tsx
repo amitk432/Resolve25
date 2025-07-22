@@ -1,121 +1,143 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
-import { useUser } from '@auth0/nextjs-auth0/client';
+import { useState, useEffect, useContext, createContext, ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useToast } from './use-toast';
-import { initialData } from '@/lib/data';
+import { Session, AuthError } from '@supabase/supabase-js';
+import { useRouter } from 'next/navigation';
 
-interface AuthContextType {
-  user: any | null;
-  loading: boolean;
-  error: any;
-  login: () => void;
-  logout: () => void;
-  updateProfilePicture: (file: File) => Promise<void>;
-}
+type AuthContextType = {
+  session: Session | null;
+  user: any;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, name?: string) => Promise<void>;
+  signInWithProvider: (provider: 'google' | 'github') => Promise<void>;
+  signOut: () => Promise<void>;
+  updateProfile: (updates: { name?: string; avatar_url?: string }) => Promise<void>;
+  loading: boolean | string;
+  error: AuthError | null;
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const createInitialUserData = async (user: any) => {
-  if (!user) return;
-  const { data, error, status, statusText } = await supabase
-    .from('users')
-    .select('id')
-    .eq('id', user.sub);
-
-  if (error || status !== 200) {
-    console.error('Error checking for user:', { error, status, statusText, data });
-    return;
-  }
-
-  if (data.length === 0) {
-    const { error: insertError } = await supabase
-      .from('users')
-      .insert([{ id: user.sub, data: initialData }]);
-    if (insertError) {
-      console.error('Error creating user data:', insertError);
-    }
-  }
-};
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const { user, error, isLoading } = useUser();
-  const [loading, setLoading] = useState(isLoading);
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean | string>(true);
+  const [error, setError] = useState<AuthError | null>(null);
   const router = useRouter();
-  const { toast } = useToast();
 
   useEffect(() => {
-    setLoading(isLoading);
-    if (user) {
-      createInitialUserData(user);
-    }
-  }, [user, isLoading]);
-
-  const login = () => {
-    router.push('/api/auth/login');
-  };
-
-  const logout = () => {
-    router.push('/api/auth/logout');
-  };
-
-  const updateProfilePicture = async (file: File) => {
-    if (!user) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'User not authenticated.',
-      });
-      return;
-    }
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.storage
-        .from('profile-pictures')
-        .upload(`${user.sub}/${file.name}`, file, {
-          cacheControl: '3600',
-          upsert: true,
-        });
-
-      if (error) {
-        throw error;
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+        
+        if (event === 'SIGNED_IN' && session) {
+          // Add a small delay to ensure the session is fully established
+          await new Promise(resolve => setTimeout(resolve, 100))
+          router.push('/dashboard');
+        }
+        
+        if (event === 'SIGNED_OUT') {
+          router.push('/login');
+        }
       }
+    );
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('profile-pictures')
-        .getPublicUrl(data.path);
+    // Initial session fetch
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
-      // Auth0 user update would go here, if needed.
-      // This example focuses on Supabase storage.
 
-      toast({
-        title: 'Success!',
-        description: 'Your profile picture has been updated.',
-      });
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Error updating profile picture',
-        description: error.message,
-      });
-    } finally {
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [router]);
+
+  const signInWithEmail = async (email: string, password: string) => {
+    setLoading('email');
+    setError(null);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) setError(error);
+    setLoading(false);
+  };
+
+  const signUpWithEmail = async (email: string, password: string, name?: string) => {
+    setLoading('email');
+    setError(null);
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/api/auth/callback`,
+        data: {
+          name: name || '',
+        },
+      },
+    });
+    if (error) setError(error);
+    setLoading(false);
+  };
+
+  const signInWithProvider = async (provider: 'google' | 'github') => {
+    setLoading(provider);
+    setError(null);
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/api/auth/callback?next=/dashboard`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+    
+    if (error) {
+      setError(error);
       setLoading(false);
     }
+    // Don't set loading to false here since we're redirecting
+  };
+
+  const updateProfile = async (updates: { name?: string; avatar_url?: string }) => {
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.auth.updateUser({
+      data: updates,
+    });
+    if (error) setError(error);
+    setLoading(false);
+  };
+
+  const signOut = async () => {
+    setLoading(true);
+    await supabase.auth.signOut();
+    setSession(null);
+    setUser(null);
+    router.push('/login');
+    setLoading(false);
   };
 
   const value = {
+    session,
     user,
+    signInWithEmail,
+    signUpWithEmail,
+    signInWithProvider,
+    signOut,
+    updateProfile,
     loading,
     error,
-    login,
-    logout,
-    updateProfilePicture,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+};
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

@@ -1,12 +1,14 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Loader2, User as UserIcon } from 'lucide-react';
 
 interface EditProfileDialogProps {
@@ -15,83 +17,90 @@ interface EditProfileDialogProps {
 }
 
 export function EditProfileDialog({ open, onOpenChange }: EditProfileDialogProps) {
-    const { user, updateProfilePicture, loading } = useAuth();
+    const { user, updateProfile, loading } = useAuth();
     const { toast } = useToast();
-    const [preview, setPreview] = useState<string | null>(null);
-    const [file, setFile] = useState<File | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [name, setName] = useState('');
+    const [avatarUrl, setAvatarUrl] = useState('');
 
     useEffect(() => {
-        if (open) {
-            setPreview(user?.picture || null);
-        } else {
+        if (open && user) {
+            setName(user?.user_metadata?.name || user?.user_metadata?.full_name || '');
+            setAvatarUrl(user?.user_metadata?.avatar_url || user?.user_metadata?.picture || '');
+        } else if (!open) {
             // Reset state when dialog closes
-            setFile(null);
-            setPreview(null);
+            setName('');
+            setAvatarUrl('');
         }
     }, [open, user]);
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = event.target.files?.[0];
-        if (selectedFile) {
-            if (selectedFile.size > 5 * 1024 * 1024) { // 5MB limit
-                toast({
-                    variant: 'destructive',
-                    title: 'File too large',
-                    description: 'Please select an image smaller than 5MB.',
-                });
-                return;
-            }
-            setFile(selectedFile);
-            setPreview(URL.createObjectURL(selectedFile));
-        }
-    };
-
     const handleSave = async () => {
-        if (!file) {
+        try {
+            await updateProfile({
+                name,
+                avatar_url: avatarUrl,
+            });
+            toast({
+                title: 'Profile updated',
+                description: 'Your profile has been successfully updated.',
+            });
+            onOpenChange(false);
+        } catch (error) {
             toast({
                 variant: 'destructive',
-                title: 'No file selected',
-                description: 'Please choose an image to upload.',
+                title: 'Update failed',
+                description: 'Failed to update your profile. Please try again.',
             });
-            return;
         }
-        await updateProfilePicture(file);
-        onOpenChange(false);
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Change Profile Picture</DialogTitle>
+                    <DialogTitle>Edit Profile</DialogTitle>
                     <DialogDescription>
-                        Choose a new photo for your profile. Changes will be saved automatically.
+                        Update your profile information. Changes will be saved automatically.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex flex-col items-center gap-6 py-4">
-                    <Avatar className="h-32 w-32 border-4 border-muted">
-                        <AvatarImage src={preview || undefined} alt="Profile preview" />
-                        <AvatarFallback className="bg-muted">
-                           <UserIcon className="h-16 w-16 text-muted-foreground" />
-                        </AvatarFallback>
-                    </Avatar>
-                    <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={loading}>
-                        Choose Image
-                    </Button>
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        className="hidden"
-                        accept="image/png, image/jpeg, image/gif"
-                        onChange={handleFileChange}
-                    />
+                <div className="flex flex-col gap-6 py-4">
+                    <div className="flex flex-col items-center gap-4">
+                        <Avatar className="h-20 w-20 border-4 border-muted">
+                            <AvatarImage src={avatarUrl || undefined} alt="Profile preview" />
+                            <AvatarFallback className="bg-white dark:bg-card">
+                               <UserIcon className="h-10 w-10 text-muted-foreground" />
+                            </AvatarFallback>
+                        </Avatar>
+                    </div>
+                    
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Display Name</Label>
+                            <Input
+                                id="name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Enter your name"
+                            />
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <Label htmlFor="avatar">Avatar URL</Label>
+                            <Input
+                                id="avatar"
+                                value={avatarUrl}
+                                onChange={(e) => setAvatarUrl(e.target.value)}
+                                placeholder="https://example.com/avatar.jpg"
+                            />
+                        </div>
+                    </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-                    <Button onClick={handleSave} disabled={!file || loading}>
-                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                        {loading ? 'Saving...' : 'Save Changes'}
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSave} disabled={typeof loading === 'boolean' && loading}>
+                        {(typeof loading === 'boolean' && loading) ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {(typeof loading === 'boolean' && loading) ? 'Saving...' : 'Save Changes'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

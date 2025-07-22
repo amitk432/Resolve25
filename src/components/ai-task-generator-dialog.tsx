@@ -90,7 +90,7 @@ export default function AiTaskGeneratorDialog({ data, onTaskAdd, children }: AiT
             {!isLoading && suggestions.length > 0 && (
             <div className="space-y-4">
                 {suggestions.map((task, index) => (
-                <Card key={index} className="bg-muted/50">
+                <Card key={index} className="bg-white dark:bg-card">
                     <CardHeader>
                         <div className="flex justify-between items-start gap-4">
                             <div className="flex-grow">

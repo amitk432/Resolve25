@@ -11,6 +11,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import type { ResumeData, JobApplication } from '@/lib/types';
+import { executeAIFlow } from '@/ai/error-handler';
 
 const GenerateApplicationEmailInputSchema = z.object({
   resume: z.any().describe("The user's full resume data as a JSON object."),
@@ -25,7 +26,10 @@ const GenerateApplicationEmailOutputSchema = z.object({
 export type GenerateApplicationEmailOutput = z.infer<typeof GenerateApplicationEmailOutputSchema>;
 
 export async function generateApplicationEmail(input: { resume: ResumeData, jobApplication: JobApplication }): Promise<GenerateApplicationEmailOutput> {
-  return generateApplicationEmailFlow(input);
+  return executeAIFlow(
+    () => generateApplicationEmailFlow(input),
+    'application email'
+  );
 }
 
 const prompt = ai.definePrompt({

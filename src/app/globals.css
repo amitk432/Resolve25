@@ -41,9 +41,9 @@
     --popover-foreground: 224 71.4% 4.1%;
     --primary: 262.1 83.3% 57.8%;
     --primary-foreground: 210 20% 98%;
-    --secondary: 220 14.3% 95.9%;
+    --secondary: 0 0% 100%;
     --secondary-foreground: 220 13% 9%;
-    --muted: 220 14.3% 95.9%;
+    --muted: 0 0% 100%;
     --muted-foreground: 220 8.9% 46.1%;
     --accent: 346.8 77.2% 49.8%;
     --accent-foreground: 210 20% 98%;
@@ -54,7 +54,7 @@
     --ring: 262.1 83.3% 57.8%;
     --chart-1: 262 83% 58%;
     --chart-2: 347 77% 50%;
-    --chart-3: 220 14.3% 95.9%;
+    --chart-3: 0 0% 100%;
     --chart-4: 220 8.9% 46.1%;
     --chart-5: 224 71.4% 4.1%;
   }
@@ -72,5 +72,18 @@
 @layer components {
   .bg-gradient-primary {
     @apply bg-gradient-to-r from-primary to-accent;
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-10px); 
   }
 }

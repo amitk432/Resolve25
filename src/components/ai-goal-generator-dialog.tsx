@@ -90,7 +90,7 @@ export default function AiGoalGeneratorDialog({ data, onGoalAdd, children }: AiG
             {!isLoading && suggestions.length > 0 && (
             <div className="space-y-4">
                 {suggestions.map((goal, index) => (
-                <Card key={index} className="bg-muted/50">
+                <Card key={index} className="bg-white dark:bg-card">
                     <CardHeader>
                         <div className="flex justify-between items-start gap-4">
                             <div className="flex-grow">

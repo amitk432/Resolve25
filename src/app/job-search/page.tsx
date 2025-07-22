@@ -1,56 +1,36 @@
-"use client";
+'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
+import DashboardLayout from '@/components/dashboard-layout';
 import JobSearchTab from '@/components/job-search-tab';
-import { useState } from 'react';
-import type { JobApplication, AppData } from '@/lib/types';
-
-const initialAppData: AppData = {
-  goals: [],
-  monthlyPlan: [],
-  carSaleChecklist: [],
-  carSalePrice: '',
-  carLoanPayoff: '',
-  loans: [],
- jobApplications: [],
-  emergencyFund: '',
-  emergencyFundTarget: '',
-  sips: [],
-  travelGoals: [],
-  dailyTasks: [],
-  incomeSources: [],
-  resume: null,
-  livingAdvisor: { questionnaire: {
-    reasonForRelocation: 'Jobs',
-    lifestyle: 'City',
-    familySize: 1,
-    languageSkills: '',
-    climatePreference: 'No Preference',
-    workLifeBalance: 'Balanced',
-    careerGoals: ''
-  } },
-  lastJobSuggestionCheck: ''
-};
 
 export default function JobSearchPage() {
-  const [applications, setApplications] = useState<JobApplication[]>([]);
-  const [data, setData] = useState<AppData>(initialAppData);
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/');
+    }
+  }, [user, authLoading, router]);
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
-    <JobSearchTab
-      applications={applications}
-      onAddApplication={app => setApplications([...applications, app as JobApplication])}
-      onUpdateStatus={(index, status) => {
-        const updated = [...applications];
-        updated[index].status = status;
-        setApplications(updated);
-      }}
-      onDelete={index => {
-        const updated = [...applications];
-        updated.splice(index, 1);
-        setApplications(updated);
-      }}
-      data={data}
-      onUpdate={updater => setData(prev => { const draft = { ...prev }; updater(draft); return draft; })}
-    />
+    <DashboardLayout>
+      <JobSearchTab />
+    </DashboardLayout>
   );
 }

@@ -28,9 +28,13 @@ interface TravelGoalsTabProps {
   onAddGoal: (goal: Omit<TravelGoal, 'id'>) => void;
   onDeleteGoal: (id: string) => void;
   onUpdate: (updater: (draft: AppData) => void) => void;
+  data?: AppData; // Full user data for AI suggestions
 }
 
-const AISuggestionDialog = ({ onAddSuggestion }: { onAddSuggestion: (destination: string, notes: string) => void }) => {
+const AISuggestionDialog = ({ onAddSuggestion, userData }: { 
+  onAddSuggestion: (destination: string, notes: string) => void;
+  userData?: AppData;
+}) => {
     const [open, setOpen] = useState(false);
     const [suggestion, setSuggestion] = useState<{ destination: string; reasoning: string } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +42,10 @@ const AISuggestionDialog = ({ onAddSuggestion }: { onAddSuggestion: (destination
 
     const handleGenerate = async () => {
         setIsLoading(true);
-        const result = await getAITravelSuggestion({ exclude: suggestion?.destination });
+        const result = await getAITravelSuggestion({ 
+          exclude: suggestion?.destination,
+          userData: userData 
+        });
         setIsLoading(false);
 
         if (result && 'error' in result) {
@@ -75,7 +82,7 @@ const AISuggestionDialog = ({ onAddSuggestion }: { onAddSuggestion: (destination
                 <DialogHeader>
                     <DialogTitle>AI Travel Suggestion</DialogTitle>
                     <DialogDescription>
-                        Let our AI suggest a destination for you based on the current season.
+                        Get personalized, budget-friendly travel destination suggestions based on your profile, finances, and the current season.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="min-h-[150px] flex items-center justify-center">
@@ -128,7 +135,7 @@ const TravelGoalItem = ({ goal, onDeleteGoal, onGetItinerary }: { goal: TravelGo
     const query = goal.destination.split(',')[0];
 
     return (
-        <div className="flex flex-col md:flex-row gap-4 p-4 border rounded-lg bg-background hover:bg-muted/30 transition-colors">
+        <div className="flex flex-col md:flex-row gap-4 p-4 border rounded-lg bg-white dark:bg-background hover:bg-accent/30 transition-colors">
             <div className="w-full md:w-1/3 lg:w-1/4 shrink-0">
                 <ImageLoader 
                     query={query} 
@@ -205,7 +212,7 @@ const TravelGoalItem = ({ goal, onDeleteGoal, onGetItinerary }: { goal: TravelGo
 const ItineraryView = ({ itinerary, destination, onAddItineraryGoal }: { itinerary: GenerateTravelItineraryOutput, destination: string, onAddItineraryGoal: (attraction: string) => void }) => {
     
     const ActivityItem = ({ activity }: { activity: Activity }) => (
-         <li className="flex items-start justify-between gap-3 group p-2 rounded-md hover:bg-muted/50">
+         <li className="flex items-start justify-between gap-3 group p-2 rounded-md hover:bg-accent/30">
             <div className="flex-grow">
               <p className="font-semibold text-foreground">{activity.activity}</p>
               <p className="text-sm">{activity.description}</p>
@@ -282,7 +289,13 @@ const ItineraryView = ({ itinerary, destination, onAddItineraryGoal }: { itinera
 };
 
 
-export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal, onUpdate }: TravelGoalsTabProps) {
+export default function TravelGoalsTab({ 
+  travelGoals = [], 
+  onAddGoal, 
+  onDeleteGoal, 
+  onUpdate,
+  data
+}: TravelGoalsTabProps) {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
   const [minDate, setMinDate] = useState<Date | undefined>(undefined);
@@ -391,7 +404,10 @@ export default function TravelGoalsTab({ travelGoals, onAddGoal, onDeleteGoal, o
             <p className="mt-1 text-muted-foreground">Dream, plan, and cherish your adventures.</p>
         </div>
         <div className="flex w-full shrink-0 gap-2 sm:w-auto">
-            <AISuggestionDialog onAddSuggestion={handleAddSuggestionToWishlist} />
+            <AISuggestionDialog 
+              onAddSuggestion={handleAddSuggestionToWishlist} 
+              userData={data} 
+            />
             <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="w-full sm:w-auto"><Plus className="mr-2" /> Add Travel Goal</Button>

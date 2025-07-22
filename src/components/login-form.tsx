@@ -1,20 +1,31 @@
 'use client';
 
-import Link from 'next/link';
+'use client';
+
+import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
 
 export default function LoginForm() {
-  const { login, loading, error } = useAuth();
+  const { signInWithEmail, signInWithProvider, loading, error } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await signInWithEmail(email, password);
+  };
 
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Welcome back</CardTitle>
-        <CardDescription>Click the button below to log in or sign up.</CardDescription>
+        <CardTitle>Login</CardTitle>
+        <CardDescription>Enter your credentials to access your account.</CardDescription>
       </CardHeader>
       <CardContent>
         {error && (
@@ -22,28 +33,57 @@ export default function LoginForm() {
             <AlertDescription>{error.message}</AlertDescription>
           </Alert>
         )}
-        <div className="flex flex-col gap-4">
-          <Button
-            asChild
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white"
-            disabled={loading}
-          >
-            <a href="/api/auth/login">
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Login/Signup
-            </a>
+        <form onSubmit={handleEmailLogin} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="m@example.com"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={!!loading}>
+            {loading === 'email' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Login with Email
           </Button>
+        </form>
+        <div className="my-4 flex items-center">
+          <div className="flex-grow border-t border-muted" />
+          <span className="mx-4 text-muted-foreground">OR</span>
+          <div className="flex-grow border-t border-muted" />
         </div>
-        <div className="mt-6 text-center text-sm">
-          By signing up, you agree to our{' '}
-          <Link href="/terms" className="font-medium text-primary hover:underline">
-            Terms of Service
-          </Link>
-          {' '}and{' '}
-          <Link href="/privacy" className="font-medium text-primary hover:underline">
-            Privacy Policy
-          </Link>
-          .
+        <div className="space-y-2">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => signInWithProvider('google')}
+            disabled={!!loading}
+          >
+            {loading === 'google' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Login with Google
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => signInWithProvider('github')}
+            disabled={!!loading}
+          >
+            {loading === 'github' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Login with GitHub
+          </Button>
         </div>
       </CardContent>
     </Card>

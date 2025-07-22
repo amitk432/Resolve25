@@ -98,11 +98,11 @@ const LoanCalculations = ({ loan }: { loan: Loan }) => {
 };
 
 export default function FinanceTab({ 
-    loans, 
-    emergencyFund, 
-    emergencyFundTarget,
-    sips,
-    incomeSources,
+    loans = [], 
+    emergencyFund = '', 
+    emergencyFundTarget = '',
+    sips = [],
+    incomeSources = [],
     onUpdateLoanStatus, 
     onUpdateEmergencyFund, 
     onUpdateEmergencyFundTarget,
@@ -187,7 +187,7 @@ export default function FinanceTab({
                                 return (
                                 <div key={loan.id} className={cn(
                                     "p-4 border rounded-lg transition-colors",
-                                    isClosed ? 'bg-muted/50 text-muted-foreground' : 'bg-background'
+                                    isClosed ? 'bg-white dark:bg-card text-muted-foreground' : 'bg-white dark:bg-background'
                                 )}>
                                     <div className="flex justify-between items-start">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -499,7 +499,7 @@ function SavingsAndInvestmentsCard({
                         {sips.length > 0 ? (
                             <div className="space-y-3">
                                 {sips.map(sip => (
-                                    <div key={sip.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                                    <div key={sip.id} className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-card border">
                                         <div className="flex flex-col">
                                             <span className="font-medium">{sip.name}</span>
                                             <span className="text-sm text-muted-foreground">₹{parseFloat(sip.amount).toLocaleString('en-IN')} {sip.frequency}</span>
@@ -697,7 +697,7 @@ function MonthlyIncomeCard({
                 <CardContent>
                     <div className="space-y-3">
                         {incomeSources.map(source => (
-                            <div key={source.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                            <div key={source.id} className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-card border">
                                 <span className="font-medium flex-grow min-w-0">{source.name}</span>
                                 <div className="flex items-center gap-4 shrink-0">
                                     <span className="text-lg font-mono">

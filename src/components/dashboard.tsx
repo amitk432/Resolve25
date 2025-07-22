@@ -33,7 +33,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ data, onUpdate }: DashboardProps) {
-    const { user, logout } = useAuth();
+    const { user, signOut } = useAuth();
     const [isProfileDialogOpen, setProfileDialogOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('dashboard');
     const { toast } = useToast();
@@ -331,12 +331,12 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     <SheetHeader className="p-4 border-b">
                          <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10">
-                                <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
-                                <AvatarFallback>{user?.displayName?.charAt(0) ?? user?.email?.charAt(0)}</AvatarFallback>
+                                <AvatarImage src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture || undefined} alt={user?.user_metadata?.name || user?.user_metadata?.full_name || 'User'} />
+                                <AvatarFallback>{(user?.user_metadata?.name || user?.user_metadata?.full_name)?.charAt(0)?.toUpperCase() ?? user?.email?.charAt(0)?.toUpperCase()}</AvatarFallback>
                             </Avatar>
                             <div>
                                 <SheetTitle className="text-left">Welcome!</SheetTitle>
-                                <p className="text-sm text-muted-foreground text-left">{user?.displayName || user?.email}</p>
+                                <p className="text-sm text-muted-foreground text-left">{user?.user_metadata?.name || user?.user_metadata?.full_name || user?.email}</p>
                             </div>
                         </div>
                     </SheetHeader>
@@ -356,7 +356,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     </nav>
                     <SheetFooter className="p-4 mt-auto border-t flex flex-row sm:flex-col gap-2">
                         <ThemeSwitcher />
-                        <Button variant="outline" onClick={logout} className="w-full">
+                        <Button variant="outline" onClick={signOut} className="w-full">
                             <LogOut className="mr-2 h-4 w-4"/>
                             Log Out
                         </Button>
@@ -377,9 +377,9 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10 border-2 border-primary/50">
-                    <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
+                    <AvatarImage src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture || undefined} alt={user?.user_metadata?.name || user?.user_metadata?.full_name || 'User'} />
                     <AvatarFallback className="bg-primary/20 font-semibold text-primary">
-                        {user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
+                        {(user?.user_metadata?.name || user?.user_metadata?.full_name)?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase()}
                     </AvatarFallback>
                     </Avatar>
                 </Button>
@@ -387,7 +387,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user.displayName || 'User'}</p>
+                    <p className="text-sm font-medium leading-none">{user?.user_metadata?.name || user?.user_metadata?.full_name || 'User'}</p>
                     <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
                     </p>
@@ -395,10 +395,10 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => setProfileDialogOpen(true)}>
-                    <span>Change Picture</span>
+                    <span>Edit Profile</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout}>
+                <DropdownMenuItem onClick={signOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                 </DropdownMenuItem>
@@ -501,6 +501,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onAddGoal={handleAddTravelGoal}
                     onDeleteGoal={handleDeleteTravelGoal}
                     onUpdate={onUpdate}
+                    data={data}
                 />
             </TabsContent>
         </div>

@@ -64,7 +64,7 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
   };
 
   return (
-    <Card className={cn('transition-all duration-300 ease-in-out hover:shadow-xl flex flex-col', isCompleted ? 'bg-muted/50' : 'bg-card')}>
+    <Card className={cn('transition-all duration-300 ease-in-out hover:shadow-xl flex flex-col', isCompleted ? 'bg-white dark:bg-card' : 'bg-card')}>
       <CardHeader>
         <div className="flex justify-between items-start">
             <div>
@@ -126,7 +126,7 @@ export default function GoalCard({ goal, onStepToggle, onStepAdd, onGoalDelete }
             <AccordionContent>
               <div className="space-y-2">
                 {steps.map(step => (
-                  <div key={step.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted">
+                  <div key={step.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-accent/30">
                     <Checkbox
                       id={`step-${step.id}`}
                       checked={step.completed}

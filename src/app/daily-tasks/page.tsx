@@ -1,62 +1,54 @@
-"use client";
+'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
+import DashboardLayout from '@/components/dashboard-layout';
 import DailyTasksTab from '@/components/daily-tasks-tab';
-import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import { generateTaskSuggestions } from '@/ai/flows/generate-task-suggestions';
 import type { AppData } from '@/lib/types';
-import type { SuggestedTask } from '@/ai/flows/generate-task-suggestions';
+
+interface DailyTasksPageContentProps {
+  data?: AppData;
+  onUpdate?: (updater: (draft: AppData) => void) => void;
+}
+
+function DailyTasksPageContent({ data, onUpdate }: DailyTasksPageContentProps) {
+  if (!data || !onUpdate) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return <DailyTasksTab data={data} onUpdate={onUpdate} />;
+}
 
 export default function DailyTasksPage() {
-  const [data, setData] = useState<AppData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [aiSuggestions, setAiSuggestions] = useState<SuggestedTask[]>([]);
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    async function fetchDailyTasks() {
-      setLoading(true);
-      const { data: appData } = await supabase.from('appdata').select('*').single();
-      if (appData) setData(appData);
-      setLoading(false);
+    if (!authLoading && !user) {
+      router.push('/');
     }
-    fetchDailyTasks();
-  }, []);
+  }, [user, authLoading, router]);
 
-  useEffect(() => {
-    if (data) {
-      generateTaskSuggestions({ context: data }).then(res => {
-        setAiSuggestions(res.suggestions);
-      });
-    }
-  }, [data]);
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
-  if (loading || !data) {
-    return <div className="p-8">Loading daily tasks...</div>;
+  if (!user) {
+    return null;
   }
 
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Daily Tasks</h1>
-      <DailyTasksTab
-        data={data}
-        onUpdate={(updater: (draft: AppData) => void) => {
-          setData(prev => {
-            const draft = { ...prev! };
-            updater(draft);
-            return draft;
-          });
-        }}
-      />
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-2">AI Task Suggestions</h2>
-        <ul className="list-disc pl-6">
-          {aiSuggestions.map((task, idx) => (
-            <li key={idx}>
-              <strong>{task.title}</strong>: {task.description}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </main>
+    <DashboardLayout>
+      <DailyTasksPageContent />
+    </DashboardLayout>
   );
 }

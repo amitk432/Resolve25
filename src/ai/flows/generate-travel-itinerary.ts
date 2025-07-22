@@ -12,10 +12,14 @@ import {
     type GenerateTravelItineraryInput,
     type GenerateTravelItineraryOutput,
 } from '@/lib/types';
+import { executeAIFlow } from '@/ai/error-handler';
 
 
 export async function generateTravelItinerary(input: GenerateTravelItineraryInput): Promise<GenerateTravelItineraryOutput> {
-  return generateTravelItineraryFlow(input);
+  return executeAIFlow(
+    () => generateTravelItineraryFlow(input),
+    'travel itinerary'
+  );
 }
 
 const prompt = ai.definePrompt({

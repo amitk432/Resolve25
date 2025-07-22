@@ -9,6 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { executeAIFlow } from '@/ai/error-handler';
 
 const ContactInfoSchema = z.object({
   name: z.string().describe('The full name of the person.'),
@@ -61,7 +62,10 @@ const ParseResumeInputSchema = z.object({
 export type ParseResumeInput = z.infer<typeof ParseResumeInputSchema>;
 
 export async function parseResume(input: ParseResumeInput): Promise<ResumeData> {
-  return parseResumeFlow(input);
+  return executeAIFlow(
+    () => parseResumeFlow(input),
+    'resume parsing'
+  );
 }
 
 const prompt = ai.definePrompt({

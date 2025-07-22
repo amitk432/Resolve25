@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { executeAIFlow } from '@/ai/error-handler';
 
 const ModuleSuggestionInputSchema = z.object({
   module: z.enum(['DashboardOverview', 'MonthlyPlan', 'CarSale', 'Finance', 'JobSearch', 'Travel', 'DailyTodo']),
@@ -25,7 +26,10 @@ const ModuleSuggestionOutputSchema = z.object({
 export type ModuleSuggestionOutput = z.infer<typeof ModuleSuggestionOutputSchema>;
 
 export async function generateModuleSuggestions(input: ModuleSuggestionInput): Promise<ModuleSuggestionOutput> {
-  return moduleSuggestionFlow(input);
+  return executeAIFlow(
+    () => moduleSuggestionFlow(input),
+    'module suggestions'
+  );
 }
 
 const prompt = ai.definePrompt({
@@ -47,7 +51,14 @@ const prompt = ai.definePrompt({
     **Module-specific Instructions:**
 
     - **If the module is 'DashboardOverview':**
-      Analyze the user's entire action plan (provided in the JSON context). Look at goals, tasks, and finances. Provide 3-5 high-level, encouraging suggestions. For example, identify a goal that's falling behind and suggest a relevant task, or congratulate them on their financial progress and suggest the next step.
+      Conduct a comprehensive analysis of the user's entire life management system. Consider their goals, career progression (from resume if available), financial health, task management, travel aspirations, and overall life balance. Provide 3-5 strategic, high-level insights that help them optimize their personal growth. Look for:
+      - Progress patterns and areas excelling vs. lagging
+      - Career alignment with personal goals
+      - Financial strategy effectiveness
+      - Work-life balance indicators
+      - Priority recommendations based on timeline and impact
+      - Connections between different life areas (e.g., career goals supporting financial targets)
+      If resume data exists, factor in their professional background, skills, and career trajectory when providing recommendations.
     
     - **If the module is 'MonthlyPlan':**
       {{#if focusedMonth}}

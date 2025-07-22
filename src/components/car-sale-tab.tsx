@@ -27,7 +27,15 @@ interface CarSaleTabProps {
     onUpdateDetails: (price: string, payoff: string) => void;
 }
 
-export default function CarSaleTab({ checklist, salePrice, loanPayoff, onToggleTask, onAddTask, onDeleteTask, onUpdateDetails }: CarSaleTabProps) {
+export default function CarSaleTab({ 
+  checklist = [], 
+  salePrice = '', 
+  loanPayoff = '', 
+  onToggleTask, 
+  onAddTask, 
+  onDeleteTask, 
+  onUpdateDetails 
+}: CarSaleTabProps) {
     const { toast } = useToast();
     const [priceInput, setPriceInput] = useState(salePrice);
     const [payoffInput, setPayoffInput] = useState(loanPayoff);
@@ -112,7 +120,7 @@ export default function CarSaleTab({ checklist, salePrice, loanPayoff, onToggleT
                                 <Save className="mr-2 h-4 w-4" /> Save Financials
                             </Button>
                         </CardContent>
-                        <CardFooter className="flex-col items-start space-y-2 bg-muted/50 p-4 rounded-b-lg">
+                        <CardFooter className="flex-col items-start space-y-2 bg-white dark:bg-card p-4 rounded-b-lg border-t">
                             <span className="text-sm text-muted-foreground">✅ Net Cash in Hand (Estimate)</span>
                             <span className={cn(
                                 "text-3xl font-bold",
@@ -135,7 +143,7 @@ export default function CarSaleTab({ checklist, salePrice, loanPayoff, onToggleT
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent className="px-6 pb-6">
-                                    <div className="text-sm bg-muted p-4 rounded-lg border">
+                                    <div className="text-sm bg-white dark:bg-card p-4 rounded-lg border">
                                        <p><strong>To:</strong> customer.service@yourbank.co.in</p>
                                        <p><strong>Subject:</strong> Loan Foreclosure Request - Loan Account No. [Your Loan Account Number]</p>
                                        <Separator className="my-2" />
@@ -161,7 +169,7 @@ export default function CarSaleTab({ checklist, salePrice, loanPayoff, onToggleT
                         </CardHeader>
                         <CardContent className="space-y-3">
                             {checklist.map((item) => (
-                                <div key={item.id} className="group flex items-center bg-background p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                                <div key={item.id} className="group flex items-center bg-white dark:bg-background p-3 rounded-lg border hover:bg-accent/30 transition-colors">
                                     <Checkbox
                                         id={item.id}
                                         checked={item.done}

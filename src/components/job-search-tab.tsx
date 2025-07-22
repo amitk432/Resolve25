@@ -6,6 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format, parseISO } from 'date-fns';
 import type { JobApplication, JobStatus, AppData, JobType } from '@/lib/types';
+import { initialData } from '@/lib/data';
+import { produce } from 'immer';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from '@/components/ui/input';
@@ -31,12 +33,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Briefcase } from 'lucide-react';
 
 interface JobSearchTabProps {
-    applications: JobApplication[];
-    onAddApplication: (application: Omit<JobApplication, 'date' | 'status'>) => void;
-    onUpdateStatus: (index: number, status: JobStatus) => void;
-    onDelete: (index: number) => void;
-    data: AppData;
-    onUpdate: (updater: (draft: AppData) => void) => void;
+    applications?: JobApplication[];
+    onAddApplication?: (application: Omit<JobApplication, 'date' | 'status'>) => void;
+    onUpdateStatus?: (index: number, status: JobStatus) => void;
+    onDelete?: (index: number) => void;
+    data?: AppData;
+    onUpdate?: (updater: (draft: AppData) => void) => void;
 }
 
 const appSchema = z.object({
@@ -51,7 +53,52 @@ const appSchema = z.object({
 });
 
 
-export default function JobSearchTab({ applications, onAddApplication, onUpdateStatus, onDelete, data, onUpdate }: JobSearchTabProps) {
+export default function JobSearchTab({ 
+    applications: propApplications, 
+    onAddApplication: propOnAddApplication, 
+    onUpdateStatus: propOnUpdateStatus, 
+    onDelete: propOnDelete, 
+    data: propData, 
+    onUpdate: propOnUpdate 
+}: JobSearchTabProps) {
+    // Use provided props or manage local state
+    const [localData, setLocalData] = useState<AppData>(propData || initialData);
+    const data = propData || localData;
+    const applications = propApplications || data.jobApplications || [];
+    
+    const onUpdate = propOnUpdate || ((updater: (draft: AppData) => void) => {
+        setLocalData(prevData => produce(prevData, updater));
+    });
+    
+    const onAddApplication = propOnAddApplication || ((application: Omit<JobApplication, 'date' | 'status'>) => {
+        onUpdate(draft => {
+            if (!draft.jobApplications) {
+                draft.jobApplications = [];
+            }
+            draft.jobApplications.push({
+                ...application,
+                date: new Date().toISOString(),
+                status: 'Not Applied' as JobStatus
+            });
+        });
+    });
+    
+    const onUpdateStatus = propOnUpdateStatus || ((index: number, status: JobStatus) => {
+        onUpdate(draft => {
+            if (draft.jobApplications && draft.jobApplications[index]) {
+                draft.jobApplications[index].status = status;
+            }
+        });
+    });
+    
+    const onDelete = propOnDelete || ((index: number) => {
+        onUpdate(draft => {
+            if (draft.jobApplications) {
+                draft.jobApplications.splice(index, 1);
+            }
+        });
+    });
+
     const [isDialogOpen, setDialogOpen] = useState(false);
     const resumeRef = useRef<HTMLDivElement>(null);
     const [expandedRow, setExpandedRow] = useState<number | null>(null);
@@ -555,7 +602,7 @@ export default function JobSearchTab({ applications, onAddApplication, onUpdateS
                                         </TableCell>
                                     </TableRow>
                                     {expandedRow === index && (
-                                        <TableRow className="bg-muted/50 hover:bg-muted/50">
+                                        <TableRow className="bg-white dark:bg-card hover:bg-accent/30">
                                             <TableCell colSpan={7} className="p-0">
                                                 <div className="p-4 space-y-4">
                                                     <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">

@@ -12,6 +12,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import type { AppData, DailyTaskCategory, DailyTaskPriority } from '@/lib/types';
+import { executeAIFlow } from '@/ai/error-handler';
 
 const GenerateTaskSuggestionsInputSchema = z.object({
   context: z.any().describe('A JSON object containing the complete data for the user\'s dashboard.'),
@@ -32,7 +33,10 @@ const GenerateTaskSuggestionsOutputSchema = z.object({
 export type GenerateTaskSuggestionsOutput = z.infer<typeof GenerateTaskSuggestionsOutputSchema>;
 
 export async function generateTaskSuggestions(input: { context: AppData }): Promise<GenerateTaskSuggestionsOutput> {
-  return generateTaskSuggestionsFlow(input);
+  return executeAIFlow(
+    () => generateTaskSuggestionsFlow(input),
+    'task suggestions'
+  );
 }
 
 const prompt = ai.definePrompt({

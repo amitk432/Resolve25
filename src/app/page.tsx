@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
-import LoginForm from '@/components/login-form';
+import AuthForm from '@/components/auth-form';
 import AuthLayout from '@/components/auth-layout';
 
 export default function LoginPage() {
@@ -26,8 +26,11 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthLayout>
-      <LoginForm />
+    <AuthLayout
+      title="Welcome to Resolve25"
+      description="Your personal dashboard to conquer your goals for 2025."
+    >
+      <AuthForm />
     </AuthLayout>
   );
 }

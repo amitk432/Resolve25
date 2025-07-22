@@ -103,7 +103,7 @@ export default function AiMonthlyTaskSuggestionDialog({ monthData, data, onTaskA
             {!isLoading && suggestions.length > 0 && (
             <div className="space-y-2">
                 {suggestions.map((suggestion, index) => (
-                    <div key={index} className="flex items-center justify-between gap-2 p-2 rounded-md bg-muted/50">
+                    <div key={index} className="flex items-center justify-between gap-2 p-2 rounded-md bg-white dark:bg-card">
                         <p className="text-sm text-foreground">{suggestion}</p>
                         <Button size="sm" onClick={() => handleAddTask(suggestion)}>
                             <Plus className="mr-2 h-4 w-4" /> Add

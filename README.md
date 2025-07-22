@@ -87,7 +87,12 @@ Ready to take control of your year? Follow these simple steps:
 
 4.  **Set up Genkit (Google AI):**
     *   Get a Google AI API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
-    *   Add your API key to your `.env` file for local development: `GOOGLE_API_KEY="YOUR_API_KEY"`
+    *   Add your API key to your `.env.local` file for local development: 
+        ```bash
+        GEMINI_API_KEY="YOUR_API_KEY"
+        # or alternatively you can use:
+        # GOOGLE_API_KEY="YOUR_API_KEY"
+        ```
 
 5.  **Run the app locally:**
     ```bash

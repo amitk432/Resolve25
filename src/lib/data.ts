@@ -82,7 +82,98 @@ export const initialData: AppData = {
     emergencyFundTarget: '40000',
     sips: [],
     travelGoals: [],
-    dailyTasks: [],
+    dailyTasks: [
+        {
+            id: 'dt-1',
+            title: 'officefit',
+            description: 'Check office fitness and workspace ergonomics',
+            completed: false,
+            category: 'Personal',
+            priority: 'Medium',
+            dueDate: '2025-07-18T00:00:00.000Z',
+            source: 'manual',
+        },
+        {
+            id: 'dt-2',
+            title: 'Apply to 2-3 jobs today',
+            description: 'Focus on companies in tech sector',
+            completed: false,
+            category: 'Work',
+            priority: 'High',
+            dueDate: '2025-07-23T00:00:00.000Z', // Today
+            source: 'manual',
+        },
+        {
+            id: 'dt-3',
+            title: 'Create a detailed monthly budget',
+            description: 'Include all income sources and expenses',
+            completed: true,
+            category: 'Personal',
+            priority: 'Medium',
+            dueDate: '2025-07-23T00:00:00.000Z', // Today
+            source: 'manual',
+        },
+        {
+            id: 'dt-4',
+            title: 'Network with 1-2 people in your field',
+            description: 'Reach out via LinkedIn or professional events',
+            completed: false,
+            category: 'Work',
+            priority: 'Medium',
+            dueDate: '2025-07-23T00:00:00.000Z', // Today
+            source: 'manual',
+        },
+        {
+            id: 'dt-5',
+            title: 'Request official foreclosure letter from bank',
+            description: 'Required for car sale process',
+            completed: false,
+            category: 'Errands',
+            priority: 'Low',
+            dueDate: '2025-07-24T00:00:00.000Z', // Tomorrow
+            source: 'manual',
+        },
+        {
+            id: 'dt-6',
+            title: 'Research and open a high-yield savings account',
+            description: 'Compare rates from different banks',
+            completed: false,
+            category: 'Personal',
+            priority: 'Medium',
+            dueDate: '2025-07-24T00:00:00.000Z', // Tomorrow
+            source: 'manual',
+        },
+        {
+            id: 'dt-7',
+            title: 'Complete project documentation',
+            description: 'Finalize all technical specifications',
+            completed: false,
+            category: 'Work',
+            priority: 'High',
+            dueDate: '2025-07-24T00:00:00.000Z', // Tomorrow
+            source: 'manual',
+        },
+        {
+            id: 'dt-8',
+            title: 'Submit insurance claim',
+            description: 'For recent medical expenses',
+            completed: false,
+            category: 'Errands',
+            priority: 'Medium',
+            dueDate: '2025-07-25T00:00:00.000Z', // Day after tomorrow
+            source: 'manual',
+        },
+        {
+            id: 'dt-9',
+            title: 'Review monthly expenses',
+            description: 'Analyze spending patterns from last month',
+            completed: false,
+            category: 'Personal',
+            priority: 'Low',
+            dueDate: '2025-07-22T00:00:00.000Z', // Yesterday (past due)
+            source: 'manual',
+        },
+    ],
     incomeSources: [
         { id: 'income-1', name: 'Primary Job', amount: '50000' }
     ],

@@ -64,7 +64,7 @@ const TaskItem = ({ task, onToggleTask, onEdit, onDelete, onMoveToNextDay }: { t
   const shouldShowWarning = !task.completed && (isOverdue || isToday(startOfDay(parseISO(task.dueDate))));
 
   return (
-    <div className="flex items-start p-3 rounded-lg bg-background hover:bg-muted/50 border transition-all group">
+    <div className="flex items-start p-3 rounded-lg bg-white dark:bg-background hover:bg-accent/30 border transition-all group">
       <Checkbox
         id={`task-${task.id}`}
         checked={task.completed}
@@ -258,7 +258,7 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
                     const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
                     
                     return (
-                    <AccordionItem value={group.date} key={group.date} className="border rounded-lg px-4 bg-muted/30">
+                    <AccordionItem value={group.date} key={group.date} className="border rounded-lg px-4 bg-white dark:bg-card">
                         <AccordionTrigger className="py-3 hover:no-underline">
                              <div className="flex flex-col md:flex-row items-start md:items-center gap-2 w-full">
                                 <div className="flex-grow text-left">

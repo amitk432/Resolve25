@@ -12,6 +12,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import type { ResumeData } from '@/lib/types';
+import { executeAIFlow } from '@/ai/error-handler';
 
 const GenerateJobSuggestionsInputSchema = z.object({
   resume: z.any().describe("A JSON object containing the user's parsed resume data."),
@@ -37,7 +38,10 @@ const GenerateJobSuggestionsOutputSchema = z.object({
 export type GenerateJobSuggestionsOutput = z.infer<typeof GenerateJobSuggestionsOutputSchema>;
 
 export async function generateJobSuggestions(input: { resume: ResumeData }): Promise<GenerateJobSuggestionsOutput> {
-  return generateJobSuggestionsFlow(input);
+  return executeAIFlow(
+    () => generateJobSuggestionsFlow(input),
+    'job suggestions'
+  );
 }
 
 const prompt = ai.definePrompt({

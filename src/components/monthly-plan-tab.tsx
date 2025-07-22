@@ -109,7 +109,15 @@ const MonthCard = ({ monthData, monthIndex, data, onToggleTask, onAddTask, onDel
     )
 }
 
-export default function MonthlyPlanTab({ monthlyPlan, onToggleTask, onAddTask, onDeleteTask, onAddPlan, onManualAddPlan, data }: MonthlyPlanTabProps) {
+export default function MonthlyPlanTab({ 
+  monthlyPlan = [], 
+  onToggleTask, 
+  onAddTask, 
+  onDeleteTask, 
+  onAddPlan, 
+  onManualAddPlan, 
+  data 
+}: MonthlyPlanTabProps) {
     return (
          <div>
             <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">

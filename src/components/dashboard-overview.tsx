@@ -136,7 +136,7 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
                     <CardContent className="space-y-3">
                         {criticalTasks.length > 0 ? (
                             criticalTasks.map((task, index) => (
-                               <div key={index} className="bg-muted/50 p-3 rounded-lg flex items-center">
+                               <div key={index} className="bg-white dark:bg-card p-3 rounded-lg flex items-center border">
                                     <ArrowRight className="text-primary mr-3 h-4 w-4 flex-shrink-0" />
                                     <span className="text-sm">{task.text}</span>
                                </div>
@@ -154,8 +154,9 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
             <AiSuggestionSection
                 moduleName="DashboardOverview"
                 title="AI Insights for your Dashboard"
-                description="Get personalized suggestions based on your overall progress and goals."
+                description="Get comprehensive insights based on your goals, career, finances, and life data to optimize your personal growth."
                 contextData={data}
+                showInput={true}
             />
         </div>
     )

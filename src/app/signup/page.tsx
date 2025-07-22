@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
-import SignupForm from '@/components/signup-form';
+import AuthForm from '@/components/auth-form';
 import AuthLayout from '@/components/auth-layout';
 
 export default function SignupPage() {
@@ -26,8 +26,11 @@ export default function SignupPage() {
   }
 
   return (
-    <AuthLayout>
-      <SignupForm />
+    <AuthLayout
+      title="Create your account"
+      description="Join Resolve25 and start achieving your goals today."
+    >
+      <AuthForm defaultMode="signup" />
     </AuthLayout>
   );
 }

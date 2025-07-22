@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { executeAIFlow } from '@/ai/error-handler';
 
 const GenerateGoalTipsInputSchema = z.object({
   goal: z.string().describe('The specific goal the user is trying to achieve.'),
@@ -23,7 +24,10 @@ const GenerateGoalTipsOutputSchema = z.object({
 export type GenerateGoalTipsOutput = z.infer<typeof GenerateGoalTipsOutputSchema>;
 
 export async function generateGoalTips(input: GenerateGoalTipsInput): Promise<GenerateGoalTipsOutput> {
-  return generateGoalTipsFlow(input);
+  return executeAIFlow(
+    () => generateGoalTipsFlow(input),
+    'goal tips'
+  );
 }
 
 const prompt = ai.definePrompt({

@@ -88,7 +88,7 @@ export default function AiMonthlyPlanGeneratorDialog({ data, onPlanAdd, children
             {!isLoading && suggestions.length > 0 && (
             <div className="space-y-4">
                 {suggestions.map((plan, index) => (
-                <Card key={index} className="bg-muted/50">
+                <Card key={index} className="bg-white dark:bg-card">
                     <CardHeader>
                         <div className="flex justify-between items-start gap-4">
                             <div className="flex-grow">
