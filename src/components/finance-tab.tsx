@@ -163,16 +163,16 @@ export default function FinanceTab({
         <div className="space-y-8">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-foreground">Loan & Investment Tracker</h2>
-                    <p className="mt-1 text-muted-foreground">Manage your debts and grow your wealth.</p>
+                    <h2 className="text-3xl font-bold text-foreground">Loan & Investment Tracker</h2>
+                    <p className="mt-2 text-base text-muted-foreground">Manage your debts and grow your wealth.</p>
                 </div>
                 <Button onClick={() => handleOpenDialog(null)} className="w-full sm:w-auto"><Plus className="mr-2 h-4 w-4"/> Add Loan</Button>
             </div>
             
-            <Card>
+            <Card className="bg-white dark:bg-card border-border">
                 <CardHeader>
-                    <CardTitle>Your Loans</CardTitle>
-                    <CardDescription>An overview of your active and closed loans.</CardDescription>
+                    <CardTitle className="text-sm font-medium text-primary">Your Loans</CardTitle>
+                    <CardDescription className="text-base text-muted-foreground">An overview of your active and closed loans.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {loans.length > 0 ? (
@@ -453,10 +453,10 @@ function SavingsAndInvestmentsCard({
 
     return (
         <>
-            <Card>
+            <Card className="bg-white dark:bg-card border-border">
                 <CardHeader>
-                    <CardTitle>Savings & Investments</CardTitle>
-                    <CardDescription>Track your emergency fund and systematic investment plans.</CardDescription>
+                    <CardTitle className="text-sm font-medium text-primary">Savings & Investments</CardTitle>
+                    <CardDescription className="text-base text-muted-foreground">Track your emergency fund and systematic investment plans.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div>
@@ -677,12 +677,12 @@ function MonthlyIncomeCard({
 
     return (
         <>
-            <Card>
+            <Card className="bg-white dark:bg-card border-border">
                 <CardHeader>
                     <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <CardTitle>Monthly Income</CardTitle>
-                            <CardDescription>Track all your sources of income.</CardDescription>
+                            <CardTitle className="text-sm font-medium text-primary">Monthly Income</CardTitle>
+                            <CardDescription className="text-base text-muted-foreground">Track all your sources of income.</CardDescription>
                         </div>
                         <div className="flex w-full shrink-0 gap-2 sm:w-auto">
                             <Button variant="ghost" size="icon" onClick={() => setIsVisible(!isVisible)}>

@@ -145,9 +145,9 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
                 <p className="mt-2 text-base text-muted-foreground">A high-level look at your progress and key metrics.</p>
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                <Card>
+                <Card className="bg-white dark:bg-card border-border">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-semibold text-muted-foreground">Overall Progress</CardTitle>
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Overall Progress</CardTitle>
                         <Target className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
@@ -156,9 +156,9 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
                          <Progress value={overallProgress} className="h-2 mt-4" />
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="bg-white dark:bg-card border-border">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-semibold text-muted-foreground">Emergency Fund</CardTitle>
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Emergency Fund</CardTitle>
                         <PiggyBank className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
@@ -167,9 +167,9 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
                         <Progress value={emergencyFundProgress} className="h-2 mt-4" />
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="bg-white dark:bg-card border-border">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-semibold text-muted-foreground">Goals Status</CardTitle>
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Goals Status</CardTitle>
                         <CheckCircle className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
@@ -178,9 +178,9 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
                         <Progress value={completedGoalsProgress} className="h-2 mt-4" />
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="bg-white dark:bg-card border-border">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-semibold text-muted-foreground">Days Left '25</CardTitle>
+                        <CardTitle className="text-sm font-medium text-muted-foreground">Days Left '25</CardTitle>
                         <CalendarClock className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
@@ -192,9 +192,9 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
             </div>
 
              <div className="mt-2">
-                <Card>
+                <Card className="bg-white dark:bg-card border-border">
                     <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="text-lg flex items-center gap-2 text-foreground">
+                        <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
                             <Brain className="h-5 w-5 text-primary" />
                             Next 3 Critical Steps
                         </CardTitle>
