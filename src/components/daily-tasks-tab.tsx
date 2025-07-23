@@ -10,8 +10,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Plus, Sparkles, User, Briefcase, ShoppingCart, ChevronDown, ChevronRight, AlertTriangle, Calendar, CheckCircle2 } from 'lucide-react';
+import { Plus, Sparkles, User, Briefcase, ShoppingCart, ChevronDown, ChevronRight, AlertTriangle, Calendar, CheckCircle2, Pencil, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -35,6 +46,8 @@ const taskSchema = z.object({
 
 const DailyTasksTab: React.FC<DailyTasksTabProps> = ({ data, onUpdate }) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isEditDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<DailyTask | null>(null);
   const [isAiDialogOpen, setAiDialogOpen] = useState(false);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<Array<{
@@ -49,6 +62,17 @@ const DailyTasksTab: React.FC<DailyTasksTabProps> = ({ data, onUpdate }) => {
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof taskSchema>>({
+    resolver: zodResolver(taskSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      category: 'Personal',
+      priority: 'Medium',
+      dueDate: new Date().toISOString().split('T')[0],
+    },
+  });
+
+  const editForm = useForm<z.infer<typeof taskSchema>>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
       title: '',
@@ -120,6 +144,56 @@ const DailyTasksTab: React.FC<DailyTasksTabProps> = ({ data, onUpdate }) => {
       }
     });
   }, [onUpdate]);
+
+  const handleEditTask = useCallback((task: DailyTask) => {
+    setEditingTask(task);
+    editForm.reset({
+      title: task.title,
+      description: task.description || '',
+      category: task.category,
+      priority: task.priority,
+      dueDate: task.dueDate.split('T')[0], // Extract date part only
+    });
+    setEditDialogOpen(true);
+  }, [editForm]);
+
+  const handleUpdateTask = (values: z.infer<typeof taskSchema>) => {
+    if (!editingTask) return;
+
+    onUpdate(draft => {
+      const taskIndex = draft.dailyTasks?.findIndex(t => t.id === editingTask.id);
+      if (taskIndex !== undefined && taskIndex >= 0 && draft.dailyTasks) {
+        draft.dailyTasks[taskIndex] = {
+          ...draft.dailyTasks[taskIndex],
+          title: values.title,
+          description: values.description || '',
+          category: values.category as DailyTaskCategory,
+          priority: values.priority as DailyTaskPriority,
+          dueDate: new Date(values.dueDate).toISOString(),
+        };
+      }
+    });
+
+    editForm.reset();
+    setEditDialogOpen(false);
+    setEditingTask(null);
+    toast({
+      title: "Task updated!",
+      description: "Your daily task has been updated successfully.",
+    });
+  };
+
+  const handleDeleteTask = useCallback((taskId: string) => {
+    onUpdate(draft => {
+      if (draft.dailyTasks) {
+        draft.dailyTasks = draft.dailyTasks.filter(t => t.id !== taskId);
+      }
+    });
+    toast({
+      title: "Task deleted!",
+      description: "Your daily task has been deleted successfully.",
+    });
+  }, [onUpdate, toast]);
 
   const toggleDateExpansion = useCallback((date: string) => {
     setExpandedDates(prev => {
@@ -471,6 +545,117 @@ const DailyTasksTab: React.FC<DailyTasksTabProps> = ({ data, onUpdate }) => {
               </Form>
             </DialogContent>
           </Dialog>
+
+          {/* Edit Task Dialog */}
+          <Dialog open={isEditDialogOpen} onOpenChange={setEditDialogOpen}>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Edit Task</DialogTitle>
+                <DialogDescription>
+                  Update your task details.
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...editForm}>
+                <form onSubmit={editForm.handleSubmit(handleUpdateTask)} className="space-y-4">
+                  <FormField
+                    control={editForm.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Title</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Finalize project report" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={editForm.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description <span className="text-muted-foreground">(Optional)</span></FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Add more details..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={editForm.control}
+                      name="category"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Category</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Work">Work</SelectItem>
+                              <SelectItem value="Personal">Personal</SelectItem>
+                              <SelectItem value="Errands">Errands</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={editForm.control}
+                      name="priority"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Priority</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select priority" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Low">Low</SelectItem>
+                              <SelectItem value="Medium">Medium</SelectItem>
+                              <SelectItem value="High">High</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={editForm.control}
+                    name="dueDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Due Date</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => {
+                      setEditDialogOpen(false);
+                      setEditingTask(null);
+                      editForm.reset();
+                    }}>
+                      Cancel
+                    </Button>
+                    <Button type="submit">Update Task</Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -570,9 +755,47 @@ const DailyTasksTab: React.FC<DailyTasksTabProps> = ({ data, onUpdate }) => {
                                   </p>
                                 )}
                               </div>
-                              {task.completed && (
-                                <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
-                              )}
+                              <div className="flex items-center gap-2">
+                                {task.completed && (
+                                  <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleEditTask(task)}
+                                  className="h-6 w-6 text-muted-foreground hover:text-primary"
+                                >
+                                  <Pencil className="h-3 w-3" />
+                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        This will permanently delete your task "{task.title}".
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => handleDeleteTask(task.id)}
+                                        className="bg-destructive hover:bg-destructive/90"
+                                      >
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
                             </div>
                             <div className="flex items-center gap-2 flex-wrap">
                               <Badge variant="outline" className="text-xs flex items-center gap-1">
