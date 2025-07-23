@@ -17,9 +17,11 @@ export default function Header() {
   const { user, signOut } = useAuth();
 
   return (
-    <header className="flex h-16 items-center border-b bg-card px-4 md:px-6 sticky top-0 z-10">
+    <header className="flex h-16 items-center border-b border-border/50 bg-background/95 backdrop-blur-md px-4 md:px-6 sticky top-0 z-50 shadow-sm">
       <div className="flex items-center gap-3">
-        <Target className="h-6 w-6 text-primary" />
+        <div className="bg-gradient-primary p-2 rounded-lg shadow-md">
+          <Target className="h-5 w-5 text-white" />
+        </div>
         <div>
             <h1 className="text-xl font-bold tracking-tight text-foreground">Resolve25</h1>
             <p className="text-xs text-muted-foreground hidden sm:block">Your personal dashboard for achieving your goals.</p>
@@ -29,10 +31,10 @@ export default function Header() {
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+              <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-2 ring-primary/20 hover:ring-primary/40 transition-all duration-200">
                 <Avatar className="h-9 w-9">
                   <AvatarImage src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture || undefined} alt={user?.user_metadata?.name || user?.user_metadata?.full_name || 'User'} />
-                  <AvatarFallback>{(user?.user_metadata?.name || user?.user_metadata?.full_name)?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase()}</AvatarFallback>
+                  <AvatarFallback className="bg-gradient-primary text-white font-semibold">{(user?.user_metadata?.name || user?.user_metadata?.full_name)?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase()}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>

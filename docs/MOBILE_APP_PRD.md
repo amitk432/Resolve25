@@ -1,351 +1,2931 @@
 # Product Requirements Document (PRD)
 # Resolve25 Mobile App
 
-**Version:** 1.0  
-**Date:** July 23, 2025  
+**Version:** 2.0  
+**Date:** December 30, 2024  
 **Project:** Resolve25 AI-Powered Life OS Mobile Application  
+**Last Updated:** December 30, 2024  
 
 ---
 
 ## Table of Contents
 
 1. [Executive Summary](#executive-summary)
-2. [Product Overview](#product-overview)
-3. [User Personas & Target Audience](#user-personas--target-audience)
-4. [Feature Requirements](#feature-requirements)
+2. [Product Vision & Scope](#product-vision--scope)
+3. [User Stories & Requirements](#user-stories--requirements)
+4. [Feature Specifications](#feature-specifications)
 5. [User Experience & Interface Design](#user-experience--interface-design)
 6. [Technical Architecture](#technical-architecture)
 7. [Data Models & API Specifications](#data-models--api-specifications)
-8. [Platform Requirements](#platform-requirements)
+8. [Mobile-Specific Implementation](#mobile-specific-implementation)
 9. [Security & Privacy](#security--privacy)
-10. [Performance Requirements](#performance-requirements)
-11. [Development Phases](#development-phases)
-12. [Testing Strategy](#testing-strategy)
-13. [Launch & Marketing](#launch--marketing)
-14. [Success Metrics](#success-metrics)
-15. [Risk Assessment](#risk-assessment)
-16. [Appendices](#appendices)
+10. [Performance & Quality](#performance--quality)
+11. [Development Timeline](#development-timeline)
+12. [Quality Assurance](#quality-assurance)
+13. [Deployment Strategy](#deployment-strategy)
+14. [Maintenance & Support](#maintenance--support)
+15. [Success Metrics & KPIs](#success-metrics--kpis)
+16. [Risk Assessment](#risk-assessment)
+17. [Appendices](#appendices)
 
 ---
 
 ## Executive Summary
 
 ### Product Vision
-Resolve25 Mobile App is an AI-powered personal life management system that transforms goal achievement, career development, and life planning into an intuitive, mobile-first experience. The app serves as a comprehensive "Life OS" that integrates goal tracking, financial management, career development, travel planning, and AI-driven insights into a unified platform.
+Resolve25 Mobile App is an AI-powered comprehensive life management platform that transforms personal productivity, goal achievement, and life planning into an intuitive, mobile-first experience. The app serves as a unified "Life OS" integrating eight core modules: Goals & Progress Tracking, Monthly Planning, Daily Task Management, Financial Planning, Career Development, Travel Planning, Living Advisor (Global Relocation), and Car Sale Management.
 
 ### Key Objectives
-- **Primary Goal:** Launch a feature-complete mobile application that replicates 100% of the web application's functionality
-- **User Experience:** Deliver a seamless, native mobile experience optimized for touch interactions
-- **Performance:** Achieve sub-second load times and offline capabilities for core features
-- **Market Position:** Establish Resolve25 as the leading AI-powered personal productivity platform on mobile
+- **Feature Parity:** Deliver 100% feature compatibility with the web application across all eight core modules
+- **Mobile-First Experience:** Provide native mobile interactions optimized for touch, gestures, and mobile workflows
+- **AI Integration:** Seamlessly integrate Google Gemini-powered AI features for intelligent suggestions and automation
+- **Offline Capability:** Enable core functionality without internet connectivity using local storage and sync
+- **Performance Excellence:** Achieve sub-second load times with smooth 60fps animations and transitions
 
 ### Business Impact
-- **Target Users:** 100K+ downloads within 6 months
-- **Revenue Model:** Freemium with premium AI features
-- **Market Opportunity:** $2.3B personal productivity app market
+- **Target Market:** Personal productivity and life management app users (estimated 50M+ globally)
+- **User Acquisition:** 100K+ downloads within 6 months, 1M+ within 18 months
+- **Revenue Model:** Freemium with premium AI features, in-app purchases, and subscription tiers
+- **Market Differentiation:** First comprehensive AI-powered life management platform with global relocation features
+
+### Success Criteria
+- **User Engagement:** 80%+ weekly active users, 15+ minutes average session time
+- **Feature Adoption:** 70%+ users actively using 3+ core modules within 30 days
+- **Performance:** 4.5+ star rating across app stores, <2s load times, 99.9% uptime
+- **AI Value:** 85%+ users finding AI suggestions helpful and actionable
 
 ---
 
-## Product Overview
+## Product Vision & Scope
+### Product Scope
 
-### Current State Analysis
-The existing web application (Resolve25) is a comprehensive Next.js-based platform featuring:
-- **8 Core Modules:** Dashboard, Goals, Daily Tasks, Monthly Planning, Job Search, Living Advisor, Travel Goals, Finance Tracker
-- **AI Integration:** 11 specialized AI flows powered by Google Gemini
-- **User Base:** Web-first design with responsive mobile adaptation
-- **Technology Stack:** Next.js 15, TypeScript, Tailwind CSS, Supabase, Auth0
+#### In-Scope Features (MVP)
+**Core Modules (8):**
+1. **Dashboard & Overview** - Centralized insights, AI-powered recommendations, progress visualization
+2. **Goals & Progress Tracking** - SMART goal creation, step management, AI-generated tips and suggestions
+3. **Daily Task Management** - Priority-based task organization, AI task generation, deadline tracking
+4. **Monthly Planning** - Strategic planning, AI-generated monthly tasks, progress monitoring
+5. **Job Search & Career** - Resume builder, application tracking, AI job suggestions, career roadmaps
+6. **Living Advisor** - Global relocation analysis, country recommendations, migration roadmaps
+7. **Travel Goals & Planning** - Trip planning, AI itinerary generation, destination suggestions
+8. **Finance Management** - Loan tracking, emergency fund management, SIP planning, expense tracking
 
-### Mobile App Positioning
-The mobile app will be a **native experience** that enhances and extends the web platform's capabilities with:
-- **Mobile-First Design:** Touch-optimized interactions and navigation
-- **Native Features:** Push notifications, offline sync, biometric authentication
-- **Enhanced AI:** Context-aware suggestions based on location and time
-- **Performance:** Native app performance with instant loading
+**AI Features (11 Flows):**
+- Goal-related: Generate tips, suggestions, and monthly tasks
+- Career: Job suggestions, application emails, resume optimization
+- Travel: Destination suggestions, itinerary generation
+- Financial: Personalized advice and planning
+- Critical Steps: AI-powered life optimization recommendations
 
----
+#### Out-of-Scope (Future Releases)
+- Advanced analytics and reporting
+- Social features and community
+- Third-party integrations (beyond core banking/calendar)
+- Enterprise/team features
+- Advanced automation workflows
 
-## User Personas & Target Audience
-
-### Primary Personas
-
-#### 1. **The Ambitious Professional (25-35)**
-- **Profile:** Career-focused individuals seeking work-life balance
-- **Pain Points:** Scattered productivity tools, lack of AI guidance
-- **Goals:** Career advancement, financial stability, personal growth
-- **Mobile Usage:** High engagement, prefers mobile for quick updates
-- **Key Features:** Job search tracker, goal management, AI career insights
-
-#### 2. **The Life Optimizer (30-45)**
-- **Profile:** Established professionals optimizing life management
-- **Pain Points:** Complex financial tracking, travel planning inefficiency
-- **Goals:** Holistic life management, financial independence
-- **Mobile Usage:** Moderate to high, values integration and automation
-- **Key Features:** Finance tracker, travel planning, comprehensive dashboard
-
-#### 3. **The Digital Nomad (24-40)**
-- **Profile:** Location-independent professionals and entrepreneurs
-- **Pain Points:** Relocation planning, scattered life management tools
-- **Goals:** Seamless mobility, location optimization, career flexibility
-- **Mobile Usage:** Very high, mobile-dependent lifestyle
-- **Key Features:** Living advisor, travel goals, location-based insights
-
-### Market Sizing
-- **Total Addressable Market (TAM):** 500M productivity app users globally
-- **Serviceable Addressable Market (SAM):** 50M AI-enhanced productivity users
-- **Serviceable Obtainable Market (SOM):** 5M premium life management users
+### Success Metrics
+- **User Acquisition:** 100K downloads (6 months), 1M downloads (18 months)
+- **Engagement:** 75% weekly active users, 60% monthly retention
+- **Performance:** <2s load times, 4.5+ app store rating
+- **AI Adoption:** 80% users actively using AI features within 30 days
 
 ---
 
-## Feature Requirements
+## User Stories & Requirements
 
-### Core Feature Parity Matrix
+### Epic 1: Authentication & Onboarding
 
-| Feature Category | Web Features | Mobile Enhancement | Priority |
-|------------------|--------------|-------------------|----------|
-| **Authentication** | Auth0 (Email, Google, GitHub) | + Biometric auth, SSO | P0 |
-| **Dashboard** | Overview cards, AI insights | + Widget support, haptic feedback | P0 |
-| **Goals Management** | CRUD, AI suggestions, tips | + Quick add, progress notifications | P0 |
-| **Daily Tasks** | Task management, priorities | + Location reminders, quick actions | P0 |
-| **Monthly Planning** | Planning interface, AI tasks | + Calendar integration, time blocking | P1 |
-| **Job Search** | Resume builder, application tracker | + Job alerts, networking suggestions | P1 |
-| **Living Advisor** | Relocation analysis, roadmaps | + Location services, local insights | P1 |
-| **Travel Goals** | Trip planning, AI suggestions | + Offline maps, travel notifications | P1 |
-| **Finance Tracker** | Loans, emergency fund, SIPs | + Expense scanning, bank integration | P2 |
-| **Car Sale** | Checklist, calculator | + Photo documentation, price tracking | P2 |
+#### User Stories
+**US1.1:** As a new user, I want to sign up using email, Google, or Apple ID so that I can quickly access the app
+- **Acceptance Criteria:**
+  - Support email/password, Google OAuth, Apple Sign In
+  - Biometric authentication setup (Touch ID/Face ID)
+  - Account verification via email
+  - Seamless profile creation flow
 
-### Mobile-Specific Features
+**US1.2:** As a returning user, I want to log in using biometric authentication so that I can access my data securely and quickly
+- **Acceptance Criteria:**
+  - Touch ID/Face ID support
+  - Fallback to password authentication
+  - Remember device for 30 days
+  - Auto-logout after 15 minutes of inactivity
 
-#### 1. **Native Mobile Enhancements**
-- **Push Notifications:** 
-  - Goal deadline reminders
-  - Daily task notifications
-  - AI insight alerts
-  - Job application follow-ups
-- **Offline Capabilities:**
-  - Core data caching
-  - Offline task creation
-  - Sync when online
-- **Device Integration:**
-  - Camera for document scanning
-  - GPS for location-based features
-  - Calendar sync
-  - Contacts integration
+**US1.3:** As a first-time user, I want an intuitive onboarding experience so that I understand the app's value and features
+- **Acceptance Criteria:**
+  - Interactive app tour (5 screens max)
+  - Feature highlights with real examples
+  - Optional goal/priority setup
+  - Skip option for experienced users
 
-#### 2. **Advanced Mobile Features**
-- **Widgets:**
-  - Today's tasks widget
-  - Goal progress widget
-  - Finance overview widget
-- **Shortcuts:**
-  - Siri/Google Assistant integration
-  - Quick add tasks voice commands
-- **Gestures:**
-  - Swipe actions for task completion
-  - Pull-to-refresh
-  - Long press context menus
+### Epic 2: Dashboard & Overview
 
-### AI Feature Enhancements for Mobile
+#### User Stories
+**US2.1:** As a user, I want a personalized dashboard that shows my most important information at a glance
+- **Acceptance Criteria:**
+  - Critical steps section with AI recommendations
+  - Today's tasks (max 5) with quick actions
+  - Goal progress indicators
+  - Finance overview (emergency fund, active SIPs)
+  - Motivational quote of the day
 
-#### 1. **Context-Aware AI**
-- **Location Intelligence:** AI suggestions based on user's current location
-- **Time-Based Insights:** Context-sensitive recommendations based on time of day
-- **Usage Pattern Learning:** Personalized suggestions based on app usage patterns
+**US2.2:** As a user, I want to receive AI-powered insights and recommendations based on my current life situation
+- **Acceptance Criteria:**
+  - Critical steps analysis updated daily
+  - Contextual suggestions based on deadlines
+  - Priority-based recommendations
+  - Actionable insights with one-tap execution
 
-#### 2. **Mobile-Optimized AI Flows**
-- **Voice Input:** Natural language goal and task creation
-- **Photo Analysis:** Resume/document parsing from camera
-- **Quick Insights:** Bite-sized AI recommendations for mobile consumption
+### Epic 3: Goals & Progress Management
+
+#### User Stories
+**US3.1:** As a user, I want to create and manage SMART goals with AI assistance
+- **Acceptance Criteria:**
+  - Goal creation with title, description, deadline
+  - Automatic SMART criteria validation
+  - AI-generated goal suggestions
+  - Step breakdown with progress tracking
+
+**US3.2:** As a user, I want to track my goal progress and receive AI-generated tips
+- **Acceptance Criteria:**
+  - Visual progress indicators (progress bars, percentages)
+  - Step completion tracking
+  - AI-generated tips based on progress
+  - Deadline alerts and reminders
+
+**US3.3:** As a user, I want to receive personalized goal suggestions based on my profile and current goals
+- **Acceptance Criteria:**
+  - AI analysis of existing goals and progress
+  - Contextual goal recommendations
+  - Category-based suggestions (Career, Personal, Health, Finance)
+  - One-tap goal creation from suggestions
+
+### Epic 4: Daily Task Management
+
+#### User Stories
+**US4.1:** As a user, I want to manage my daily tasks with priority levels and categories
+- **Acceptance Criteria:**
+  - Task creation with title, description, due date
+  - Priority levels: Low, Medium, High
+  - Categories: Work, Personal, Errands
+  - Task completion with progress tracking
+
+**US4.2:** As a user, I want AI to suggest daily tasks based on my goals and current situation
+- **Acceptance Criteria:**
+  - AI task generation based on goals and deadlines
+  - Context-aware suggestions (day of week, current progress)
+  - Task priority recommendations
+  - Automatic scheduling suggestions
+
+**US4.3:** As a user, I want to receive notifications and reminders for my tasks
+- **Acceptance Criteria:**
+  - Push notifications for due tasks
+  - Location-based reminders (when relevant)
+  - Configurable reminder settings
+  - Snooze and reschedule options
+
+### Epic 5: Monthly Planning
+
+#### User Stories
+**US5.1:** As a user, I want to create monthly plans with AI-generated task suggestions
+- **Acceptance Criteria:**
+  - Monthly plan creation with goals and priorities
+  - AI-generated monthly tasks based on goals
+  - Progress tracking throughout the month
+  - Plan adjustment and optimization
+
+**US5.2:** As a user, I want to review my monthly progress and receive insights for improvement
+- **Acceptance Criteria:**
+  - Monthly progress visualization
+### Core Feature Specifications
+
+#### 1. Dashboard & Overview Module
+**Primary Components:**
+- **Critical Steps Section:** AI-generated life optimization recommendations with priority levels (High, Critical, Urgent)
+- **Today's Tasks:** Maximum 5 high-priority tasks with quick completion actions
+- **Goal Progress:** Visual progress indicators for active goals with percentage completion
+- **Finance Overview:** Emergency fund status, active SIPs, loan summaries
+- **Motivational Quote:** Daily inspirational content with sharing capabilities
+
+**Mobile-Specific Enhancements:**
+- Pull-to-refresh functionality
+- Haptic feedback for interactions
+- Swipe gestures for quick actions
+- Widget support for home screen
+
+#### 2. Goals & Progress Tracking Module
+**Data Model Implementation:**
+```typescript
+interface Goal {
+  id: string;
+  title: string;
+  description?: string;
+  deadline: string; // ISO date
+  completed: boolean;
+  category: 'Career' | 'Personal' | 'Health' | 'Finance' | 'Education' | 'Other';
+  steps: Step[];
+}
+
+interface Step {
+  id: string;
+  goalId: string;
+  title: string;
+  description?: string;
+  completed: boolean;
+  dueDate?: string;
+}
+```
+
+**AI Integration:**
+- Goal tip generation using user's current progress and deadlines
+- SMART goal validation and suggestions
+- Step breakdown recommendations
+- Progress-based motivational content
+
+**Mobile Features:**
+- Quick goal creation with voice input
+- Progress photos and documentation
+- Goal sharing and celebration
+- Offline goal tracking with sync
+
+#### 3. Daily Task Management Module
+**Data Model Implementation:**
+```typescript
+interface DailyTask {
+  id: string;
+  title: string;
+  description?: string;
+  dueDate: string; // ISO string
+  priority: 'Low' | 'Medium' | 'High';
+  category: 'Work' | 'Personal' | 'Errands';
+  completed: boolean;
+  source?: 'manual' | 'ai';
+}
+```
+
+**AI Capabilities:**
+- Task generation based on goals and deadlines
+- Priority recommendation engine
+- Context-aware task suggestions
+- Productivity pattern analysis
+
+**Mobile Features:**
+- Location-based task reminders
+- Quick add with Siri/Google Assistant
+- Gesture-based task management
+- Calendar integration
+
+#### 4. Monthly Planning Module
+**Data Model Implementation:**
+```typescript
+interface MonthlyPlan {
+  id: string;
+  month: string;
+  year: number;
+  title: string;
+  description?: string;
+  goals: string[]; // Goal IDs
+  completed: boolean;
+  source?: 'manual' | 'ai';
+  tasks: string[]; // Generated task IDs
+}
+```
+
+**AI Features:**
+- Monthly task generation based on goals
+- Planning optimization suggestions
+- Progress forecasting
+- Resource allocation recommendations
+
+#### 5. Career & Job Search Module
+**Data Model Implementation:**
+```typescript
+interface JobApplication {
+  date: string; // ISO String
+  company: string;
+  role: string;
+  status: 'Need to Apply' | 'Applied' | 'Interviewing' | 'Offer' | 'Rejected';
+  source?: 'AI';
+  location?: string;
+  jobType?: 'Full-time' | 'Part-time' | 'Contract' | 'Internship';
+  salaryRange?: string;
+  keyResponsibilities?: string[];
+  requiredSkills?: string[];
+  applyLink?: string;
+}
+
+interface ResumeData {
+  contactInfo: ResumeContactInfo;
+  summary: { title: string; text: string; };
+  skills: Record<string, string>;
+  workExperience: ResumeWorkExperience[];
+  projects: ResumeProject[];
+  education: ResumeEducation[];
+}
+```
+
+**AI Integration:**
+- Job suggestions based on profile and preferences
+- Resume optimization recommendations
+- Application email generation
+- Interview preparation guidance
+
+#### 6. Global Living Advisor Module
+**Data Model Implementation:**
+```typescript
+interface RelocationQuestionnaire {
+  reasonForRelocation: 'Jobs' | 'Study';
+  lifestyle: 'City' | 'Suburban' | 'Rural' | 'Flexible';
+  familySize: number;
+  languageSkills: string;
+  climatePreference: 'Warm' | 'Cold' | 'Temperate' | 'No Preference';
+  workLifeBalance: 'Priority' | 'Important' | 'Balanced' | 'Flexible';
+  careerGoals: string;
+}
+
+interface CountryRecommendation {
+  country: string;
+  suitabilityScore: number; // 1-100
+  summary: string;
+  pros: string[];
+  cons: string[];
+}
+```
+
+**AI Capabilities:**
+- Country recommendation engine (50+ countries analyzed)
+- Personalized relocation roadmaps
+- Visa and documentation guidance
+- Cultural integration strategies
+
+#### 7. Travel Planning Module
+**Data Model Implementation:**
+```typescript
+interface TravelGoal {
+  id: string;
+  destination: string;
+  status: 'Completed' | 'Planned';
+  travelDate: string | Date | null;
+  duration?: string;
+  notes?: string;
+}
+
+interface TravelItinerary {
+  destination: string;
+  duration: number; // days
+  travelDate: string;
+  generalTips: string[];
+  dailyPlan: DailyPlan[];
+}
+```
+
+**AI Features:**
+- Destination suggestions based on preferences and season
+- Itinerary generation with activities and budgets
+- Travel optimization recommendations
+- Local insights and cultural tips
+
+#### 8. Finance Management Module
+**Data Model Implementation:**
+```typescript
+interface Loan {
+  id: string;
+  name: string;
+  amount: string;
+  monthlyPayment: string;
+  remainingBalance: string;
+  interestRate?: string;
+  payoffDate?: string;
+}
+
+interface SIP {
+  id: string;
+  name: string;
+  amount: string;
+  frequency: 'Monthly' | 'Quarterly' | 'Annually';
+  startDate?: string;
+  targetAmount?: string;
+  mutualFund?: string;
+  platform?: string;
+}
+
+interface IncomeSource {
+  id: string;
+  name: string;
+  amount: string;
+}
+```
+
+**Features:**
+- Loan tracking and payoff planning
+- Emergency fund management
+- SIP tracking and optimization
+- Income source management
+- Financial goal alignment
+
+### Mobile-Specific Feature Enhancements
+
+#### 1. Native Mobile Features
+**Push Notifications:**
+- Goal deadline reminders
+- Daily task notifications
+- AI insight alerts
+- Job application follow-ups
+- Financial milestone celebrations
+
+**Offline Capabilities:**
+- Core data caching using Redux Persist
+- Offline task creation and goal updates
+- Automatic sync when connection restored
+- Conflict resolution for concurrent edits
+
+**Device Integration:**
+- Camera for document scanning (resume uploads)
+- GPS for location-based task reminders
+- Calendar sync for deadlines and events
+- Contacts integration for job applications
+
+#### 2. Advanced Mobile Features
+**Home Screen Widgets:**
+- Today's Tasks widget (iOS/Android)
+- Goal Progress widget
+- Finance Overview widget
+- AI Insights widget
+
+**Voice Integration:**
+- Siri Shortcuts for task creation
+- Google Assistant integration
+- Voice note transcription
+- Hands-free goal updates
+
+**Gesture Support:**
+- Swipe-to-complete tasks
+- Long-press for context menus
+- Pull-to-refresh data
+- Pinch-to-zoom for detailed views
+
+---
+  - Destination and duration input
+  - AI-generated daily itineraries
+  - Budget estimates for activities
+  - Local tips and recommendations
+
+**US8.2:** As a travel enthusiast, I want personalized destination suggestions
+- **Acceptance Criteria:**
+  - AI analysis of preferences and history
+  - Seasonal and weather considerations
+  - Budget-appropriate suggestions
+  - Cultural and activity preferences
+
+### Epic 9: Finance Management
+
+#### User Stories
+**US9.1:** As a financial planner, I want to track loans, emergency funds, and investments
+- **Acceptance Criteria:**
+  - Loan tracking with payment schedules
+  - Emergency fund goal setting and progress
+  - SIP management with returns tracking
+  - Financial overview dashboard
+
+**US9.2:** As someone managing expenses, I want to track income sources and spending
+- **Acceptance Criteria:**
+  - Income source management
+  - Expense categorization
+  - Monthly budget tracking
+  - Financial goal alignment
 
 ---
 
+## Feature Specifications
 ## User Experience & Interface Design
 
-### Design Philosophy
-- **Mobile-First:** Every interaction designed for thumb-friendly navigation
-- **Consistent Branding:** Maintain Resolve25's visual identity across platforms
-- **Accessibility:** WCAG 2.1 AA compliance with screen reader support
-- **Performance:** 60fps animations, instant feedback
+### Design Philosophy & Principles
+
+#### 1. Mobile-First Design
+- **Thumb-Friendly Navigation:** All primary actions within easy thumb reach (bottom 75% of screen)
+- **Touch-Optimized:** Minimum 44px touch targets, generous spacing between interactive elements
+- **Gesture-Driven:** Intuitive swipe, pinch, and long-press interactions throughout the app
+- **Performance-Focused:** 60fps animations, <100ms response times, smooth transitions
+
+#### 2. Visual Design System
+- **Brand Consistency:** Maintains Resolve25's visual identity with mobile adaptations
+- **Color Palette:** Light theme optimization with high contrast ratios (4.5:1 minimum)
+- **Typography:** Inter font family with mobile-optimized sizes (16px minimum for body text)
+- **Icon System:** Consistent Lucide React icons with 24px standard size
+
+#### 3. Accessibility Standards
+- **WCAG 2.1 AA Compliance:** Full accessibility support for users with disabilities
+- **Screen Reader Support:** Semantic markup and proper ARIA labels
+- **Voice Control:** Siri and Google Assistant integration for hands-free operation
+- **Color Independence:** No color-only information communication
 
 ### Navigation Architecture
 
-#### 1. **Primary Navigation**
-- **Tab Bar (Bottom):** 5 main tabs with badges
-  - Dashboard (Home icon)
-  - Goals (Target icon)
-  - Tasks (CheckSquare icon)
-  - Insights (Brain icon)
-  - More (Menu icon)
+#### 1. Primary Navigation Structure
+**Bottom Tab Bar (5 Tabs):**
+```
+┌─────────────────────────────────┐
+│                                 │
+│           Content Area          │
+│                                 │
+├─────────────────────────────────┤
+│ 🏠    🎯    ✅    🧠    ⋯      │ Tab Bar (60px)
+│Home  Goals Tasks  AI   More     │
+└─────────────────────────────────┘
+```
 
-#### 2. **Secondary Navigation**
-- **More Tab Breakdown:**
-  - Monthly Plan
-  - Job Search
-  - Living Advisor
-  - Travel Goals
-  - Finance
-  - Car Sale
-  - Settings
-  - Profile
+**Tab Specifications:**
+- **Home (Dashboard):** Overview, critical steps, today's focus
+- **Goals:** Goal management, progress tracking, AI suggestions
+- **Tasks:** Daily task management, quick add, priority sorting
+- **AI:** Dedicated AI features, insights, and chat interface
+- **More:** Secondary features, settings, profile
 
-### Screen-by-Screen Specifications
+#### 2. Secondary Navigation (More Tab)
+**Feature Organization:**
+```
+More Tab Structure:
+├── Monthly Planning
+├── Career & Jobs
+├── Living Advisor
+├── Travel Goals
+├── Finance Manager
+├── Car Sale Tracker
+├── ────────────────
+├── Settings
+├── Profile
+└── Help & Support
+```
 
-#### 1. **Dashboard Screen**
+### Screen Design Specifications
+
+#### 1. Dashboard Screen (Home Tab)
+**Layout Structure:**
 ```
 ┌─────────────────────────────────┐
 │ ≡  Resolve25            🔔  👤  │ Header (60px)
 ├─────────────────────────────────┤
-│ Your AI-powered Life OS         │ Subtitle (24px)
+│ 📊 Your Life at a Glance        │ Page Title (40px)
 ├─────────────────────────────────┤
-│ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ │ Stats Cards
-│ │ 75% │ │ ₹5K │ │ 3/5 │ │160d│ │ (80px each)
-│ │Prog │ │Fund │ │Goal │ │Left│ │
+│ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ │ Stats Row (80px)
+│ │ 85% │ │ ₹12K│ │ 4/6 │ │ 45d │ │
+│ │Goal │ │Fund │ │Done │ │Left │ │
 │ └─────┘ └─────┘ └─────┘ └─────┘ │
 ├─────────────────────────────────┤
-│ Critical Next Steps             │ Section Header
-│ → Complete project milestone    │ Task Item (48px)
-│ → Schedule dentist appointment  │ Task Item (48px)
-│ → Review investment portfolio   │ Task Item (48px)
+│ 🚀 Critical Next Steps          │ Section (32px)
+│ ┌───────────────────────────────┐ │
+│ │ ⚡ Complete Q4 presentation  │ │ Priority Item
+│ │    Due in 3 days             │ │ (64px each)
+│ └───────────────────────────────┘ │
+│ ┌───────────────────────────────┐ │
+│ │ 💼 Apply to Meta PM role     │ │
+│ │    High priority             │ │
+│ └───────────────────────────────┘ │
 ├─────────────────────────────────┤
-│ 🧠 AI Insights                  │ AI Section
-│ [Get Personalized Insights]    │ CTA Button (48px)
+│ 📅 Today's Focus (3)            │ Tasks Section
+│ ☐ Review budget spreadsheet     │ (40px each)
+│ ☐ Call insurance company        │
+│ ☑ Morning workout ✓             │
+├─────────────────────────────────┤
+│ 🧠 AI Insights Available        │ AI Section (60px)
+│ [Get Personalized Tips] →       │
 └─────────────────────────────────┘
 ```
 
-#### 2. **Goals Screen**
+**Interactive Elements:**
+- Pull-to-refresh for data updates
+- Swipe left on tasks for quick actions
+- Tap stats cards for detailed views
+- Haptic feedback on all interactions
+
+#### 2. Goals Management Screen
+**Layout Structure:**
 ```
 ┌─────────────────────────────────┐
-│ Goals                    + Add  │ Header with Action
+│ Goals                    + Add  │ Header (60px)
 ├─────────────────────────────────┤
-│ Health      Career    Personal  │ Category Filter
+│ All   Career  Health  Personal  │ Filter Tabs (40px)
 ├─────────────────────────────────┤
-│ ┌─────────────────────────────┐ │ Goal Card (120px)
-│ │ Learn Spanish    [75%] 🎯  │ │
-│ │ Practice daily - 3 weeks    │ │
-│ │ ●●●●○ 4/5 steps completed  │ │
-│ │ Due: Dec 31, 2025          │ │
+│ ┌─────────────────────────────┐ │ Goal Card (140px)
+│ │ 🎯 Learn Spanish            │ │
+│ │ ████████░░ 75%              │ │ Progress Bar
+│ │ 4 of 5 steps completed      │ │
+│ │ Due: Dec 31, 2024           │ │
+│ │ 💡 Tip: Practice daily      │ │ AI Tip
 │ └─────────────────────────────┘ │
-│ ┌─────────────────────────────┐ │ Goal Card (120px)
-│ │ Run Marathon     [30%] 🏃  │ │
-│ │ Training plan - 8 months    │ │
-│ │ ●●○○○ 2/5 steps completed  │ │
-│ │ Due: Jun 15, 2026          │ │
+│                                 │
+│ ┌─────────────────────────────┐ │ Goal Card (140px)
+│ │ 💪 Run First Marathon       │ │
+│ │ ███░░░░░░░ 30%              │ │
+│ │ 3 of 10 steps completed     │ │
+│ │ Due: June 15, 2025          │ │
+│ │ ⚠️ Behind schedule          │ │ Status Alert
 │ └─────────────────────────────┘ │
 ├─────────────────────────────────┤
-│ 🤖 [Ask AI for Goal Ideas]     │ AI Suggestion CTA
+│ 🤖 Generate Goal Ideas          │ AI CTA (50px)
 └─────────────────────────────────┘
 ```
 
-#### 3. **Daily Tasks Screen**
+**Interaction Patterns:**
+- Tap goal card to view details and steps
+- Swipe right to mark goal as complete
+- Long press for context menu (edit, delete, share)
+- Pull-to-refresh for AI suggestions
+
+#### 3. Daily Tasks Screen
+**Layout Structure:**
 ```
 ┌─────────────────────────────────┐
-│ Daily Tasks              + Add  │ Header with Action
+│ Daily Tasks              + Add  │ Header (60px)
 ├─────────────────────────────────┤
-│ 📅 Today - July 23             │ Date Header
-│ ●●●○○ 3 of 5 completed        │ Progress Bar
+│ Today  Tomorrow  This Week  All  │ Time Filters (40px)
 ├─────────────────────────────────┤
-│ ☑ Morning workout       🔴 High │ Completed Task
-│ ☑ Team standup meeting  🟡 Med  │ Completed Task
-│ ☑ Code review           🟢 Low  │ Completed Task
-│ ☐ Grocery shopping      🔴 High │ Pending Task
-│ ☐ Call insurance        🟡 Med  │ Pending Task
+│ 🔥 High Priority (2)            │ Section Header
+│ ┌─────────────────────────────┐ │ Task Item (56px)
+│ │ ⚡ Finish project proposal  │ │
+│ │ Work • Due 6:00 PM          │ │
+│ └─────────────────────────────┘ │
+│ ┌─────────────────────────────┐ │ Task Item (56px)
+│ │ 📞 Client follow-up call    │ │
+│ │ Work • Due 2:00 PM          │ │
+│ └─────────────────────────────┘ │
 ├─────────────────────────────────┤
-│ 📅 Tomorrow - July 24          │ Future Date
-│ ○○○ 0 of 3 planned            │ Progress Indicator
-│ ☐ Doctor appointment    🔴 High │ Scheduled Task
-│ ☐ Project presentation  🟡 Med  │ Scheduled Task
-│ ☐ Lunch with Sarah      🟢 Low  │ Scheduled Task
+│ 📋 Medium Priority (3)          │ Section Header
+│ ☐ Weekly grocery shopping       │ Simple Task (40px)
+│ ☐ Update LinkedIn profile       │ Simple Task (40px)
+│ ☑ Morning workout ✓             │ Completed (40px)
+├─────────────────────────────────┤
+│ 🧠 AI Task Suggestions          │ AI Section (50px)
+│ [Generate Tasks for Today] →    │
 └─────────────────────────────────┘
 ```
 
-### Visual Design System
+**Gesture Controls:**
+- Swipe right to complete task
+- Swipe left for options (edit, delete, reschedule)
+- Long press to set priority
+- Double tap to add subtasks
 
-#### 1. **Color Palette (Dark Theme)**
-- **Primary:** `#8B5CF6` (Purple) - Main brand color
-- **Accent:** `#EF4444` (Red-Pink) - Highlights and CTAs
-- **Background:** `#0F172A` (Dark Blue) - Main background
-- **Surface:** `#1E293B` (Blue-Gray) - Cards and components
-- **Text Primary:** `#F8FAFC` - Main text color
-- **Text Secondary:** `#94A3B8` - Muted text
-- **Success:** `#10B981` - Completed states
-- **Warning:** `#F59E0B` - Attention items
-- **Error:** `#EF4444` - Error states
+#### 4. AI Assistant Screen
+**Layout Structure:**
+```
+┌─────────────────────────────────┐
+│ AI Assistant            ⚙️      │ Header (60px)
+├─────────────────────────────────┤
+│ 💬 Quick Actions                │ Section (32px)
+│ ┌──────────┐ ┌──────────┐      │ Action Grid
+│ │    🎯    │ │    📝    │      │ (80px each)
+│ │Goal Tips │ │Task Ideas│      │
+│ └──────────┘ └──────────┘      │
+│ ┌──────────┐ ┌──────────┐      │
+│ │    💼    │ │    ✈️    │      │
+│ │Job Hunt  │ │Travel    │      │
+│ └──────────┘ └──────────┘      │
+├─────────────────────────────────┤
+│ 📈 Recent Insights              │ Section (32px)
+│ ┌─────────────────────────────┐ │ Insight Card
+│ │ 💡 You're 85% likely to hit │ │ (80px)
+│ │    your fitness goal by Q1   │ │
+│ │    Based on current progress │ │
+│ └─────────────────────────────┘ │
+├─────────────────────────────────┤
+│ 💬 Chat with AI                 │ Chat Section
+│ ┌─────────────────────────────┐ │ Input (50px)
+│ │ Ask me anything... 🎤 ⌨️   │ │
+│ └─────────────────────────────┘ │
+└─────────────────────────────────┘
+```
 
-#### 2. **Typography Scale**
-- **Display Large:** 32px, Bold - Main headings
-- **Display Medium:** 24px, Bold - Section headers
-- **Title:** 20px, Semibold - Card titles
-- **Body Large:** 16px, Regular - Primary body text
-- **Body Medium:** 14px, Regular - Secondary text
-- **Caption:** 12px, Regular - Helper text
-- **Label:** 10px, Medium - Form labels
+### Component Design System
 
-#### 3. **Spacing System**
-- **Base Unit:** 4px
-- **Small:** 8px (2 units)
-- **Medium:** 16px (4 units)
-- **Large:** 24px (6 units)
-- **XLarge:** 32px (8 units)
-- **XXLarge:** 48px (12 units)
+#### 1. Core Components
 
-#### 4. **Component Specifications**
+**Button Specifications:**
+```typescript
+Primary Button:
+- Height: 48px
+- Border radius: 8px
+- Font: 16px medium
+- Min width: 120px
+- Touch target: 44px minimum
 
-##### Cards
-- **Border Radius:** 12px
-- **Shadow:** 0 4px 12px rgba(0,0,0,0.15)
-- **Padding:** 16px (Medium)
-- **Margin:** 12px between cards
+Secondary Button:
+- Height: 40px
+- Border: 1px solid
+- Font: 14px medium
+- Background: transparent
 
-##### Buttons
-- **Primary:** Gradient background, 48px height, 12px radius
-- **Secondary:** Border outline, transparent background
-- **Icon:** 44px square, circular for floating actions
-- **Touch Target:** Minimum 44px for accessibility
+Icon Button:
+- Size: 40x40px
+- Icon: 20px
+- Border radius: 8px
+```
 
-##### Input Fields
-- **Height:** 48px minimum
-- **Border:** 1px solid with focus states
-- **Padding:** 12px horizontal, 16px vertical
-- **Font Size:** 16px (prevents zoom on iOS)
+**Card Specifications:**
+```typescript
+Standard Card:
+- Padding: 16px
+- Border radius: 12px
+- Shadow: 0 2px 8px rgba(0,0,0,0.1)
+- Border: 1px solid #f0f0f0
+
+Compact Card:
+- Padding: 12px
+- Border radius: 8px
+- Shadow: 0 1px 4px rgba(0,0,0,0.08)
+```
+
+**Input Specifications:**
+```typescript
+Text Input:
+- Height: 48px
+- Padding: 12px 16px
+- Border radius: 8px
+- Font: 16px regular
+- Border: 1px solid #d1d5db
+
+Search Input:
+- Height: 40px
+- Padding: 8px 12px
+- Border radius: 20px
+- Icon: 16px (left)
+```
+
+#### 2. Loading States
+
+**Skeleton Screens:**
+- Goal cards: Animated shimmer effect
+- Task lists: Progressive loading
+- Dashboard stats: Fade-in animation
+- AI responses: Typing indicator
+
+**Pull-to-Refresh:**
+- Custom Resolve25 branded loader
+- Haptic feedback on trigger
+- Smooth spring animation
+
+### Responsive Design Guidelines
+
+#### 1. Screen Size Adaptations
+
+**Small Phones (< 375px width):**
+- Reduce horizontal padding to 12px
+- Stack stats cards vertically if needed
+- Smaller typography scale (14px base)
+
+**Large Phones (> 414px width):**
+- Increase content max-width to 600px
+- Add more horizontal padding (24px)
+- Larger touch targets (48px minimum)
+
+**Tablets (> 768px width):**
+- Side-by-side layouts where appropriate
+- Navigation drawer instead of tabs
+- Larger cards and content areas
+
+#### 2. Orientation Support
+
+**Portrait Mode (Primary):**
+- Optimized for single-hand use
+- Bottom navigation accessibility
+- Vertical scrolling focus
+
+**Landscape Mode:**
+- Horizontal tab layout option
+- Split-screen for large content
+- Keyboard optimization for forms
 
 ---
-
+├─────────────────────────────────┤
 ## Technical Architecture
 
-### Platform Decision Matrix
+### Technology Stack Selection
 
-| Platform | Pros | Cons | Recommendation |
-|----------|------|------|----------------|
-| **React Native** | Code sharing, faster development, familiar stack | Performance limitations, complex native integrations | ✅ **Recommended** |
-| **Flutter** | Performance, single codebase | New language (Dart), different ecosystem | ❌ Not recommended |
-| **Native (iOS/Android)** | Best performance, platform features | Duplicate development, higher cost | ❌ Not recommended for MVP |
+#### 1. Mobile Framework Decision
+**React Native (Recommended):**
+- **Pros:** 80% code reuse, faster development, existing team expertise, mature ecosystem
+- **Cons:** Slight performance trade-offs, some native module dependencies
+- **Justification:** Optimal balance of development speed, team expertise, and feature requirements
 
-### React Native Architecture
+**Alternative Considerations:**
+- **Flutter:** Excellent performance but requires Dart expertise
+- **Native Development:** Best performance but doubles development effort
 
-#### 1. **Project Structure**
+#### 2. Core Technology Stack
+
+```typescript
+// Frontend Framework
+React Native: 0.73+
+TypeScript: 5.0+
+React: 18.2+
+
+// State Management
+Redux Toolkit: 2.0+
+Redux Persist: 6.0+
+React Query: 5.0+ (for server state)
+
+// Navigation
+React Navigation: 6.0+
+React Native Screens: 3.0+
+
+// UI Components & Styling
+React Native Elements: 4.0+
+Styled Components: 6.0+
+React Native Vector Icons: 10.0+
+React Native Reanimated: 3.0+
+
+// Data Storage
+AsyncStorage: 1.19+
+SQLite (expo-sqlite): 11.0+
+Secure Store (expo-secure-store): 12.0+
+
+// Networking & APIs
+Axios: 1.6+
+Supabase JS: 2.38+
+
+// Authentication
+Auth0 React Native: 3.0+
+React Native Biometrics: 3.0+
+
+// AI & Analytics
+Google Gemini API
+Firebase Analytics: 20.0+
+Crashlytics: 18.0+
+
+// Development Tools
+Expo CLI: 6.0+
+Metro Bundler: 0.80+
+Flipper: 0.212+
+```
+
+### Application Architecture
+
+#### 1. High-Level System Design
+```
+┌─────────────────────────────────────────────────────────┐
+│                 Mobile App (React Native)               │
+├─────────────────────────────────────────────────────────┤
+│  Presentation Layer                                     │
+│  ├── Screens (Dashboard, Goals, Tasks, etc.)           │
+│  ├── Components (Cards, Forms, Navigation)             │
+│  └── Navigation (Tab, Stack, Modal)                    │
+├─────────────────────────────────────────────────────────┤
+│  State Management Layer                                 │
+│  ├── Redux Store (Global State)                        │
+│  ├── React Query (Server State)                        │
+│  └── Local Storage (Offline Data)                      │
+├─────────────────────────────────────────────────────────┤
+│  Service Layer                                          │
+│  ├── API Services (Supabase, Gemini AI)               │
+│  ├── Authentication (Auth0)                            │
+│  ├── Storage Services (Local, Secure)                  │
+│  └── Background Services (Sync, Notifications)         │
+├─────────────────────────────────────────────────────────┤
+│  Data Layer                                             │
+│  ├── Local Database (SQLite)                           │
+│  ├── Cache Layer (AsyncStorage)                        │
+│  └── Secure Storage (Keychain/Keystore)               │
+└─────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────┐
+│              Backend Services (Existing)                │
+├─────────────────────────────────────────────────────────┤
+│  Next.js API Routes                                     │
+│  ├── /api/auth (Auth0 Integration)                     │
+│  ├── /api/ai (Gemini AI Flows)                        │
+│  ├── /api/data (CRUD Operations)                       │
+│  └── /api/sync (Data Synchronization)                  │
+├─────────────────────────────────────────────────────────┤
+│  Database & Storage                                     │
+│  ├── Supabase (PostgreSQL)                            │
+│  ├── Auth0 (User Management)                           │
+│  └── Google Cloud (AI Services)                        │
+└─────────────────────────────────────────────────────────┘
+```
+
+#### 2. Project Structure
 ```
 resolve25-mobile/
 ├── src/
-│   ├── components/          # Reusable UI components
-│   │   ├── common/         # Generic components
-│   │   ├── forms/          # Form components
-│   │   ├── cards/          # Card components
-│   │   └── navigation/     # Navigation components
-│   ├── screens/            # Screen components
-│   │   ├── Dashboard/
-│   │   ├── Goals/
-│   │   ├── Tasks/
-│   │   ├── Auth/
-│   │   └── Profile/
-│   ├── services/           # API and business logic
-│   │   ├── api/           # API clients
-│   │   ├── auth/          # Authentication
-│   │   ├── storage/       # Local storage
-│   │   └── ai/            # AI service integration
-│   ├── store/             # State management (Redux Toolkit)
-│   │   ├── slices/        # Feature slices
-│   │   └── middleware/    # Custom middleware
-│   ├── utils/             # Utility functions
-│   ├── hooks/             # Custom React hooks
+│   ├── components/              # Reusable UI components
+│   │   ├── common/             # Generic components (Button, Card, Input)
+│   │   ├── forms/              # Form-specific components
+│   │   ├── ai/                 # AI-related components
+│   │   └── navigation/         # Navigation components
+│   ├── screens/                # Screen components
+│   │   ├── Auth/               # Authentication screens
+│   │   ├── Dashboard/          # Dashboard and overview
+│   │   ├── Goals/              # Goal management
+│   │   ├── Tasks/              # Daily task management
+│   │   ├── Monthly/            # Monthly planning
+│   │   ├── Career/             # Job search and career
+│   │   ├── Living/             # Living advisor
+│   │   ├── Travel/             # Travel planning
+│   │   ├── Finance/            # Financial management
+│   │   └── Profile/            # User profile and settings
+│   ├── services/               # Business logic and API
+│   │   ├── api/               # API client services
+│   │   │   ├── auth.ts        # Authentication API
+│   │   │   ├── goals.ts       # Goals CRUD operations
+│   │   │   ├── tasks.ts       # Tasks management
+│   │   │   ├── ai.ts          # AI service integration
+│   │   │   └── sync.ts        # Data synchronization
+│   │   ├── storage/           # Local data management
+│   │   │   ├── database.ts    # SQLite operations
+│   │   │   ├── cache.ts       # Cache management
+│   │   │   └── secure.ts      # Secure storage
+│   │   ├── auth/              # Authentication logic
+│   │   └── notifications/     # Push notification handling
+│   ├── store/                  # Redux store configuration
+│   │   ├── index.ts           # Store setup
+│   │   ├── slices/            # Redux slices
+│   │   │   ├── auth.ts        # Authentication state
+│   │   │   ├── goals.ts       # Goals state
+│   │   │   ├── tasks.ts       # Tasks state
+│   │   │   ├── app.ts         # App-wide state
+│   │   │   └── offline.ts     # Offline state management
+│   │   └── middleware/        # Custom middleware
+│   ├── utils/                  # Utility functions
+│   │   ├── constants.ts       # App constants
+│   │   ├── helpers.ts         # Helper functions
+│   │   ├── validation.ts      # Form validation
+│   │   └── formatting.ts      # Data formatting
+│   ├── hooks/                  # Custom React hooks
+│   │   ├── useAuth.ts         # Authentication hook
+│   │   ├── useOffline.ts      # Offline functionality
+│   │   ├── useSync.ts         # Data synchronization
+│   │   └── usePermissions.ts  # Device permissions
+│   ├── types/                  # TypeScript type definitions
+│   │   ├── api.ts             # API response types
+│   │   ├── navigation.ts      # Navigation types
+│   │   └── models.ts          # Data model types
+│   └── navigation/             # Navigation configuration
+│       ├── AppNavigator.tsx   # Main app navigation
+│       ├── AuthNavigator.tsx  # Authentication flow
+│       └── TabNavigator.tsx   # Bottom tab navigation
+├── assets/                     # Static assets
+│   ├── images/
+│   ├── icons/
+│   └── fonts/
+├── android/                    # Android-specific code
+├── ios/                        # iOS-specific code
+├── e2e/                        # End-to-end tests
+├── __tests__/                  # Unit tests
+└── docs/                       # Technical documentation
+```
+
+### Data Flow Architecture
+
+#### 1. State Management Strategy
+```typescript
+// Redux Store Structure
+interface RootState {
+  auth: AuthState;           // User authentication state
+  app: AppState;             // Global app state
+  goals: GoalsState;         // Goals and progress
+  tasks: TasksState;         // Daily tasks
+  monthly: MonthlyState;     // Monthly planning
+  career: CareerState;       // Job search and career
+  living: LivingState;       // Living advisor
+  travel: TravelState;       // Travel planning
+  finance: FinanceState;     // Financial management
+  offline: OfflineState;     // Offline synchronization
+  ai: AIState;               // AI interactions
+}
+
+// Example State Slice
+interface GoalsState {
+  goals: Goal[];
+  loading: boolean;
+  error: string | null;
+  lastSync: string;
+  offline: {
+    pendingChanges: Goal[];
+    conflicts: Goal[];
+  };
+}
+```
+
+#### 2. Offline-First Architecture
+```typescript
+// Offline Strategy Implementation
+class OfflineManager {
+  // Queue operations when offline
+  queueOperation(operation: OfflineOperation): void;
+  
+  // Sync when back online
+  async syncPendingOperations(): Promise<void>;
+  
+  // Handle conflicts
+  resolveConflicts(conflicts: ConflictResolution[]): void;
+  
+  // Cache management
+  updateCache(data: CacheData): void;
+}
+
+interface OfflineOperation {
+  id: string;
+  type: 'CREATE' | 'UPDATE' | 'DELETE';
+  entity: 'goal' | 'task' | 'monthlyPlan' | 'jobApplication';
+  data: any;
+  timestamp: string;
+  retryCount: number;
+}
+```
+
+### API Integration
+
+#### 1. Backend API Endpoints
+```typescript
+// API Endpoint Structure
+const API_ENDPOINTS = {
+  AUTH: {
+    LOGIN: '/api/auth/login',
+    LOGOUT: '/api/auth/logout',
+    REFRESH: '/api/auth/refresh',
+    PROFILE: '/api/auth/profile'
+  },
+  GOALS: {
+    GET_ALL: '/api/goals',
+    CREATE: '/api/goals',
+    UPDATE: '/api/goals/:id',
+    DELETE: '/api/goals/:id',
+    AI_TIPS: '/api/ai/goal-tips'
+  },
+  TASKS: {
+    GET_ALL: '/api/tasks',
+    CREATE: '/api/tasks',
+    UPDATE: '/api/tasks/:id',
+    DELETE: '/api/tasks/:id',
+    AI_GENERATE: '/api/ai/generate-tasks'
+  },
+  AI: {
+    GENERATE_GOAL_TIPS: '/api/ai/generate-goal-tips',
+    GENERATE_MONTHLY_TASKS: '/api/ai/generate-monthly-tasks',
+    JOB_SUGGESTIONS: '/api/ai/job-suggestions',
+    TRAVEL_SUGGESTIONS: '/api/ai/travel-suggestions',
+    LIVING_RECOMMENDATIONS: '/api/ai/living-recommendations'
+  },
+  SYNC: {
+    FULL_SYNC: '/api/sync/full',
+    INCREMENTAL: '/api/sync/incremental',
+    RESOLVE_CONFLICTS: '/api/sync/conflicts'
+  }
+};
+```
+
+#### 2. API Client Implementation
+```typescript
+// Type-safe API client
+class APIClient {
+  private axiosInstance: AxiosInstance;
+  
+  constructor(baseURL: string, authToken?: string) {
+    this.axiosInstance = axios.create({
+      baseURL,
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken && { Authorization: `Bearer ${authToken}` })
+      }
+    });
+    
+    this.setupInterceptors();
+  }
+  
+  // Goals API
+  async getGoals(): Promise<Goal[]> {
+    const response = await this.axiosInstance.get<Goal[]>(API_ENDPOINTS.GOALS.GET_ALL);
+    return response.data;
+  }
+  
+  async createGoal(goal: CreateGoalRequest): Promise<Goal> {
+    const response = await this.axiosInstance.post<Goal>(API_ENDPOINTS.GOALS.CREATE, goal);
+    return response.data;
+  }
+  
+  // AI Integration
+  async generateGoalTips(goalId: string): Promise<string[]> {
+    const response = await this.axiosInstance.post<{tips: string[]}>(
+      API_ENDPOINTS.AI.GENERATE_GOAL_TIPS,
+      { goalId }
+    );
+    return response.data.tips;
+  }
+}
+```
+
+### Performance Optimization
+
+#### 1. Code Splitting & Lazy Loading
+```typescript
+// Screen-level lazy loading
+const DashboardScreen = React.lazy(() => import('../screens/Dashboard/DashboardScreen'));
+const GoalsScreen = React.lazy(() => import('../screens/Goals/GoalsScreen'));
+const TasksScreen = React.lazy(() => import('../screens/Tasks/TasksScreen'));
+
+// Component-level lazy loading for heavy features
+const AIAssistantDialog = React.lazy(() => import('../components/ai/AIAssistantDialog'));
+const ResumeBuilder = React.lazy(() => import('../components/career/ResumeBuilder'));
+```
+
+#### 2. Memory Management
+```typescript
+// Image optimization
+const optimizedImageConfig = {
+  quality: 0.8,
+  format: 'webp',
+  resize: {
+    width: 300,
+    height: 300
+  }
+};
+
+// List virtualization for large datasets
+const VirtualizedTaskList = ({tasks}: {tasks: Task[]}) => {
+  return (
+    <VirtualizedList
+      data={tasks}
+      renderItem={({item}) => <TaskItem task={item} />}
+      keyExtractor={item => item.id}
+      initialNumToRender={10}
+      maxToRenderPerBatch={5}
+      windowSize={10}
+    />
+  );
+};
+```
+
+#### 3. Caching Strategy
+```typescript
+// Multi-level caching
+interface CacheStrategy {
+  memory: MemoryCache;     // In-memory cache for frequently accessed data
+  storage: StorageCache;   // AsyncStorage for persistent cache
+  database: DatabaseCache; // SQLite for complex queries
+}
+
+class CacheManager {
+  async get<T>(key: string): Promise<T | null> {
+    // Check memory cache first
+    let data = await this.memory.get<T>(key);
+    if (data) return data;
+    
+    // Check storage cache
+    data = await this.storage.get<T>(key);
+    if (data) {
+      this.memory.set(key, data);
+      return data;
+    }
+    
+    // Check database cache
+    data = await this.database.get<T>(key);
+    if (data) {
+      this.memory.set(key, data);
+      this.storage.set(key, data);
+      return data;
+    }
+    
+    return null;
+  }
+}
+```
+
+---
+
+## Data Models & API Specifications
+
+### Core Data Models
+
+#### 1. User & Authentication Models
+```typescript
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  avatar?: string;
+  preferences: UserPreferences;
+  createdAt: string;
+  lastLoginAt: string;
+}
+
+interface UserPreferences {
+  theme: 'light' | 'dark' | 'system';
+  notifications: NotificationSettings;
+  privacy: PrivacySettings;
+  ai: AISettings;
+}
+
+interface NotificationSettings {
+  goals: boolean;
+  tasks: boolean;
+  ai: boolean;
+  career: boolean;
+  finance: boolean;
+}
+```
+
+#### 2. Goals & Progress Models
+```typescript
+interface Goal {
+  id: string;
+  userId: string;
+  title: string;
+  description?: string;
+  category: 'Career' | 'Personal' | 'Health' | 'Finance' | 'Education' | 'Other';
+  deadline: string; // ISO date
+  completed: boolean;
+  steps: Step[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Step {
+  id: string;
+  goalId: string;
+  title: string;
+  description?: string;
+  completed: boolean;
+  dueDate?: string;
+  order: number;
+  createdAt: string;
+}
+```
+
+#### 3. Task Management Models
+```typescript
+interface DailyTask {
+  id: string;
+  userId: string;
+  title: string;
+  description?: string;
+  dueDate: string; // ISO string
+  priority: 'Low' | 'Medium' | 'High';
+  category: 'Work' | 'Personal' | 'Errands';
+  completed: boolean;
+  source?: 'manual' | 'ai';
+  linkedGoalId?: string;
+  createdAt: string;
+  completedAt?: string;
+}
+
+interface MonthlyPlan {
+  id: string;
+  userId: string;
+  month: string;
+  year: number;
+  title: string;
+  description?: string;
+  goals: string[]; // Goal IDs
+  completed: boolean;
+  source?: 'manual' | 'ai';
+  tasks: string[]; // Generated task IDs
+  createdAt: string;
+}
+```
+
+#### 4. Career & Job Search Models
+```typescript
+interface JobApplication {
+  id: string;
+  userId: string;
+  date: string; // ISO String
+  company: string;
+  role: string;
+  status: 'Need to Apply' | 'Applied' | 'Interviewing' | 'Offer' | 'Rejected';
+  source?: 'AI';
+  location?: string;
+  jobType?: 'Full-time' | 'Part-time' | 'Contract' | 'Internship';
+  salaryRange?: string;
+  keyResponsibilities?: string[];
+  requiredSkills?: string[];
+  applyLink?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ResumeData {
+  id: string;
+  userId: string;
+  contactInfo: ResumeContactInfo;
+  summary: {
+    title: string;
+    text: string;
+  };
+  skills: Record<string, string>;
+  workExperience: ResumeWorkExperience[];
+  projects: ResumeProject[];
+  education: ResumeEducation[];
+  lastUpdated: string;
+}
+```
+
+#### 5. Financial Management Models
+```typescript
+interface Loan {
+  id: string;
+  userId: string;
+  name: string;
+  amount: string;
+  monthlyPayment: string;
+  remainingBalance: string;
+  interestRate?: string;
+  payoffDate?: string;
+  lender?: string;
+  type: 'Personal' | 'Home' | 'Car' | 'Education' | 'Credit Card' | 'Other';
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface SIP {
+  id: string;
+  userId: string;
+  name: string;
+  amount: string;
+  frequency: 'Monthly' | 'Quarterly' | 'Annually';
+  startDate?: string;
+  targetAmount?: string;
+  mutualFund?: string;
+  platform?: string;
+  currentValue?: string;
+  returns?: string;
+  createdAt: string;
+}
+
+interface FinancialGoal {
+  id: string;
+  userId: string;
+  type: 'Emergency Fund' | 'Retirement' | 'Investment' | 'Savings';
+  targetAmount: string;
+  currentAmount: string;
+  targetDate?: string;
+  monthlyContribution?: string;
+  priority: 'Low' | 'Medium' | 'High';
+}
+```
+
+### API Endpoints Specification
+
+#### 1. Authentication Endpoints
+```typescript
+POST   /api/auth/login           // User login
+POST   /api/auth/logout          // User logout
+POST   /api/auth/refresh         // Refresh token
+GET    /api/auth/profile         // Get user profile
+PUT    /api/auth/profile         // Update user profile
+POST   /api/auth/forgot-password // Password reset
+```
+
+#### 2. Goals Management Endpoints
+```typescript
+GET    /api/goals                // Get all user goals
+POST   /api/goals                // Create new goal
+GET    /api/goals/:id            // Get specific goal
+PUT    /api/goals/:id            // Update goal
+DELETE /api/goals/:id            // Delete goal
+POST   /api/goals/:id/steps      // Add step to goal
+PUT    /api/goals/:id/steps/:stepId // Update step
+DELETE /api/goals/:id/steps/:stepId // Delete step
+```
+
+#### 3. AI Integration Endpoints
+```typescript
+POST   /api/ai/generate-goal-tips        // Generate goal tips
+POST   /api/ai/generate-monthly-tasks    // Generate monthly tasks
+POST   /api/ai/generate-tasks           // Generate daily tasks
+POST   /api/ai/job-suggestions          // Job recommendations
+POST   /api/ai/travel-suggestions       // Travel recommendations
+POST   /api/ai/living-recommendations   // Living advisor
+POST   /api/ai/critical-steps           // Critical next steps
+POST   /api/ai/generate-email           // Application emails
+```
+
+#### 4. Data Synchronization Endpoints
+```typescript
+GET    /api/sync/status          // Sync status
+POST   /api/sync/full            // Full data sync
+POST   /api/sync/incremental     // Incremental sync
+POST   /api/sync/conflicts       // Resolve conflicts
+GET    /api/sync/last-updated    // Last update timestamp
+```
+
+### Offline Data Management
+
+#### 1. Local Storage Strategy
+```typescript
+// SQLite Database Schema
+const DATABASE_SCHEMA = {
+  goals: {
+    id: 'TEXT PRIMARY KEY',
+    userId: 'TEXT NOT NULL',
+    title: 'TEXT NOT NULL',
+    description: 'TEXT',
+    category: 'TEXT',
+    deadline: 'TEXT',
+    completed: 'INTEGER DEFAULT 0',
+    createdAt: 'TEXT',
+    updatedAt: 'TEXT',
+    synced: 'INTEGER DEFAULT 0'
+  },
+  tasks: {
+    id: 'TEXT PRIMARY KEY',
+    userId: 'TEXT NOT NULL',
+    title: 'TEXT NOT NULL',
+    description: 'TEXT',
+    dueDate: 'TEXT',
+    priority: 'TEXT',
+    category: 'TEXT',
+    completed: 'INTEGER DEFAULT 0',
+    source: 'TEXT',
+    linkedGoalId: 'TEXT',
+    createdAt: 'TEXT',
+    synced: 'INTEGER DEFAULT 0'
+  },
+  sync_queue: {
+    id: 'TEXT PRIMARY KEY',
+    operation: 'TEXT NOT NULL', // CREATE, UPDATE, DELETE
+    entity_type: 'TEXT NOT NULL',
+    entity_id: 'TEXT NOT NULL',
+    data: 'TEXT', // JSON stringified data
+    timestamp: 'TEXT',
+    retry_count: 'INTEGER DEFAULT 0'
+  }
+};
+```
+
+#### 2. Conflict Resolution Strategy
+```typescript
+interface ConflictResolution {
+  localVersion: any;
+  serverVersion: any;
+  resolution: 'use_local' | 'use_server' | 'merge' | 'manual';
+  resolvedData?: any;
+}
+
+class ConflictResolver {
+  resolveGoalConflict(local: Goal, server: Goal): ConflictResolution {
+    // Automatic resolution for simple cases
+    if (local.updatedAt > server.updatedAt) {
+      return { localVersion: local, serverVersion: server, resolution: 'use_local' };
+    }
+    
+    // Manual resolution for complex conflicts
+    if (this.hasComplexConflicts(local, server)) {
+      return { localVersion: local, serverVersion: server, resolution: 'manual' };
+    }
+    
+    // Merge strategy for compatible changes
+    const merged = this.mergeGoals(local, server);
+    return { localVersion: local, serverVersion: server, resolution: 'merge', resolvedData: merged };
+  }
+}
+```
+
+---
+
+## Mobile-Specific Implementation
+
+### Native Features Integration
+
+#### 1. Push Notifications
+```typescript
+// Notification Types
+interface NotificationConfig {
+  goalDeadlines: {
+    enabled: boolean;
+    reminderDays: number[]; // Days before deadline
+    quietHours: { start: string; end: string; };
+  };
+  dailyTasks: {
+    enabled: boolean;
+    reminderTime: string; // Daily reminder time
+    overdueReminders: boolean;
+  };
+  aiInsights: {
+    enabled: boolean;
+    frequency: 'daily' | 'weekly' | 'monthly';
+  };
+  jobApplications: {
+    enabled: boolean;
+    followUpReminders: boolean;
+    interviewReminders: boolean;
+  };
+}
+
+// Push Notification Service
+class PushNotificationService {
+  async scheduleGoalDeadlineReminder(goal: Goal): Promise<void> {
+    const reminderDate = new Date(goal.deadline);
+    reminderDate.setDate(reminderDate.getDate() - 1); // 1 day before
+    
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Goal Deadline Approaching',
+        body: `"${goal.title}" is due tomorrow!`,
+        data: { type: 'goal_deadline', goalId: goal.id }
+      },
+      trigger: { date: reminderDate }
+    });
+  }
+  
+  async scheduleDailyTaskReminder(): Promise<void> {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Daily Check-in',
+        body: 'Review your tasks and make progress on your goals',
+        data: { type: 'daily_tasks' }
+      },
+      trigger: {
+        hour: 9,
+        minute: 0,
+        repeats: true
+      }
+    });
+  }
+}
+```
+
+#### 2. Biometric Authentication
+```typescript
+// Biometric Authentication Service
+class BiometricAuthService {
+  async isBiometricAvailable(): Promise<boolean> {
+    const result = await LocalAuthentication.hasHardwareAsync();
+    const enrolled = await LocalAuthentication.isEnrolledAsync();
+    return result && enrolled;
+  }
+  
+  async authenticateWithBiometric(): Promise<{success: boolean; error?: string}> {
+    try {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Access Resolve25',
+        cancelLabel: 'Use Password',
+        fallbackLabel: 'Use Password',
+        disableDeviceFallback: false
+      });
+      
+      return { success: result.success };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+}
+```
+
+#### 3. Device Integration
+```typescript
+// Camera and Document Scanning
+class DocumentScannerService {
+  async scanDocument(): Promise<{uri: string; text?: string}> {
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    
+    if (!result.canceled) {
+      // Optional: OCR processing for text extraction
+      const text = await this.extractTextFromImage(result.assets[0].uri);
+      return { uri: result.assets[0].uri, text };
+    }
+    
+    throw new Error('Scan cancelled');
+  }
+  
+  private async extractTextFromImage(uri: string): Promise<string> {
+    // Implementation using ML Kit or similar OCR service
+    return '';
+  }
+}
+
+// Location Services
+class LocationService {
+  async getCurrentLocation(): Promise<{latitude: number; longitude: number}> {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      throw new Error('Location permission denied');
+    }
+    
+    const location = await Location.getCurrentPositionAsync({});
+    return {
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude
+    };
+  }
+  
+  async getNearbyJobOpportunities(location: {lat: number; lng: number}): Promise<JobOpportunity[]> {
+    // Integration with job search APIs
+    return [];
+  }
+}
+```
+
+### Performance Optimization
+
+#### 1. Image and Asset Optimization
+```typescript
+// Image optimization configuration
+const ImageConfig = {
+  cache: 'memory-disk',
+  resize: {
+    width: 300,
+    height: 300
+  },
+  format: 'webp',
+  quality: 0.8,
+  placeholder: require('../assets/placeholder.png')
+};
+
+// Lazy loading for images
+const OptimizedImage = ({ source, style, ...props }) => {
+  return (
+    <FastImage
+      source={source}
+      style={style}
+      resizeMode={FastImage.resizeMode.cover}
+      {...ImageConfig}
+      {...props}
+    />
+  );
+};
+```
+
+#### 2. List Performance
+```typescript
+// Virtualized lists for large datasets
+const VirtualizedGoalList = ({ goals }: { goals: Goal[] }) => {
+  const renderGoal = useCallback(({ item }: { item: Goal }) => (
+    <GoalCard goal={item} />
+  ), []);
+  
+  return (
+    <FlatList
+      data={goals}
+      renderItem={renderGoal}
+      keyExtractor={item => item.id}
+      initialNumToRender={10}
+      maxToRenderPerBatch={5}
+      windowSize={10}
+      removeClippedSubviews={true}
+      getItemLayout={(data, index) => ({
+        length: 120, // Fixed height for better performance
+        offset: 120 * index,
+        index,
+      })}
+    />
+  );
+};
+```
+
+#### 3. Memory Management
+```typescript
+// Memory leak prevention
+const useMemoryOptimizedComponent = () => {
+  const [data, setData] = useState([]);
+  
+  useEffect(() => {
+    const subscription = DataService.subscribe(setData);
+    
+    return () => {
+      subscription.unsubscribe();
+      setData([]); // Clear data on unmount
+    };
+  }, []);
+  
+  // Use callback to prevent unnecessary re-renders
+  const memoizedData = useMemo(() => data, [data]);
+  
+  return memoizedData;
+};
+```
+
+### Accessibility Implementation
+
+#### 1. Screen Reader Support
+```typescript
+// Accessible component implementation
+const AccessibleGoalCard = ({ goal }: { goal: Goal }) => {
+  const completionPercentage = calculateCompletionPercentage(goal);
+  
+  return (
+    <Pressable
+      accessible={true}
+      accessibilityRole="button"
+      accessibilityLabel={`Goal: ${goal.title}`}
+      accessibilityHint={`${completionPercentage}% complete. Tap to view details.`}
+      accessibilityState={{
+        selected: false,
+        disabled: goal.completed
+      }}
+    >
+      <View>
+        <Text accessibilityRole="header">{goal.title}</Text>
+        <Text accessibilityLabel={`Progress: ${completionPercentage} percent`}>
+          {completionPercentage}%
+        </Text>
+        <ProgressBar
+          accessible={false} // Screen reader will use the text above
+          progress={completionPercentage / 100}
+        />
+      </View>
+    </Pressable>
+  );
+};
+```
+
+#### 2. Voice Control Integration
+```typescript
+// Siri Shortcuts integration (iOS)
+class SiriShortcutsService {
+  async setupShortcuts(): Promise<void> {
+    const shortcuts = [
+      {
+        identifier: 'add-task',
+        title: 'Add Task to Resolve25',
+        userActivity: {
+          activityType: 'com.resolve25.add-task',
+          title: 'Add Task',
+          userInfo: { action: 'add_task' }
+        }
+      },
+      {
+        identifier: 'check-goals',
+        title: 'Check My Goals',
+        userActivity: {
+          activityType: 'com.resolve25.check-goals',
+          title: 'Check Goals',
+          userInfo: { action: 'check_goals' }
+        }
+      }
+    ];
+    
+    await SiriShortcuts.donateShortcut(shortcuts);
+  }
+}
+```
+
+---
+
+## Security & Privacy
+
+### Security Architecture
+
+#### 1. Authentication & Authorization
+```typescript
+// Security Implementation
+interface SecurityConfig {
+  authentication: {
+    provider: 'Auth0';
+    methods: ['email', 'google', 'apple', 'biometric'];
+    tokenExpiration: 3600; // 1 hour
+    refreshTokenExpiration: 2592000; // 30 days
+    biometricTimeout: 300; // 5 minutes
+  };
+  
+  authorization: {
+    rbac: boolean; // Role-based access control
+    permissions: UserPermission[];
+    sessionManagement: {
+      maxSessions: 3;
+      sessionTimeout: 900; // 15 minutes
+      forceLogoutOnSuspicious: boolean;
+    };
+  };
+  
+  dataEncryption: {
+    atRest: 'AES-256';
+    inTransit: 'TLS 1.3';
+    keyRotation: 90; // days
+  };
+}
+```
+
+#### 2. Data Protection
+- **Encryption at Rest:** AES-256 encryption for local SQLite database
+- **Encryption in Transit:** TLS 1.3 for all API communications
+- **Secure Storage:** iOS Keychain and Android Keystore for sensitive data
+- **Biometric Security:** Local authentication with secure enclave support
+- **Certificate Pinning:** Prevents man-in-the-middle attacks
+
+#### 3. Privacy Compliance
+- **GDPR Compliance:** Full data portability and right to deletion
+- **CCPA Compliance:** California privacy rights implementation
+- **Data Minimization:** Collect only necessary user data
+- **Consent Management:** Granular privacy controls for users
+- **Audit Logging:** Comprehensive activity logs for security monitoring
+
+### Privacy Controls
+
+#### 1. User Data Management
+```typescript
+interface PrivacySettings {
+  dataSharing: {
+    analytics: boolean;
+    crashReporting: boolean;
+    aiTraining: boolean;
+    marketingCommunications: boolean;
+  };
+  
+  dataRetention: {
+    goalsData: number; // months
+    tasksData: number; // months
+    aiInteractions: number; // months
+    financialData: number; // months
+  };
+  
+  exportData: {
+    format: 'JSON' | 'CSV' | 'PDF';
+    includeAIData: boolean;
+    includeFinancialData: boolean;
+  };
+  
+  deleteAccount: {
+    retentionPeriod: 30; // days before permanent deletion
+    notificationSchedule: number[]; // reminder days
+  };
+}
+```
+
+#### 2. AI Privacy
+- **Local Processing:** AI insights generated locally when possible
+- **Data Anonymization:** Personal identifiers removed from AI training data
+- **Opt-out Options:** Users can disable AI features completely
+- **Transparency:** Clear explanation of AI data usage
+- **Consent:** Explicit consent required for AI feature usage
+
+---
+
+## Performance & Quality
+
+### Performance Requirements
+
+#### 1. Response Time Benchmarks
+| Action | Target Time | Maximum Acceptable |
+|---------|-------------|-------------------|
+| App Launch | < 2s | 3s |
+| Screen Navigation | < 500ms | 1s |
+| Data Sync | < 3s | 5s |
+| AI Response | < 5s | 10s |
+| Offline Mode Switch | < 1s | 2s |
+
+#### 2. Technical Performance Metrics
+```typescript
+interface PerformanceMetrics {
+  startup: {
+    coldStart: number; // milliseconds
+    warmStart: number; // milliseconds
+    memoryUsage: number; // MB
+  };
+  
+  runtime: {
+    cpuUsage: number; // percentage
+    memoryFootprint: number; // MB
+    batteryDrain: number; // mAh per hour
+    networkUsage: number; // MB per session
+  };
+  
+  responsiveness: {
+    fps: number; // target 60fps
+    jankFrames: number; // frames > 16.67ms
+    anrRate: number; // application not responding rate
+  };
+}
+```
+
+#### 3. Quality Assurance Standards
+- **Code Coverage:** Minimum 80% test coverage
+- **Performance Monitoring:** Real-time performance tracking
+- **Crash Rate:** <0.1% crash rate target
+- **Memory Leaks:** Zero tolerance for memory leaks
+- **Battery Optimization:** Minimal battery impact
+
+### Scalability Planning
+
+#### 1. User Load Capacity
+- **Concurrent Users:** Support for 100K+ concurrent users
+- **Data Volume:** Handle 1TB+ of user data efficiently
+- **API Rate Limiting:** 1000 requests per minute per user
+- **Database Scaling:** Horizontal scaling with read replicas
+
+#### 2. Feature Scalability
+```typescript
+interface ScalabilityPlan {
+  userGrowth: {
+    current: 0;
+    target6Months: 100000;
+    target12Months: 500000;
+    target18Months: 1000000;
+  };
+  
+  dataGrowth: {
+    goalsPerUser: 50;
+    tasksPerUser: 1000;
+    aiInteractionsPerUser: 500;
+    averageDataPerUser: '10MB';
+  };
+  
+  infrastructure: {
+    autoScaling: boolean;
+    loadBalancing: boolean;
+    caching: 'Redis';
+    cdn: 'CloudFlare';
+    monitoring: 'DataDog';
+  };
+}
+```
+
+---
+
+## Development Timeline
+
+### Phase 1: Foundation (Months 1-2)
+**Core Infrastructure & Authentication**
+
+**Sprint 1 (Weeks 1-2):**
+- Project setup and development environment
+- React Native app initialization
+- Basic navigation structure
+- Authentication integration (Auth0)
+- Biometric authentication setup
+
+**Sprint 2 (Weeks 3-4):**
+- Redux store setup and state management
+- Offline storage implementation (SQLite)
+- API client architecture
+- Basic UI component library
+- Dark/light theme implementation
+
+**Deliverables:**
+- Working authentication flow
+- Basic app navigation
+- Offline storage foundation
+- UI component library
+
+### Phase 2: Core Features (Months 2-4)
+**Dashboard, Goals, and Tasks Implementation**
+
+**Sprint 3 (Weeks 5-6):**
+- Dashboard screen implementation
+- Critical steps display
+- Stats cards and overview
+- Pull-to-refresh functionality
+
+**Sprint 4 (Weeks 7-8):**
+- Goals management screens
+- Goal creation and editing
+- Step management
+- Progress tracking
+
+**Sprint 5 (Weeks 9-10):**
+- Daily tasks implementation
+- Task CRUD operations
+- Priority and category management
+- Gesture controls (swipe actions)
+
+**Sprint 6 (Weeks 11-12):**
+- AI integration foundation
+- Goal tips generation
+- Task suggestions
+- Critical steps analysis
+
+**Deliverables:**
+- Complete dashboard functionality
+- Full goals management
+- Daily task system
+- Basic AI integration
+
+### Phase 3: Advanced Features (Months 4-6)
+**Career, Travel, and Living Advisor**
+
+**Sprint 7 (Weeks 13-14):**
+- Monthly planning module
+- AI monthly task generation
+- Progress tracking and insights
+
+**Sprint 8 (Weeks 15-16):**
+- Career module implementation
+- Job application tracking
+- Resume builder
+- AI job suggestions
+
+**Sprint 9 (Weeks 17-18):**
+- Travel goals implementation
+- Trip planning interface
+- AI travel suggestions
+- Itinerary generation
+
+**Sprint 10 (Weeks 19-20):**
+- Living advisor module
+- Country recommendations
+- Relocation roadmaps
+- Questionnaire interface
+
+**Deliverables:**
+- Monthly planning system
+- Career management tools
+- Travel planning features
+- Living advisor functionality
+
+### Phase 4: Finance & Polish (Months 6-7)
+**Financial Management & App Store Preparation**
+
+**Sprint 11 (Weeks 21-22):**
+- Finance management module
+- Loan tracking
+- SIP management
+- Emergency fund tracking
+
+**Sprint 12 (Weeks 23-24):**
+- Push notifications implementation
+- Widget development
+- Performance optimizations
+- Memory management improvements
+
+**Sprint 13 (Weeks 25-26):**
+- Comprehensive testing
+- Bug fixes and polish
+- App store preparation
+- Documentation completion
+
+**Sprint 14 (Weeks 27-28):**
+- Beta testing program
+- User feedback incorporation
+- Final optimizations
+- App store submission
+
+**Deliverables:**
+- Complete finance module
+- Production-ready app
+- App store submission
+- Beta testing results
+
+### Development Resources
+
+#### 1. Team Structure
+```typescript
+interface DevelopmentTeam {
+  roles: {
+    projectManager: 1;
+    techLead: 1;
+    seniorDevelopers: 2;
+    uiUxDesigner: 1;
+    qaEngineer: 1;
+    devOpsEngineer: 0.5; // Part-time
+  };
+  
+  expertise: {
+    reactNative: 'Senior';
+    typescript: 'Senior';
+    nodeJs: 'Intermediate';
+    uiUxDesign: 'Senior';
+    aiIntegration: 'Intermediate';
+  };
+}
+```
+
+#### 2. Development Tools & Infrastructure
+- **Version Control:** Git with GitHub
+- **CI/CD:** GitHub Actions for automated testing and deployment
+- **Testing:** Jest, Detox for E2E testing
+- **Code Quality:** ESLint, Prettier, Husky pre-commit hooks
+- **Monitoring:** Flipper for debugging, Crashlytics for crash reporting
+- **Project Management:** Jira for sprint planning and tracking
+
+---
+
+## Quality Assurance
+
+### Testing Strategy
+
+#### 1. Testing Pyramid
+```typescript
+interface TestingStrategy {
+  unitTests: {
+    coverage: 80; // minimum percentage
+    frameworks: ['Jest', 'React Native Testing Library'];
+    scope: ['Components', 'Utils', 'Services', 'Redux Slices'];
+  };
+  
+  integrationTests: {
+    coverage: 60; // minimum percentage
+    frameworks: ['Jest', 'MSW'];
+    scope: ['API Integration', 'State Management', 'Navigation'];
+  };
+  
+  e2eTests: {
+    coverage: 40; // minimum percentage
+    frameworks: ['Detox', 'Appium'];
+    scope: ['Critical User Flows', 'Cross-Platform Compatibility'];
+  };
+  
+  performanceTests: {
+    tools: ['Flipper', 'React Native Performance'];
+    metrics: ['Memory Usage', 'CPU Usage', 'Startup Time', 'Frame Rate'];
+  };
+}
+```
+
+#### 2. Test Cases by Feature
+
+**Authentication Tests:**
+- Login with email/password
+- Biometric authentication flow
+- Token refresh and expiration
+- Logout and session cleanup
+
+**Goals Management Tests:**
+- Goal creation and validation
+- Step management and progress tracking
+- AI tip generation
+- Data persistence and sync
+
+**Task Management Tests:**
+- Task CRUD operations
+- Priority and category filtering
+- Gesture interactions
+- Notification scheduling
+
+**AI Integration Tests:**
+- API response handling
+- Error scenarios and fallbacks
+- Rate limiting and throttling
+- Offline behavior
+
+#### 3. Device Testing Matrix
+
+| Device Category | iOS Versions | Android Versions | Screen Sizes |
+|------------------|--------------|------------------|--------------|
+| **Premium Phones** | iOS 15-17 | Android 12-14 | 6.1"-6.7" |
+| **Mid-range Phones** | iOS 15-16 | Android 11-13 | 5.5"-6.5" |
+| **Budget Phones** | iOS 15 | Android 10-12 | 5.0"-6.0" |
+| **Tablets** | iPadOS 15-17 | Android 11-14 | 8"-12" |
+
+### Quality Metrics
+
+#### 1. Performance Benchmarks
+```typescript
+interface QualityMetrics {
+  performance: {
+    appLaunchTime: { target: 2000, maximum: 3000 }; // milliseconds
+    screenTransition: { target: 300, maximum: 500 }; // milliseconds
+    apiResponseTime: { target: 1000, maximum: 2000 }; // milliseconds
+    memoryUsage: { target: 150, maximum: 200 }; // MB
+    cpuUsage: { target: 30, maximum: 50 }; // percentage
+  };
+  
+  reliability: {
+    crashRate: { target: 0.05, maximum: 0.1 }; // percentage
+    anrRate: { target: 0.01, maximum: 0.05 }; // percentage
+    apiSuccessRate: { target: 99.5, minimum: 99.0 }; // percentage
+  };
+  
+  usability: {
+    taskCompletionRate: { target: 95, minimum: 90 }; // percentage
+    userSatisfactionScore: { target: 4.5, minimum: 4.0 }; // out of 5
+    featureAdoptionRate: { target: 70, minimum: 60 }; // percentage
+  };
+}
+```
+
+#### 2. Code Quality Standards
+- **ESLint Configuration:** Strict TypeScript rules
+- **Code Review Process:** Mandatory peer reviews for all changes
+- **Documentation:** Comprehensive inline documentation
+- **Architecture Review:** Regular architecture reviews and refactoring
+
+---
+
+## Deployment Strategy
+
+### App Store Preparation
+
+#### 1. iOS App Store
+```typescript
+interface iOSDeployment {
+  appStoreConnect: {
+    bundleId: 'com.resolve25.mobile';
+    minimumOSVersion: 'iOS 15.0';
+    deviceSupport: ['iPhone', 'iPad'];
+    capabilities: [
+      'biometric-authentication',
+      'push-notifications',
+      'background-app-refresh',
+      'camera',
+      'location-services'
+    ];
+  };
+  
+  metadata: {
+    appName: 'Resolve25: AI Life OS';
+    subtitle: 'AI-Powered Goal & Life Management';
+    keywords: 'productivity, goals, AI, life management, tasks';
+    description: string; // Detailed app description
+    screenshots: AppScreenshot[];
+    appIcon: string; // 1024x1024 icon
+  };
+}
+```
+
+#### 2. Google Play Store
+```typescript
+interface AndroidDeployment {
+  playConsole: {
+    packageName: 'com.resolve25.mobile';
+    minimumSDKVersion: 23; // Android 6.0
+    targetSDKVersion: 34; // Android 14
+    permissions: [
+      'INTERNET',
+      'CAMERA',
+      'ACCESS_FINE_LOCATION',
+      'USE_BIOMETRIC',
+      'RECEIVE_BOOT_COMPLETED',
+      'WAKE_LOCK'
+    ];
+  };
+  
+  playStoreMetadata: {
+    title: 'Resolve25: AI Life OS';
+    shortDescription: 'AI-powered goal and life management platform';
+    fullDescription: string;
+    category: 'PRODUCTIVITY';
+    contentRating: 'Everyone';
+  };
+}
+```
+
+### Release Process
+
+#### 1. Beta Testing Program
+**Internal Testing (Weeks 1-2):**
+- Team testing on multiple devices
+- Feature completeness verification
+- Performance testing
+- Bug identification and fixes
+
+**Closed Beta (Weeks 3-4):**
+- 50 selected beta testers
+- Real-world usage scenarios
+- Feedback collection and analysis
+- Critical bug fixes
+
+**Open Beta (Weeks 5-6):**
+- 500 beta testers
+- Stress testing with larger user base
+- Final UI/UX refinements
+- Performance optimizations
+
+#### 2. Phased Rollout
+```typescript
+interface RolloutPlan {
+  phase1: {
+    percentage: 5;
+    duration: '1 week';
+    regions: ['US', 'Canada'];
+    criteria: 'New user acquisition';
+  };
+  
+  phase2: {
+    percentage: 25;
+    duration: '1 week';
+    regions: ['US', 'Canada', 'UK', 'Australia'];
+    criteria: 'No critical issues from Phase 1';
+  };
+  
+  phase3: {
+    percentage: 50;
+    duration: '1 week';
+    regions: 'Global (English-speaking)';
+    criteria: 'Stable performance metrics';
+  };
+  
+  phase4: {
+    percentage: 100;
+    duration: 'Ongoing';
+    regions: 'Global';
+    criteria: 'All metrics within acceptable ranges';
+  };
+}
+```
+
+### CI/CD Pipeline
+
+#### 1. Automated Build Process
+```yaml
+# GitHub Actions Workflow
+name: Build and Deploy
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+      - name: Setup Node.js
+      - name: Install dependencies
+      - name: Run unit tests
+      - name: Run integration tests
+      - name: Generate coverage report
+
+  build-ios:
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - name: Setup Xcode
+      - name: Install dependencies
+      - name: Build iOS app
+      - name: Run iOS tests
+      - name: Archive for App Store
+
+  build-android:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Android SDK
+      - name: Install dependencies
+      - name: Build Android app
+      - name: Run Android tests
+      - name: Generate signed APK
+```
+
+#### 2. Deployment Automation
+- **Automated Testing:** Run full test suite on every commit
+- **Build Artifacts:** Generate app bundles for both platforms
+- **Code Signing:** Automated certificate management
+- **Store Deployment:** Automated submission to app stores
+- **Rollback Capability:** Quick rollback mechanism for critical issues
+
+---
+
+## Maintenance & Support
+
+### Post-Launch Support Strategy
+
+#### 1. Maintenance Categories
+```typescript
+interface MaintenanceStrategy {
+  hotfixes: {
+    responseTime: '2 hours';
+    deploymentTime: '4 hours';
+    criteria: ['Critical bugs', 'Security vulnerabilities', 'Data loss issues'];
+  };
+  
+  regularUpdates: {
+    frequency: 'Bi-weekly';
+    content: ['Bug fixes', 'Performance improvements', 'Minor features'];
+    testingPeriod: '3 days';
+  };
+  
+  majorUpdates: {
+    frequency: 'Quarterly';
+    content: ['New features', 'UI updates', 'Platform updates'];
+    testingPeriod: '2 weeks';
+  };
+  
+  platformUpdates: {
+    iosUpdates: 'Within 30 days of iOS release';
+    androidUpdates: 'Within 30 days of Android release';
+    dependencyUpdates: 'Monthly security patches';
+  };
+}
+```
+
+#### 2. User Support System
+**Support Channels:**
+- **In-App Help:** Contextual help and tutorials
+- **Knowledge Base:** Comprehensive FAQ and guides
+- **Email Support:** help@resolve25.com with 24-hour response time
+- **Community Forum:** User community for peer support
+- **Premium Support:** Priority support for premium users
+
+**Support Metrics:**
+- **Response Time:** <2 hours for critical issues, <24 hours for general inquiries
+- **Resolution Time:** <24 hours for critical issues, <72 hours for general issues
+- **Customer Satisfaction:** Target 4.5/5 satisfaction rating
+- **First Contact Resolution:** Target 80% resolution rate
+
+#### 3. Monitoring & Analytics
+```typescript
+interface MonitoringSetup {
+  errorTracking: {
+    service: 'Sentry';
+    alertThresholds: {
+      errorRate: 1; // percentage
+      responseTime: 2000; // milliseconds
+      crashRate: 0.1; // percentage
+    };
+  };
+  
+  analytics: {
+    service: 'Firebase Analytics';
+    events: [
+      'app_launch',
+      'goal_created',
+      'task_completed',
+      'ai_interaction',
+      'feature_usage'
+    ];
+    userProperties: [
+      'user_segment',
+      'subscription_status',
+      'feature_adoption'
+    ];
+  };
+  
+  performance: {
+    service: 'Firebase Performance';
+    metrics: [
+      'app_start_time',
+      'screen_rendering_time',
+      'network_request_duration',
+      'custom_traces'
+    ];
+  };
+}
+```
+
+### Long-term Evolution
+
+#### 1. Roadmap Planning
+**Year 1 Roadmap:**
+- Q1: Core features and app store launch
+- Q2: Advanced AI features and integrations
+- Q3: Social features and team collaboration
+- Q4: Advanced analytics and reporting
+
+**Feature Evolution:**
+- **AI Enhancement:** More sophisticated AI models and personalization
+- **Integration Expansion:** Calendar, email, and productivity tool integrations
+- **Social Features:** Goal sharing and community challenges
+- **Enterprise Features:** Team management and organizational tools
+
+#### 2. Technology Debt Management
+- **Regular Refactoring:** Monthly code refactoring sessions
+- **Dependency Updates:** Quarterly dependency updates
+- **Performance Optimization:** Continuous performance monitoring and optimization
+- **Architecture Evolution:** Annual architecture reviews and modernization
+
+---
+
+## Success Metrics & KPIs
+
+### User Acquisition Metrics
+
+#### 1. Download & Adoption Metrics
+```typescript
+interface AcquisitionMetrics {
+  downloads: {
+    target6Months: 100000;
+    target12Months: 500000;
+    target18Months: 1000000;
+    organicRatio: 70; // percentage of organic downloads
+  };
+  
+  onboarding: {
+    completionRate: 85; // percentage completing onboarding
+    timeToFirstGoal: 300; // seconds
+    timeToFirstTask: 120; // seconds
+    conversionRate: 75; // percentage becoming active users
+  };
+  
+  retention: {
+    day1: 80; // percentage
+    day7: 65; // percentage
+    day30: 45; // percentage
+    day90: 30; // percentage
+  };
+}
+```
+
+#### 2. User Engagement Metrics
+```typescript
+interface EngagementMetrics {
+  sessionMetrics: {
+    averageSessionLength: 8; // minutes
+    sessionsPerDay: 3.2;
+    screenDepth: 4.5; // average screens per session
+    returnVisitorRate: 60; // percentage
+  };
+  
+  featureAdoption: {
+    goalCreation: 90; // percentage of users creating goals
+    taskManagement: 85; // percentage using daily tasks
+    aiFeatures: 70; // percentage using AI features
+    monthlyPlanning: 60; // percentage using monthly planning
+    careerTools: 45; // percentage using career features
+  };
+  
+  contentEngagement: {
+    aiTipsAcceptanceRate: 75; // percentage accepting AI suggestions
+    goalCompletionRate: 65; // percentage completing goals
+    taskCompletionRate: 80; // percentage completing daily tasks
+  };
+}
+```
+
+### Business Success Metrics
+
+#### 1. Revenue Metrics
+```typescript
+interface RevenueMetrics {
+  subscription: {
+    conversionRate: 15; // percentage of free users converting
+    averageRevenuePerUser: 8; // USD per month
+    churnRate: 5; // percentage monthly churn
+    lifetimeValue: 96; // USD average customer lifetime value
+  };
+  
+  inAppPurchases: {
+    premiumFeatures: 25; // percentage purchasing premium features
+    averagePurchaseValue: 4.99; // USD
+    repeatPurchaseRate: 40; // percentage making multiple purchases
+  };
+}
+```
+
+#### 2. Product Quality Metrics
+```typescript
+interface QualityMetrics {
+  appStoreRatings: {
+    targetRating: 4.5; // out of 5
+    reviewVolume: 1000; // reviews per month
+    responseRate: 90; // percentage of reviews responded to
+  };
+  
+  technicalMetrics: {
+    crashRate: 0.1; // percentage
+    appLaunchTime: 2; // seconds
+    apiResponseTime: 1; // seconds
+    offlineCapability: 95; // percentage of features working offline
+  };
+  
+  userSatisfaction: {
+    npsScore: 50; // Net Promoter Score
+    supportSatisfaction: 4.5; // out of 5
+    featureSatisfaction: 4.3; // out of 5
+  };
+}
+```
+
+### Success Tracking Dashboard
+
+#### 1. Real-time Monitoring
+- **User Activity:** Live user count and engagement metrics
+- **Performance:** Real-time app performance and error rates
+- **Revenue:** Daily/monthly revenue tracking
+- **Feature Usage:** Real-time feature adoption and usage patterns
+
+#### 2. Reporting Schedule
+- **Daily:** Key performance indicators and critical metrics
+- **Weekly:** Detailed engagement and retention analysis
+- **Monthly:** Comprehensive business review and goal assessment
+- **Quarterly:** Strategic review and roadmap adjustments
+
+---
+
+## Risk Assessment
+
+### Technical Risks
+
+#### 1. High-Impact Risks
+```typescript
+interface TechnicalRisks {
+  platformRisks: {
+    reactNativeCompatibility: {
+      probability: 'Medium';
+      impact: 'High';
+      mitigation: 'Regular RN updates, extensive testing';
+    };
+    
+    appStoreRejection: {
+      probability: 'Low';
+      impact: 'High';
+      mitigation: 'Compliance review, beta testing';
+    };
+    
+    performanceIssues: {
+      probability: 'Medium';
+      impact: 'Medium';
+      mitigation: 'Performance monitoring, optimization sprints';
+    };
+  };
+  
+  integrationRisks: {
+    aiServiceDowntime: {
+      probability: 'Low';
+      impact: 'Medium';
+      mitigation: 'Fallback systems, caching, offline modes';
+    };
+    
+    authenticationFailure: {
+      probability: 'Low';
+      impact: 'High';
+      mitigation: 'Multiple auth providers, backup systems';
+    };
+    
+    dataLoss: {
+      probability: 'Very Low';
+      impact: 'Very High';
+      mitigation: 'Regular backups, data validation, sync mechanisms';
+    };
+  };
+}
+```
+
+#### 2. Risk Mitigation Strategies
+- **Automated Testing:** Comprehensive test coverage to catch issues early
+- **Staged Rollouts:** Gradual release to minimize impact of issues
+- **Monitoring:** Real-time monitoring and alerting systems
+- **Backup Plans:** Fallback systems for critical dependencies
+- **Regular Updates:** Keep dependencies and platforms up to date
+
+### Business Risks
+
+#### 1. Market & Competition Risks
+```typescript
+interface BusinessRisks {
+  marketRisks: {
+    competitionFromMajorPlayers: {
+      probability: 'High';
+      impact: 'High';
+      mitigation: 'Unique AI features, superior UX, niche focus';
+    };
+    
+    marketSaturation: {
+      probability: 'Medium';
+      impact: 'Medium';
+      mitigation: 'Differentiation, international expansion';
+    };
+    
+    userAcquisitionCosts: {
+      probability: 'Medium';
+      impact: 'Medium';
+      mitigation: 'Organic growth, referral programs, content marketing';
+    };
+  };
+  
+  operationalRisks: {
+    teamScaling: {
+      probability: 'Medium';
+      impact: 'Medium';
+      mitigation: 'Gradual hiring, knowledge documentation';
+    };
+    
+    fundingRequirements: {
+      probability: 'Low';
+      impact: 'High';
+      mitigation: 'Revenue generation, efficient development';
+    };
+  };
+}
+```
+
+#### 2. Contingency Planning
+- **Pivot Strategies:** Alternative feature sets and market focuses
+- **Resource Allocation:** Flexible resource allocation based on market response
+- **Partnership Options:** Strategic partnerships for market expansion
+- **Exit Strategies:** Clear criteria for feature sunset or pivot decisions
+
+---
+
+## Appendices
+
+### Appendix A: Technical Specifications
+
+#### Development Environment Setup
+```bash
+# Required Software Versions
+Node.js: 18.17.0+
+React Native CLI: 12.0.0+
+Xcode: 15.0+ (for iOS development)
+Android Studio: 2023.1.1+ (for Android development)
+Ruby: 2.7.6+ (for iOS dependency management)
+
+# Installation Commands
+npm install -g @react-native-community/cli
+npm install -g expo-cli
+gem install cocoapods
+```
+
+#### Build Configuration
+```json
+{
+  "name": "resolve25-mobile",
+  "version": "1.0.0",
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "test": "jest",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+  },
+  "dependencies": {
+    "react": "18.2.0",
+    "react-native": "0.73.0",
+    "@reduxjs/toolkit": "2.0.1",
+    "react-redux": "9.0.4",
+    "@react-navigation/native": "6.1.9",
+    "@react-navigation/bottom-tabs": "6.5.11",
+    "react-native-vector-icons": "10.0.3",
+    "react-native-async-storage": "1.19.5",
+    "react-native-keychain": "8.1.3"
+  }
+}
+```
+
+### Appendix B: UI/UX Guidelines
+
+#### Color System
+```typescript
+const colors = {
+  primary: {
+    50: '#f0f9ff',
+    500: '#3b82f6',
+    900: '#1e3a8a'
+  },
+  gray: {
+    50: '#f9fafb',
+    500: '#6b7280',
+    900: '#111827'
+  },
+  success: '#10b981',
+  warning: '#f59e0b',
+  error: '#ef4444'
+};
+```
+
+#### Typography Scale
+```typescript
+const typography = {
+  heading1: { fontSize: 32, fontWeight: 'bold' },
+  heading2: { fontSize: 24, fontWeight: 'bold' },
+  heading3: { fontSize: 20, fontWeight: '600' },
+  body1: { fontSize: 16, fontWeight: 'normal' },
+  body2: { fontSize: 14, fontWeight: 'normal' },
+  caption: { fontSize: 12, fontWeight: 'normal' }
+};
+```
+
+### Appendix C: API Documentation
+
+#### Authentication Endpoints
+```
+POST /api/auth/login
+Content-Type: application/json
+
+Request Body:
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+Response:
+{
+  "token": "jwt-token",
+  "refreshToken": "refresh-token",
+  "user": {
+    "id": "user-id",
+    "email": "user@example.com",
+    "name": "User Name"
+  }
+}
+```
+
+#### Goals Management Endpoints
+```
+GET /api/goals
+Authorization: Bearer <token>
+
+Response:
+{
+  "goals": [
+    {
+      "id": "goal-id",
+      "title": "Learn Spanish",
+      "description": "Become conversational in Spanish",
+      "deadline": "2024-12-31T00:00:00Z",
+      "completed": false,
+      "steps": [...]
+    }
+  ]
+}
+```
+
+### Appendix D: Testing Documentation
+
+#### Test Coverage Requirements
+- **Unit Tests:** 80% minimum coverage
+- **Integration Tests:** 60% minimum coverage
+- **E2E Tests:** Critical user flows coverage
+- **Performance Tests:** All major features
+
+#### Testing Commands
+```bash
+# Run all tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run E2E tests
+npm run test:e2e
+
+# Run performance tests
+npm run test:performance
+```
+
+---
+
+**Document Control:**
+- **Version:** 2.0
+- **Last Updated:** December 30, 2024
+- **Next Review:** March 30, 2025
+- **Approved By:** Product Team, Engineering Team
+- **Document Owner:** Product Manager
+
+**Change Log:**
+- **v2.0:** Complete rewrite with updated technical specs and feature details
+- **v1.0:** Initial PRD document
+
+---
+
+*This Product Requirements Document serves as the comprehensive guide for developing the Resolve25 Mobile Application. All team members should refer to this document for feature specifications, technical requirements, and project guidelines.*
+  return memoizedData;
+};
+```
+
+### Accessibility Implementation
+
+#### 1. Screen Reader Support
+```typescript
+// Accessible component implementation
+const AccessibleGoalCard = ({ goal }: { goal: Goal }) => {
+  const completionPercentage = calculateCompletionPercentage(goal);
+  
+  return (
+    <Pressable
+      accessible={true}
+      accessibilityRole="button"
+      accessibilityLabel={`Goal: ${goal.title}`}
+      accessibilityHint={`${completionPercentage}% complete. Tap to view details.`}
+      accessibilityState={{
+        selected: false,
+        disabled: goal.completed
+      }}
+    >
+      <View>
+        <Text accessibilityRole="header">{goal.title}</Text>
+        <Text accessibilityLabel={`Progress: ${completionPercentage} percent`}>
+          {completionPercentage}%
+        </Text>
+        <ProgressBar
+          accessible={false} // Screen reader will use the text above
+          progress={completionPercentage / 100}
+        />
+      </View>
+    </Pressable>
+  );
+};
+```
+
+#### 2. Voice Control Integration
+```typescript
+// Siri Shortcuts integration (iOS)
+class SiriShortcutsService {
+  async setupShortcuts(): Promise<void> {
+    const shortcuts = [
+      {
+        identifier: 'add-task',
+        title: 'Add Task to Resolve25',
+        userActivity: {
+          activityType: 'com.resolve25.add-task',
+          title: 'Add Task',
+          userInfo: { action: 'add_task' }
+        }
+      },
+      {
+        identifier: 'check-goals',
+        title: 'Check My Goals',
+        userActivity: {
+          activityType: 'com.resolve25.check-goals',
+          title: 'Check Goals',
+          userInfo: { action: 'check_goals' }
+        }
+      }
+    ];
+    
+    await SiriShortcuts.donateShortcut(shortcuts);
+  }
+}
+```
+
+---
 │   ├── types/             # TypeScript definitions
 │   └── constants/         # App constants
 ├── assets/                # Images, fonts, etc.

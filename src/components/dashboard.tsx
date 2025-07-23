@@ -317,57 +317,81 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
 
   return (
     <>
-    <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-transparent shadow-xl border border-white/10">
-      <header className="flex items-center justify-between gap-4 bg-transparent p-4 sm:p-6 border-b border-white/10">
+    <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-background/95 backdrop-blur-md shadow-2xl border border-border/50">
+      <header className="flex items-center justify-between gap-4 bg-gradient-to-r from-background via-background/95 to-background p-4 sm:p-6 border-b border-border/30 backdrop-blur-md">
         <div className="flex items-center gap-3">
             <div className="lg:hidden">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Menu className="h-6 w-6" />
+                  <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full border border-border/20 bg-background/50 backdrop-blur-sm hover:bg-muted/80 active:scale-95 transition-all duration-200">
+                    <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="p-0 flex flex-col">
-                    <SheetHeader className="p-4 border-b">
-                         <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
+                <SheetContent side="left" className="p-0 flex flex-col w-80 bg-background/95 backdrop-blur-md">
+                    <SheetHeader className="p-5 border-b border-border/30 bg-gradient-to-br from-primary/5 via-background to-accent/5">
+                         <div className="flex items-center gap-4">
+                            <Avatar className="h-12 w-12 ring-2 ring-primary/30 shadow-lg">
                                 <AvatarImage src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture || undefined} alt={user?.user_metadata?.name || user?.user_metadata?.full_name || 'User'} />
-                                <AvatarFallback>{(user?.user_metadata?.name || user?.user_metadata?.full_name)?.charAt(0)?.toUpperCase() ?? user?.email?.charAt(0)?.toUpperCase()}</AvatarFallback>
+                                <AvatarFallback className="bg-gradient-primary text-white font-bold text-lg">{(user?.user_metadata?.name || user?.user_metadata?.full_name)?.charAt(0)?.toUpperCase() ?? user?.email?.charAt(0)?.toUpperCase()}</AvatarFallback>
                             </Avatar>
-                            <div>
-                                <SheetTitle className="text-left">Welcome!</SheetTitle>
-                                <p className="text-sm text-muted-foreground text-left">{user?.user_metadata?.name || user?.user_metadata?.full_name || user?.email}</p>
+                            <div className="flex-1 min-w-0">
+                                <SheetTitle className="text-left text-lg font-bold truncate">Welcome back!</SheetTitle>
+                                <p className="text-sm text-muted-foreground text-left truncate">{user?.user_metadata?.name || user?.user_metadata?.full_name || user?.email}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+                                    <span className="text-xs text-green-600 dark:text-green-400 font-medium">Online</span>
+                                </div>
                             </div>
                         </div>
                     </SheetHeader>
-                    <nav className="flex-grow p-4 space-y-1">
+                    <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
                         {allTabs.map(tab => (
                             <SheetClose asChild key={tab.value}>
                             <Button
-                                variant={activeTab === tab.value ? 'secondary' : 'ghost'}
-                                className="w-full justify-start text-base py-6 gap-2"
+                                variant={activeTab === tab.value ? 'default' : 'ghost'}
+                                className={cn(
+                                    "w-full justify-start text-base py-4 px-4 gap-4 transition-all duration-200 rounded-xl",
+                                    activeTab === tab.value 
+                                        ? "bg-gradient-primary text-white shadow-lg shadow-primary/25 scale-[0.98] hover:bg-gradient-primary/90" 
+                                        : "hover:bg-muted/80 hover:translate-x-1 active:scale-95"
+                                )}
                                 onClick={() => setActiveTab(tab.value)}
                             >
-                                {tab.icon}
-                                <span>{tab.label}</span>
+                                <div className={cn(
+                                    "flex items-center justify-center w-8 h-8 rounded-lg transition-colors",
+                                    activeTab === tab.value ? "bg-white/20" : "bg-muted/50"
+                                )}>
+                                    {tab.icon}
+                                </div>
+                                <span className="font-medium">{tab.label}</span>
+                                {activeTab === tab.value && (
+                                    <div className="ml-auto w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                                )}
                             </Button>
                             </SheetClose>
                         ))}
                     </nav>
-                    <SheetFooter className="p-4 mt-auto border-t flex flex-row sm:flex-col gap-2">
-                        <ThemeSwitcher />
-                        <Button variant="outline" onClick={signOut} className="w-full">
-                            <LogOut className="mr-2 h-4 w-4"/>
-                            Log Out
-                        </Button>
+                    <SheetFooter className="p-4 mt-auto border-t border-border/30 bg-gradient-to-r from-background/50 to-background flex flex-col gap-3">
+                        <div className="flex gap-2">
+                            <div className="flex-1">
+                                <ThemeSwitcher />
+                            </div>
+                            <Button variant="outline" onClick={signOut} className="flex-1 bg-destructive/10 border-destructive/20 text-destructive hover:bg-destructive hover:text-white transition-all duration-200">
+                                <LogOut className="mr-2 h-4 w-4"/>
+                                Sign Out
+                            </Button>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-xs text-muted-foreground">Resolve25 v1.0</p>
+                        </div>
                     </SheetFooter>
                 </SheetContent>
               </Sheet>
             </div>
-            <div className="bg-gradient-primary p-2 rounded-lg">
-                <Image src="/icon.svg" alt="Resolve25 Logo" width={24} height={24} />
+            <div className="bg-gradient-primary p-2.5 rounded-xl shadow-lg">
+                <Image src="/icon.svg" alt="Resolve25 Logo" width={28} height={28} className="brightness-0 invert" />
             </div>
-            <h1 className="text-2xl font-bold md:text-3xl tracking-tight text-foreground">Resolve25</h1>
+            <h1 className="text-2xl font-bold md:text-3xl tracking-tight text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">Resolve25</h1>
         </div>
         
         <div className="flex items-center gap-2">
@@ -375,10 +399,10 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
             {user && (
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar className="h-10 w-10 border-2 border-primary/50">
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-primary/20 hover:ring-primary/40 transition-all duration-200 hover:scale-105">
+                    <Avatar className="h-10 w-10 border-2 border-primary/20 shadow-md">
                     <AvatarImage src={user?.user_metadata?.avatar_url || user?.user_metadata?.picture || undefined} alt={user?.user_metadata?.name || user?.user_metadata?.full_name || 'User'} />
-                    <AvatarFallback className="bg-primary/20 font-semibold text-primary">
+                    <AvatarFallback className="bg-gradient-primary text-white font-semibold shadow-inner">
                         {(user?.user_metadata?.name || user?.user_metadata?.full_name)?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase()}
                     </AvatarFallback>
                     </Avatar>
@@ -409,19 +433,19 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
       </header>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="border-b border-white/10 bg-transparent hidden lg:block">
-          <div className="px-2">
+        <div className="border-b border-border/30 bg-background/80 backdrop-blur-sm hidden lg:block">
+          <div className="px-4">
             <ScrollArea className="w-full whitespace-nowrap">
-              <TabsList className="h-auto p-2">
+              <TabsList className="h-auto p-3 bg-transparent">
                     {[...allTabs].map(tab => (
-                      <TabsTrigger key={tab.value} value={tab.value}>{tab.icon}{tab.label}</TabsTrigger>
+                      <TabsTrigger key={tab.value} value={tab.value} className="mx-1">{tab.icon}{tab.label}</TabsTrigger>
                     ))}
               </TabsList>
             </ScrollArea>
           </div>
         </div>
         
-        <div className={cn("relative p-4 md:p-8 bg-transparent transition-opacity duration-500", activeTab ? 'opacity-100' : 'opacity-0')}>
+        <div className={cn("relative p-4 md:p-8 bg-gradient-to-br from-background via-background/98 to-background/95 transition-all duration-500 min-h-[600px]", activeTab ? 'opacity-100' : 'opacity-0')}>
             <TabsContent value="dashboard">
                 <DashboardOverview data={data} />
             </TabsContent>

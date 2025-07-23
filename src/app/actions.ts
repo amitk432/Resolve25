@@ -2,14 +2,14 @@
 'use server';
 
 import { generateGoalTips, type GenerateGoalTipsInput } from '@/ai/flows/generate-goal-tips';
-import { generateGoalStepSuggestions, type GenerateGoalStepSuggestionsInput } from '@/ai/flows/generate-goal-step-suggestions';
+import { generateGoalStepSuggestions } from '@/ai/flows/generate-goal-step-suggestions';
 import { generateModuleSuggestions, type ModuleSuggestionInput } from '@/ai/flows/generate-module-suggestions';
-import { generateGoalSuggestions, type GenerateGoalSuggestionsInput } from '@/ai/flows/generate-goal-suggestions';
-import { generateTaskSuggestions, type GenerateTaskSuggestionsInput } from '@/ai/flows/generate-task-suggestions';
-import { generateMonthlyPlanSuggestions, type GenerateMonthlyPlanSuggestionsInput } from '@/ai/flows/generate-monthly-plan-suggestions';
+import { generateGoalSuggestions } from '@/ai/flows/generate-goal-suggestions';
+import { generateTaskSuggestions } from '@/ai/flows/generate-task-suggestions';
+import { generateMonthlyPlanSuggestions } from '@/ai/flows/generate-monthly-plan-suggestions';
 import { parseResume, type ParseResumeInput, type ResumeData } from '@/ai/flows/parse-resume';
-import { generateJobSuggestions, type GenerateJobSuggestionsInput } from '@/ai/flows/generate-job-suggestions';
-import { generateApplicationEmail, type GenerateApplicationEmailInput } from '@/ai/flows/generate-application-email';
+import { generateJobSuggestions } from '@/ai/flows/generate-job-suggestions';
+import { generateApplicationEmail } from '@/ai/flows/generate-application-email';
 import { generateRelocationAdvice, generateRelocationRoadmap } from '@/ai/flows/generate-relocation-advice';
 import { generateTravelItinerary } from '@/ai/flows/generate-travel-itinerary';
 import type { GenerateTravelItineraryInput, GenerateTravelItineraryOutput, RelocationAdviceInput, RelocationRoadmapInput, GenerateTravelSuggestionOutput, GenerateTravelSuggestionInput, AppData, CriticalStepsData } from '@/lib/types';
@@ -39,7 +39,7 @@ export async function getAITips(input: GenerateGoalTipsInput) {
   }
 }
 
-export async function getAIGoalStepSuggestions(input: GenerateGoalStepSuggestionsInput) {
+export async function getAIGoalStepSuggestions(input: { goal: any; context: any }) {
   try {
     const result = await generateGoalStepSuggestions(input);
     return result;
@@ -50,7 +50,7 @@ export async function getAIGoalStepSuggestions(input: GenerateGoalStepSuggestion
   }
 }
 
-export async function getAIGoalSuggestions(input: GenerateGoalSuggestionsInput) {
+export async function getAIGoalSuggestions(input: { context: any }) {
   try {
     const result = await generateGoalSuggestions(input);
     return result;
@@ -61,7 +61,7 @@ export async function getAIGoalSuggestions(input: GenerateGoalSuggestionsInput) 
   }
 }
 
-export async function getAITaskSuggestions(input: GenerateTaskSuggestionsInput) {
+export async function getAITaskSuggestions(input: { context: any }) {
   try {
     const result = await generateTaskSuggestions(input);
     return result;
@@ -72,7 +72,7 @@ export async function getAITaskSuggestions(input: GenerateTaskSuggestionsInput) 
   }
 }
 
-export async function getAIMonthlyPlanSuggestions(input: GenerateMonthlyPlanSuggestionsInput) {
+export async function getAIMonthlyPlanSuggestions(input: { context: any }) {
   try {
     const result = await generateMonthlyPlanSuggestions(input);
     return result;
@@ -94,7 +94,7 @@ export async function getParsedResume(input: ParseResumeInput): Promise<ResumeDa
   }
 }
 
-export async function getAIJobSuggestions(input: GenerateJobSuggestionsInput) {
+export async function getAIJobSuggestions(input: { resume: any }) {
   try {
     const result = await generateJobSuggestions(input);
     return result;
@@ -105,7 +105,7 @@ export async function getAIJobSuggestions(input: GenerateJobSuggestionsInput) {
   }
 }
 
-export async function getAIEmailTemplate(input: GenerateApplicationEmailInput) {
+export async function getAIEmailTemplate(input: { resume: any; jobApplication: any }) {
   try {
     const result = await generateApplicationEmail(input);
     return result;
