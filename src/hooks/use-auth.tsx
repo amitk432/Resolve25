@@ -24,6 +24,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState<boolean | string>(true);
   const [error, setError] = useState<AuthError | null>(null);
+  const [hasInitialized, setHasInitialized] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -33,14 +35,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
         
-        if (event === 'SIGNED_IN' && session) {
+        // Only redirect to dashboard on the first SIGNED_IN event after initialization
+        // This prevents redirects when switching browser tabs or when already navigating
+        if (event === 'SIGNED_IN' && session && !hasInitialized && !isNavigating) {
+          setHasInitialized(true);
+          setIsNavigating(true);
           // Add a small delay to ensure the session is fully established
-          await new Promise(resolve => setTimeout(resolve, 100))
+          await new Promise(resolve => setTimeout(resolve, 100));
           router.push('/dashboard');
+          // Reset navigation flag after a short delay
+          setTimeout(() => setIsNavigating(false), 1000);
         }
         
         if (event === 'SIGNED_OUT') {
+          setHasInitialized(false);
+          setIsNavigating(true);
           router.push('/login');
+          setTimeout(() => setIsNavigating(false), 1000);
         }
       }
     );
@@ -50,13 +61,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      // Mark as initialized if we already have a session
+      if (session) {
+        setHasInitialized(true);
+      }
     });
-
 
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, [router]);
+  }, [router, hasInitialized, isNavigating]);
 
   const signInWithEmail = async (email: string, password: string) => {
     setLoading('email');

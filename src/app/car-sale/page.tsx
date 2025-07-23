@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import DashboardLayout from '@/components/dashboard-layout';
@@ -9,9 +9,13 @@ import CarSaleWrapper from '@/components/car-sale-wrapper';
 export default function CarSalePage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const hasRedirected = useRef(false);
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    // Only redirect if we've completed loading and confirmed no user
+    // Prevent multiple redirects
+    if (!authLoading && !user && !hasRedirected.current) {
+      hasRedirected.current = true;
       router.push('/');
     }
   }, [user, authLoading, router]);
