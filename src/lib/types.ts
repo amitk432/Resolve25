@@ -267,6 +267,20 @@ export interface LivingAdvisorData {
     questionnaire: RelocationQuestionnaire;
 }
 
+export interface CriticalStep {
+    text: string;
+    priority: 'High' | 'Critical' | 'Urgent';
+    category: 'Goals' | 'Career' | 'Finance' | 'Personal';
+    reasoning: string;
+    timeframe: 'Today' | 'This Week' | 'This Month';
+}
+
+export interface CriticalStepsData {
+    steps: CriticalStep[];
+    generatedAt: string; // ISO timestamp
+    dataHash: string; // Hash of the data used to generate these steps
+}
+
 export interface AppData {
     goals: Goal[];
     monthlyPlan: MonthlyPlan[];
@@ -284,4 +298,5 @@ export interface AppData {
     resume: ResumeData | null;
     livingAdvisor: LivingAdvisorData;
     lastJobSuggestionCheck: string;
+    criticalSteps?: CriticalStepsData;
 }

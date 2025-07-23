@@ -34,7 +34,7 @@ import { Briefcase } from 'lucide-react';
 
 interface JobSearchTabProps {
     applications?: JobApplication[];
-    onAddApplication?: (application: Omit<JobApplication, 'date' | 'status'>) => void;
+    onAddApplication?: (application: Omit<JobApplication, 'status'>) => void;
     onUpdateStatus?: (index: number, status: JobStatus) => void;
     onDelete?: (index: number) => void;
     data?: AppData;
@@ -44,6 +44,7 @@ interface JobSearchTabProps {
 const appSchema = z.object({
   company: z.string().min(1, 'Company name is required.'),
   role: z.string().min(1, 'Role is required.'),
+  dateApplied: z.string().min(1, 'Date applied is required.'),
   location: z.string().optional(),
   applyLink: z.string().url({ message: "Please enter a valid URL."}).optional().or(z.literal('')),
   jobType: z.enum(['Full-time', 'Part-time', 'Contract', 'Internship']).optional(),
@@ -70,15 +71,14 @@ export default function JobSearchTab({
         setLocalData(prevData => produce(prevData, updater));
     });
     
-    const onAddApplication = propOnAddApplication || ((application: Omit<JobApplication, 'date' | 'status'>) => {
+    const onAddApplication = propOnAddApplication || ((application: Omit<JobApplication, 'status'>) => {
         onUpdate(draft => {
             if (!draft.jobApplications) {
                 draft.jobApplications = [];
             }
             draft.jobApplications.push({
                 ...application,
-                date: new Date().toISOString(),
-                status: 'Not Applied' as JobStatus
+                status: 'Applied' as JobStatus // Set to 'Applied' since they're providing a date
             });
         });
     });
@@ -109,6 +109,7 @@ export default function JobSearchTab({
         defaultValues: { 
             company: '', 
             role: '', 
+            dateApplied: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
             applyLink: '',
             location: '',
             salaryRange: '',
@@ -121,6 +122,7 @@ export default function JobSearchTab({
         onAddApplication({
             company: values.company,
             role: values.role,
+            date: new Date(values.dateApplied).toISOString(), // Convert to ISO string
             applyLink: values.applyLink,
             location: values.location,
             jobType: values.jobType,
@@ -368,6 +370,13 @@ export default function JobSearchTab({
                                                 </FormItem>
                                             )} />
                                         </div>
+                                        <FormField control={form.control} name="dateApplied" render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Date Applied</FormLabel>
+                                                <FormControl><Input type="date" {...field} /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )} />
                                         <FormField control={form.control} name="applyLink" render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Application Link</FormLabel>

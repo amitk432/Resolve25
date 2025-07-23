@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 interface AiJobSuggestionDialogProps {
   resumeData: ResumeData | null | undefined;
-  onAddApplication: (application: Omit<JobApplication, 'date' | 'status'>) => void;
+  onAddApplication: (application: Omit<JobApplication, 'status'>) => void;
   children: React.ReactNode;
 }
 
@@ -67,6 +67,7 @@ export default function AiJobSuggestionDialog({ resumeData, onAddApplication, ch
   const handleAddApplication = (job: SuggestedJobApplication) => {
     onAddApplication({
         ...job,
+        date: new Date().toISOString(), // Add current date for AI suggestions
         source: 'AI'
     });
     toast({

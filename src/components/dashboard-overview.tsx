@@ -2,18 +2,24 @@
 'use client'
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { AppData } from '@/lib/types';
+import { AppData, CriticalStep } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, CheckCircle, Target, PiggyBank, CalendarClock } from 'lucide-react';
+import { ArrowRight, CheckCircle, Target, PiggyBank, CalendarClock, Brain, Clock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import AiSuggestionSection from './ai-suggestion-section';
+import { getOrGenerateCriticalSteps } from '@/app/actions';
 
 interface DashboardOverviewProps {
     data: AppData;
+    onUpdate?: (updater: (draft: AppData) => void) => void;
 }
 
-export default function DashboardOverview({ data }: DashboardOverviewProps) {
+export default function DashboardOverview({ data, onUpdate }: DashboardOverviewProps) {
     const [daysLeft, setDaysLeft] = useState(0);
+    const [aiCriticalSteps, setAiCriticalSteps] = useState<CriticalStep[]>([]);
+    const [isLoadingCriticalSteps, setIsLoadingCriticalSteps] = useState(false);
+    const [criticalStepsGenerated, setCriticalStepsGenerated] = useState(false);
 
     useEffect(() => {
         const endOfYear = new Date('2025-12-31');
@@ -22,6 +28,63 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
         const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
         setDaysLeft(diffDays);
     }, []);
+
+    // Track only specific data that should trigger critical steps regeneration
+    const criticalDataHash = useMemo(() => {
+        if (!data) return '';
+        return JSON.stringify({
+            goals: data.goals,
+            monthlyPlan: data.monthlyPlan,
+            jobApplications: data.jobApplications,
+            loans: data.loans,
+            emergencyFund: data.emergencyFund,
+            sips: data.sips,
+            incomeSources: data.incomeSources,
+        });
+    }, [data?.goals, data?.monthlyPlan, data?.jobApplications, data?.loans, data?.emergencyFund, data?.sips, data?.incomeSources]);
+
+    // Load critical steps from cache or generate new ones
+    useEffect(() => {
+        const loadCriticalSteps = async () => {
+            if (!data || isLoadingCriticalSteps) return;
+            
+            // Check if we already have cached critical steps with the same data hash
+            if (data.criticalSteps && data.criticalSteps.dataHash === criticalDataHash) {
+                setAiCriticalSteps(data.criticalSteps.steps);
+                setCriticalStepsGenerated(true);
+                return;
+            }
+            
+            // Only generate if we haven't generated yet or data has changed
+            if (criticalStepsGenerated && data.criticalSteps?.dataHash === criticalDataHash) return;
+            
+            setIsLoadingCriticalSteps(true);
+            try {
+                const result = await getOrGenerateCriticalSteps(data);
+                if ('error' in result) {
+                    console.error('Failed to get critical steps:', result.error);
+                    setAiCriticalSteps([]);
+                } else {
+                    setAiCriticalSteps(result.steps);
+                    
+                    // Save the critical steps to the backend if we have an onUpdate function
+                    if (onUpdate && (!data.criticalSteps || data.criticalSteps.dataHash !== result.dataHash)) {
+                        onUpdate((draft) => {
+                            draft.criticalSteps = result;
+                        });
+                    }
+                }
+                setCriticalStepsGenerated(true);
+            } catch (error) {
+                console.error('Failed to load critical steps:', error);
+                setAiCriticalSteps([]);
+            } finally {
+                setIsLoadingCriticalSteps(false);
+            }
+        };
+
+        loadCriticalSteps();
+    }, [data, criticalDataHash, criticalStepsGenerated, isLoadingCriticalSteps, onUpdate]);
 
     const {
         overallProgress,
@@ -130,23 +193,42 @@ export default function DashboardOverview({ data }: DashboardOverviewProps) {
 
              <div className="mt-2">
                 <Card>
-                    <CardHeader>
-                        <CardTitle className="text-lg">Next 3 Critical Steps</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                        {criticalTasks.length > 0 ? (
-                            criticalTasks.map((task, index) => (
-                               <div key={index} className="bg-white dark:bg-card p-3 rounded-lg flex items-center border">
-                                    <ArrowRight className="text-primary mr-3 h-4 w-4 flex-shrink-0" />
-                                    <span className="text-sm">{task.text}</span>
-                               </div>
-                            ))
-                        ) : (
-                             <div className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 p-3 rounded-lg flex items-center">
-                                <CheckCircle className="mr-3 h-4 w-4"/>
-                                <span className="text-sm font-medium">All goals and steps completed! Great job!</span>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                            <Brain className="h-5 w-5 text-primary" />
+                            Next 3 Critical Steps
+                        </CardTitle>
+                        {isLoadingCriticalSteps && (
+                            <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                <Clock className="h-4 w-4 animate-spin" />
+                                Analyzing...
                             </div>
                         )}
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        {aiCriticalSteps.length > 0 ? (
+                            aiCriticalSteps.map((step, index) => (
+                               <div key={index} className="bg-white dark:bg-card p-3 rounded-lg border border-border flex items-center gap-3">
+                                    <ArrowRight className="text-primary h-4 w-4 flex-shrink-0" />
+                                    <span className="text-sm font-medium text-foreground">{step.text}</span>
+                               </div>
+                            ))
+                        ) : !isLoadingCriticalSteps ? (
+                            // Fallback to static critical tasks if AI fails
+                            criticalTasks.length > 0 ? (
+                                criticalTasks.map((task, index) => (
+                                   <div key={index} className="bg-white dark:bg-card p-3 rounded-lg flex items-center border">
+                                        <ArrowRight className="text-primary mr-3 h-4 w-4 flex-shrink-0" />
+                                        <span className="text-sm">{task.text}</span>
+                                   </div>
+                                ))
+                            ) : (
+                                 <div className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 p-3 rounded-lg flex items-center">
+                                    <CheckCircle className="mr-3 h-4 w-4"/>
+                                    <span className="text-sm font-medium">All goals and steps completed! Great job!</span>
+                                </div>
+                            )
+                        ) : null}
                     </CardContent>
                 </Card>
             </div>
