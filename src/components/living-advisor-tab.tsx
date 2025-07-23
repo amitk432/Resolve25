@@ -164,14 +164,14 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
     return (
         <div className="space-y-8">
             <div>
-                <h2 className="text-2xl font-bold text-foreground">Global Living Advisor</h2>
-                <p className="mt-1 text-muted-foreground">Discover your next home abroad with AI-powered relocation advice.</p>
+                <h2 className="text-3xl font-bold text-foreground">Global Living Advisor</h2>
+                <p className="mt-1 text-base text-muted-foreground">Discover your next home abroad with AI-powered relocation advice.</p>
             </div>
             
-            <Card>
+            <Card className="bg-white dark:bg-card border-border">
                 <CardHeader>
-                    <CardTitle>Your Relocation Profile</CardTitle>
-                    <CardDescription>Fill out this questionnaire to get personalized country recommendations. Your resume details will be used automatically.</CardDescription>
+                    <CardTitle className="text-sm font-medium text-primary">Your Relocation Profile</CardTitle>
+                    <CardDescription className="text-base text-muted-foreground">Fill out this questionnaire to get personalized country recommendations. Your resume details will be used automatically.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>

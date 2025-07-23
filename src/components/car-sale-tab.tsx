@@ -72,20 +72,20 @@ export default function CarSaleTab({
         <div>
             <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground">Car Sale Tracker</h2>
-                  <p className="mt-1 text-muted-foreground">Manage the finances and checklist for selling your car.</p>
+                  <h2 className="text-3xl font-bold text-foreground">Car Sale Tracker</h2>
+                  <p className="mt-1 text-base text-muted-foreground">Manage the finances and checklist for selling your car.</p>
                 </div>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mt-8">
                 <div className="space-y-8">
-                    <Card key="financial-summary" className="shadow-lg hover:shadow-xl transition-shadow">
+                    <Card key="financial-summary" className="bg-white dark:bg-card border-border">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <div className="space-y-1.5">
-                                <CardTitle className="text-lg">Financial Summary</CardTitle>
-                                <CardDescription>Update your sale estimates.</CardDescription>
+                                <CardTitle className="text-sm font-medium text-primary">Financial Summary</CardTitle>
+                                <CardDescription className="text-base text-muted-foreground">Update your sale estimates.</CardDescription>
                             </div>
-                            <TrendingUp className="h-6 w-6 text-muted-foreground" />
+                            <TrendingUp className="h-5 w-5 text-primary" />
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
@@ -130,12 +130,12 @@ export default function CarSaleTab({
                             </span>
                         </CardFooter>
                     </Card>
-                     <Card key="foreclosure-email" className="shadow-lg hover:shadow-xl transition-shadow">
+                     <Card key="foreclosure-email" className="bg-white dark:bg-card border-border">
                         <Accordion type="single" collapsible>
                             <AccordionItem value="item-1" className="border-b-0">
                                 <AccordionTrigger className="p-6">
                                     <div className="flex items-center gap-4">
-                                        <Mail className="h-6 w-6 text-muted-foreground" />
+                                        <Mail className="h-5 w-5 text-primary" />
                                         <div>
                                             <p className="text-lg font-semibold text-left">Foreclosure Request Email</p>
                                             <p className="text-sm text-muted-foreground text-left">Click to view template</p>
@@ -159,13 +159,13 @@ export default function CarSaleTab({
                     </Card>
                 </div>
                 <div>
-                     <Card className="shadow-lg hover:shadow-xl transition-shadow">
+                     <Card className="bg-white dark:bg-card border-border">
                         <CardHeader  className="flex flex-row items-center justify-between">
                              <div className="space-y-1.5">
-                                <CardTitle className="text-lg">Sale Process Checklist</CardTitle>
-                                <CardDescription>Track your sale step-by-step.</CardDescription>
+                                <CardTitle className="text-sm font-medium text-primary">Sale Process Checklist</CardTitle>
+                                <CardDescription className="text-base text-muted-foreground">Track your sale step-by-step.</CardDescription>
                             </div>
-                            <ClipboardCheck className="h-6 w-6 text-muted-foreground" />
+                            <ClipboardCheck className="h-5 w-5 text-primary" />
                         </CardHeader>
                         <CardContent className="space-y-3">
                             {checklist.map((item) => (

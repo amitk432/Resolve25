@@ -141,17 +141,17 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
     return (
         <div className="space-y-8">
             <div className="mb-6">
-                <h2 className="text-2xl font-bold text-foreground">Dashboard Overview</h2>
-                <p className="mt-1 text-muted-foreground">A high-level look at your progress and key metrics.</p>
+                <h2 className="text-3xl font-bold text-foreground">Dashboard Overview</h2>
+                <p className="mt-2 text-base text-muted-foreground">A high-level look at your progress and key metrics.</p>
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-semibold text-muted-foreground">Overall Progress</CardTitle>
-                        <Target className="h-4 w-4 text-muted-foreground" />
+                        <Target className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <p className="text-2xl font-bold">{overallProgress}%</p>
+                        <p className="text-2xl font-bold text-foreground">{overallProgress}%</p>
                         <p className="text-xs text-muted-foreground mt-1 truncate">Based on all steps</p>
                          <Progress value={overallProgress} className="h-2 mt-4" />
                     </CardContent>
@@ -159,7 +159,7 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-semibold text-muted-foreground">Emergency Fund</CardTitle>
-                        <PiggyBank className="h-4 w-4 text-muted-foreground" />
+                        <PiggyBank className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
                          <p className="text-2xl font-bold text-foreground">₹{emergencyFundFormatted}</p>
@@ -170,10 +170,10 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-semibold text-muted-foreground">Goals Status</CardTitle>
-                        <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                        <CheckCircle className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <p className="text-2xl font-bold">{goalsCompletedCount} / {totalGoals}</p>
+                        <p className="text-2xl font-bold text-foreground">{goalsCompletedCount} / {totalGoals}</p>
                         <p className="text-xs text-muted-foreground mt-1 truncate">Completed Goals</p>
                         <Progress value={completedGoalsProgress} className="h-2 mt-4" />
                     </CardContent>
@@ -181,10 +181,10 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-semibold text-muted-foreground">Days Left '25</CardTitle>
-                        <CalendarClock className="h-4 w-4 text-muted-foreground" />
+                        <CalendarClock className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
-                        <p className="text-2xl font-bold">{daysLeft}</p>
+                        <p className="text-2xl font-bold text-foreground">{daysLeft}</p>
                         <p className="text-xs text-muted-foreground mt-1 truncate">{Math.round(100 - yearProgress)}% of year left</p>
                         <Progress value={yearProgress} className="h-2 mt-4" />
                     </CardContent>
@@ -194,7 +194,7 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
              <div className="mt-2">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="text-lg flex items-center gap-2">
+                        <CardTitle className="text-lg flex items-center gap-2 text-foreground">
                             <Brain className="h-5 w-5 text-primary" />
                             Next 3 Critical Steps
                         </CardTitle>
@@ -217,9 +217,9 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
                             // Fallback to static critical tasks if AI fails
                             criticalTasks.length > 0 ? (
                                 criticalTasks.map((task, index) => (
-                                   <div key={index} className="bg-white dark:bg-card p-3 rounded-lg flex items-center border">
+                                   <div key={index} className="bg-white dark:bg-card p-3 rounded-lg flex items-center border border-border gap-3">
                                         <ArrowRight className="text-primary mr-3 h-4 w-4 flex-shrink-0" />
-                                        <span className="text-sm">{task.text}</span>
+                                        <span className="text-sm text-foreground">{task.text}</span>
                                    </div>
                                 ))
                             ) : (
