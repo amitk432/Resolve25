@@ -85,42 +85,42 @@ export default function AiMonthlyTaskSuggestionDialog({ monthData, data, onTaskA
       </TooltipProvider>
 
       <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <BrainCircuit className="text-primary" />
-            AI Task Suggestions for {monthData.month}
+        <DialogHeader className="pb-3">
+          <DialogTitle className="flex items-center gap-2 text-lg">
+            <BrainCircuit className="text-primary h-5 w-5" />
+            AI Tasks for {monthData.month}
           </DialogTitle>
-          <DialogDescription>
-            Based on your overall goals, here are a few tasks our AI thinks would fit well this month.
+          <DialogDescription className="text-sm">
+            AI-suggested tasks based on your goals
           </DialogDescription>
         </DialogHeader>
-        <div className="flex-grow overflow-y-auto pr-4 -mr-4 min-h-[150px] max-h-60">
+        <div className="flex-grow overflow-y-auto pr-4 -mr-4 min-h-[120px] max-h-48">
             {isLoading && (
-            <div className="flex items-center justify-center p-8">
-                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            <div className="flex items-center justify-center py-6">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
             )}
             {!isLoading && suggestions.length > 0 && (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
                 {suggestions.map((suggestion, index) => (
-                    <div key={index} className="flex items-center justify-between gap-2 p-2 rounded-md bg-white dark:bg-card">
-                        <p className="text-sm text-foreground">{suggestion}</p>
-                        <Button size="sm" onClick={() => handleAddTask(suggestion)}>
-                            <Plus className="mr-2 h-4 w-4" /> Add
+                    <div key={index} className="flex items-center justify-between gap-2 p-2 rounded-md bg-white dark:bg-card border">
+                        <p className="text-xs text-foreground leading-relaxed">{suggestion}</p>
+                        <Button size="sm" onClick={() => handleAddTask(suggestion)} className="h-6 text-xs">
+                            <Plus className="mr-1 h-3 w-3" /> Add
                         </Button>
                     </div>
                 ))}
             </div>
             )}
             {!isLoading && suggestions.length === 0 && (
-                <div className="text-center py-8">
-                    <p className="text-muted-foreground">No new suggestions at the moment.</p>
+                <div className="text-center py-6">
+                    <p className="text-muted-foreground text-sm">No suggestions available</p>
                 </div>
             )}
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={handleGenerate} disabled={isLoading}>
-            {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Generating...</> : 'Regenerate'}
+        <DialogFooter className="pt-3">
+          <Button variant="outline" onClick={handleGenerate} disabled={isLoading} size="sm" className="h-8 text-sm">
+            {isLoading ? <><Loader2 className="mr-1.5 h-3 w-3 animate-spin"/>Generating...</> : 'Regenerate'}
           </Button>
         </DialogFooter>
       </DialogContent>

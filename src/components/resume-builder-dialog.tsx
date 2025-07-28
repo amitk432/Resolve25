@@ -174,7 +174,11 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
     }));
 
     const finalResumeData: ResumeData = {
-        contactInfo: values.contactInfo,
+        contactInfo: {
+            ...values.contactInfo,
+            linkedin: values.contactInfo.linkedin || '',
+            github: values.contactInfo.github || '',
+        },
         summary: values.summary,
         skills: skillsRecord,
         workExperience,
@@ -201,50 +205,50 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
         </DialogHeader>
         <div className="flex-grow overflow-hidden">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} id="resume-form" className="h-full flex flex-col">
+              <form onSubmit={form.handleSubmit(onSubmit)} id="resume-form" className="h-full flex flex-col" aria-label="Resume builder form">
                 <ScrollArea className="flex-grow">
-                  <div className="mx-auto max-w-3xl space-y-8 px-1 py-4">
+                  <div className="mx-auto max-w-3xl space-y-6 px-1 py-4">
                     {/* Contact Info */}
-                    <div className="space-y-4">
-                      <h4 className="font-medium text-lg">Contact Information</h4>
-                      <FormField name="contactInfo.name" control={form.control} render={({ field }) => (<FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                          <FormField name="contactInfo.email" control={form.control} render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                          <FormField name="contactInfo.phone" control={form.control} render={({ field }) => (<FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-base">Contact Information</h4>
+                      <FormField name="contactInfo.name" control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Full Name</FormLabel><FormControl><Input className="h-9" {...field} aria-describedby="name-error" /></FormControl><FormMessage id="name-error" /></FormItem>)} />
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          <FormField name="contactInfo.email" control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Email</FormLabel><FormControl><Input className="h-9" type="email" {...field} aria-describedby="email-error" /></FormControl><FormMessage id="email-error" /></FormItem>)} />
+                          <FormField name="contactInfo.phone" control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Phone</FormLabel><FormControl><Input className="h-9" type="tel" {...field} aria-describedby="phone-error" /></FormControl><FormMessage id="phone-error" /></FormItem>)} />
                       </div>
-                      <FormField name="contactInfo.location" control={form.control} render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><FormControl><Input placeholder="City, Country" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                          <FormField name="contactInfo.linkedin" control={form.control} render={({ field }) => (<FormItem><FormLabel>LinkedIn URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                          <FormField name="contactInfo.github" control={form.control} render={({ field }) => (<FormItem><FormLabel>GitHub URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                      <FormField name="contactInfo.location" control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Location</FormLabel><FormControl><Input className="h-9" placeholder="City, Country" {...field} aria-describedby="location-error" /></FormControl><FormMessage id="location-error" /></FormItem>)} />
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          <FormField name="contactInfo.linkedin" control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">LinkedIn URL (Optional)</FormLabel><FormControl><Input className="h-9" type="url" {...field} aria-describedby="linkedin-error" /></FormControl><FormMessage id="linkedin-error" /></FormItem>)} />
+                          <FormField name="contactInfo.github" control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">GitHub URL (Optional)</FormLabel><FormControl><Input className="h-9" type="url" {...field} aria-describedby="github-error" /></FormControl><FormMessage id="github-error" /></FormItem>)} />
                       </div>
                     </div>
                     
                     <Separator/>
 
                     {/* Summary */}
-                    <div className="space-y-4">
-                        <h4 className="font-medium text-lg">Professional Summary</h4>
-                        <FormField name="summary.title" control={form.control} render={({ field }) => (<FormItem><FormLabel>Headline</FormLabel><FormControl><Input placeholder="e.g., Software Quality Analyst" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField name="summary.text" control={form.control} render={({ field }) => (<FormItem><FormLabel>Summary Text</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <div className="space-y-3">
+                        <h4 className="font-medium text-base">Professional Summary</h4>
+                        <FormField name="summary.title" control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Headline</FormLabel><FormControl><Input className="h-9" placeholder="e.g., Software Quality Analyst" {...field} aria-describedby="summary-title-error" /></FormControl><FormMessage id="summary-title-error" /></FormItem>)} />
+                        <FormField name="summary.text" control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Summary Text</FormLabel><FormControl><Textarea className="min-h-[80px] text-sm" {...field} aria-describedby="summary-text-error" /></FormControl><FormMessage id="summary-text-error" /></FormItem>)} />
                     </div>
 
                     <Separator/>
 
                     {/* Skills */}
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                            <h4 className="font-medium text-lg">Skills</h4>
-                            <Button type="button" size="sm" onClick={() => appendSkill({ category: '', skillList: '' })}><Plus className="mr-2 h-4 w-4"/>Add Skill Category</Button>
+                            <h4 className="font-medium text-base">Skills</h4>
+                            <Button type="button" size="sm" className="h-8 text-xs" onClick={() => appendSkill({ category: '', skillList: '' })} aria-label="Add new skill category"><Plus className="mr-1 h-3 w-3"/>Add Category</Button>
                         </div>
                         {skillFields.map((field, index) => (
-                            <div key={field.id} className="flex gap-2 items-start p-3 border rounded-md">
+                            <div key={field.id} className="flex gap-2 items-start p-3 border rounded-md" role="group" aria-label={`Skill category ${index + 1}`}>
                                 <div className="flex-grow space-y-2">
-                                    <FormField name={`skills.${index}.category`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Category</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                    <FormField name={`skills.${index}.skillList`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Skills (comma-separated)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                    <FormField name={`skills.${index}.category`} control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Category</FormLabel><FormControl><Input className="h-8" {...field} aria-describedby={`skill-category-${index}-error`} /></FormControl><FormMessage id={`skill-category-${index}-error`} /></FormItem>)} />
+                                    <FormField name={`skills.${index}.skillList`} control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Skills (comma-separated)</FormLabel><FormControl><Input className="h-8" {...field} aria-describedby={`skill-list-${index}-error`} /></FormControl><FormMessage id={`skill-list-${index}-error`} /></FormItem>)} />
                                 </div>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button type="button" variant="ghost" size="icon" className="mt-6"><Trash2 className="text-destructive h-4 w-4"/></Button>
+                                        <Button type="button" variant="ghost" size="sm" className="h-8 w-8 mt-5" aria-label={`Delete skill category ${index + 1}`}><Trash2 className="text-destructive h-3 w-3"/></Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                         <AlertDialogHeader>
@@ -266,16 +270,16 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                     <Separator/>
 
                     {/* Work Experience */}
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                            <h4 className="font-medium text-lg">Work Experience</h4>
-                            <Button type="button" size="sm" onClick={() => appendWork({ company: '', location: '', role: '', startDate: new Date(), endDate: null, isCurrent: false, descriptionPoints: '' })}><Plus className="mr-2 h-4 w-4"/>Add Experience</Button>
+                            <h4 className="font-medium text-base">Work Experience</h4>
+                            <Button type="button" size="sm" className="h-8 text-xs" onClick={() => appendWork({ company: '', location: '', role: '', startDate: new Date(), endDate: null, isCurrent: false, descriptionPoints: '' })} aria-label="Add new work experience"><Plus className="mr-1 h-3 w-3"/>Add Experience</Button>
                         </div>
                         {workFields.map((field, index) => (
-                            <div key={field.id} className="space-y-2 p-3 border rounded-md relative">
+                            <div key={field.id} className="space-y-2 p-3 border rounded-md relative" role="group" aria-label={`Work experience ${index + 1}`}>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1"><Trash2 className="text-destructive h-4 w-4"/></Button>
+                                        <Button type="button" variant="ghost" size="sm" className="absolute top-1 right-1 h-6 w-6" aria-label={`Delete work experience ${index + 1}`}><Trash2 className="text-destructive h-3 w-3"/></Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                         <AlertDialogHeader>
@@ -290,20 +294,20 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
-                                <FormField name={`workExperience.${index}.company`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Company</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField name={`workExperience.${index}.role`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Role</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField name={`workExperience.${index}.location`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField name={`workExperience.${index}.company`} control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Company</FormLabel><FormControl><Input className="h-8" {...field} aria-describedby={`work-company-${index}-error`} /></FormControl><FormMessage id={`work-company-${index}-error`} /></FormItem>)} />
+                                <FormField name={`workExperience.${index}.role`} control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Role</FormLabel><FormControl><Input className="h-8" {...field} aria-describedby={`work-role-${index}-error`} /></FormControl><FormMessage id={`work-role-${index}-error`} /></FormItem>)} />
+                                <FormField name={`workExperience.${index}.location`} control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Location</FormLabel><FormControl><Input className="h-8" {...field} aria-describedby={`work-location-${index}-error`} /></FormControl><FormMessage id={`work-location-${index}-error`} /></FormItem>)} />
                                 
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                     <FormField control={form.control} name={`workExperience.${index}.startDate`} render={({ field }) => (
-                                        <FormItem className="flex flex-col"><FormLabel>Start Date</FormLabel>
+                                        <FormItem className="flex flex-col"><FormLabel className="text-sm">Start Date</FormLabel>
                                             <Popover><PopoverTrigger asChild><FormControl>
-                                                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {field.value ? format(field.value, 'dd-MMMM-yyyy') : <span>Pick a date</span>}
+                                                <Button variant="outline" className={cn('w-full h-8 justify-start text-left font-normal text-sm', !field.value && 'text-muted-foreground')} aria-label="Select start date">
+                                                    <CalendarIcon className="mr-2 h-3 w-3" />
+                                                    {field.value ? format(field.value, 'dd-MMM-yyyy') : <span>Pick a date</span>}
                                                 </Button>
                                             </FormControl></PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" aign="start">
+                                            <PopoverContent className="w-auto p-0" align="start">
                                                 <Calendar mode="single" captionLayout="dropdown-buttons" fromYear={1980} toYear={currentYear} selected={field.value ?? undefined} onSelect={field.onChange} initialFocus />
                                             </PopoverContent>
                                             </Popover><FormMessage />
@@ -312,11 +316,11 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                      <FormField control={form.control} name={`workExperience.${index}.endDate`} render={({ field }) => {
                                         const isCurrent = form.watch(`workExperience.${index}.isCurrent`);
                                         return (
-                                        <FormItem className="flex flex-col"><FormLabel>End Date</FormLabel>
+                                        <FormItem className="flex flex-col"><FormLabel className="text-sm">End Date</FormLabel>
                                             <Popover><PopoverTrigger asChild><FormControl>
-                                                <Button variant="outline" disabled={isCurrent} className={cn('w-full justify-start text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {isCurrent ? 'Present' : field.value ? format(field.value, 'dd-MMMM-yyyy') : <span>Pick a date</span>}
+                                                <Button variant="outline" disabled={isCurrent} className={cn('w-full h-8 justify-start text-left font-normal text-sm', !field.value && 'text-muted-foreground')} aria-label="Select end date">
+                                                    <CalendarIcon className="mr-2 h-3 w-3" />
+                                                    {isCurrent ? 'Present' : field.value ? format(field.value, 'dd-MMM-yyyy') : <span>Pick a date</span>}
                                                 </Button>
                                             </FormControl></PopoverTrigger>
                                             <PopoverContent className="w-auto p-0" align="start">
@@ -329,10 +333,10 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                  <FormField control={form.control} name={`workExperience.${index}.isCurrent`} render={({ field }) => (
                                     <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                                         <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                                        <FormLabel className="font-normal">I currently work here</FormLabel>
+                                        <FormLabel className="text-sm font-normal">I currently work here</FormLabel>
                                     </FormItem>
                                 )} />
-                                <FormField name={`workExperience.${index}.descriptionPoints`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Description (one point per line)</FormLabel><FormControl><Textarea className="min-h-[100px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField name={`workExperience.${index}.descriptionPoints`} control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Description (one point per line)</FormLabel><FormControl><Textarea className="min-h-[80px] text-sm" {...field} aria-describedby={`work-desc-${index}-error`} /></FormControl><FormMessage id={`work-desc-${index}-error`} /></FormItem>)} />
                             </div>
                         ))}
                     </div>
@@ -340,16 +344,16 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                     <Separator/>
                     
                     {/* Projects */}
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                          <h4 className="font-medium text-lg">Projects</h4>
-                          <Button type="button" size="sm" onClick={() => appendProject({ name: '', startDate: new Date(), endDate: null, isCurrent: false, description: '' })}><Plus className="mr-2 h-4 w-4"/>Add Project</Button>
+                          <h4 className="font-medium text-base">Projects</h4>
+                          <Button type="button" size="sm" className="h-8 text-xs" onClick={() => appendProject({ name: '', startDate: new Date(), endDate: null, isCurrent: false, description: '' })} aria-label="Add new project"><Plus className="mr-1 h-3 w-3"/>Add Project</Button>
                       </div>
                       {projectFields.map((field, index) => (
-                          <div key={field.id} className="space-y-2 p-3 border rounded-md relative">
+                          <div key={field.id} className="space-y-2 p-3 border rounded-md relative" role="group" aria-label={`Project ${index + 1}`}>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                    <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1"><Trash2 className="text-destructive h-4 w-4"/></Button>
+                                    <Button type="button" variant="ghost" size="sm" className="absolute top-1 right-1 h-6 w-6" aria-label={`Delete project ${index + 1}`}><Trash2 className="text-destructive h-3 w-3"/></Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
@@ -364,15 +368,15 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>
-                              <FormField name={`projects.${index}.name`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Project Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                              <FormField name={`projects.${index}.name`} control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Project Name</FormLabel><FormControl><Input className="h-8" {...field} aria-describedby={`project-name-${index}-error`} /></FormControl><FormMessage id={`project-name-${index}-error`} /></FormItem>)} />
                               
-                               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                     <FormField control={form.control} name={`projects.${index}.startDate`} render={({ field }) => (
-                                        <FormItem className="flex flex-col"><FormLabel>Start Date</FormLabel>
+                                        <FormItem className="flex flex-col"><FormLabel className="text-sm">Start Date</FormLabel>
                                             <Popover><PopoverTrigger asChild><FormControl>
-                                                <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {field.value ? format(field.value, 'dd-MMMM-yyyy') : <span>Pick a date</span>}
+                                                <Button variant="outline" className={cn('w-full h-8 justify-start text-left font-normal text-sm', !field.value && 'text-muted-foreground')} aria-label="Select project start date">
+                                                    <CalendarIcon className="mr-2 h-3 w-3" />
+                                                    {field.value ? format(field.value, 'dd-MMM-yyyy') : <span>Pick a date</span>}
                                                 </Button>
                                             </FormControl></PopoverTrigger>
                                             <PopoverContent className="w-auto p-0" align="start">
@@ -384,11 +388,11 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                      <FormField control={form.control} name={`projects.${index}.endDate`} render={({ field }) => {
                                         const isCurrent = form.watch(`projects.${index}.isCurrent`);
                                         return (
-                                        <FormItem className="flex flex-col"><FormLabel>End Date</FormLabel>
+                                        <FormItem className="flex flex-col"><FormLabel className="text-sm">End Date</FormLabel>
                                             <Popover><PopoverTrigger asChild><FormControl>
-                                                <Button variant="outline" disabled={isCurrent} className={cn('w-full justify-start text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {isCurrent ? 'Present' : field.value ? format(field.value, 'dd-MMMM-yyyy') : <span>Pick a date</span>}
+                                                <Button variant="outline" disabled={isCurrent} className={cn('w-full h-8 justify-start text-left font-normal text-sm', !field.value && 'text-muted-foreground')} aria-label="Select project end date">
+                                                    <CalendarIcon className="mr-2 h-3 w-3" />
+                                                    {isCurrent ? 'Present' : field.value ? format(field.value, 'dd-MMM-yyyy') : <span>Pick a date</span>}
                                                 </Button>
                                             </FormControl></PopoverTrigger>
                                             <PopoverContent className="w-auto p-0" align="start">
@@ -401,10 +405,10 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                 <FormField control={form.control} name={`projects.${index}.isCurrent`} render={({ field }) => (
                                     <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                                         <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                                        <FormLabel className="font-normal">This is an ongoing project</FormLabel>
+                                        <FormLabel className="text-sm font-normal">This is an ongoing project</FormLabel>
                                     </FormItem>
                                 )} />
-                              <FormField name={`projects.${index}.description`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)} />
+                              <FormField name={`projects.${index}.description`} control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Description</FormLabel><FormControl><Textarea className="min-h-[80px] text-sm" {...field} aria-describedby={`project-desc-${index}-error`} /></FormControl><FormMessage id={`project-desc-${index}-error`} /></FormItem>)} />
                           </div>
                       ))}
                     </div>
@@ -412,16 +416,16 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                     <Separator/>
 
                     {/* Education */}
-                     <div className="space-y-4">
+                     <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                            <h4 className="font-medium text-lg">Education</h4>
-                            <Button type="button" size="sm" onClick={() => appendEducation({ institution: '', degree: '', location: '', gpa: '', endDate: new Date() })}><Plus className="mr-2 h-4 w-4"/>Add Education</Button>
+                            <h4 className="font-medium text-base">Education</h4>
+                            <Button type="button" size="sm" className="h-8 text-xs" onClick={() => appendEducation({ institution: '', degree: '', location: '', gpa: '', endDate: new Date() })} aria-label="Add new education entry"><Plus className="mr-1 h-3 w-3"/>Add Education</Button>
                         </div>
                         {educationFields.map((field, index) => (
-                            <div key={field.id} className="space-y-2 p-3 border rounded-md relative">
+                            <div key={field.id} className="space-y-2 p-3 border rounded-md relative" role="group" aria-label={`Education ${index + 1}`}>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1"><Trash2 className="text-destructive h-4 w-4"/></Button>
+                                        <Button type="button" variant="ghost" size="sm" className="absolute top-1 right-1 h-6 w-6" aria-label={`Delete education entry ${index + 1}`}><Trash2 className="text-destructive h-3 w-3"/></Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
                                         <AlertDialogHeader>
@@ -436,18 +440,18 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
-                                <FormField name={`education.${index}.institution`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Institution</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <FormField name={`education.${index}.degree`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Degree/Course</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                  <FormField name={`education.${index}.location`} control={form.control} render={({ field }) => (<FormItem><FormLabel>Location</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                  <FormField name={`education.${index}.gpa`} control={form.control} render={({ field }) => (<FormItem><FormLabel>GPA / %</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                                <FormField name={`education.${index}.institution`} control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Institution</FormLabel><FormControl><Input className="h-8" {...field} aria-describedby={`education-institution-${index}-error`} /></FormControl><FormMessage id={`education-institution-${index}-error`} /></FormItem>)} />
+                                <FormField name={`education.${index}.degree`} control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Degree/Course</FormLabel><FormControl><Input className="h-8" {...field} aria-describedby={`education-degree-${index}-error`} /></FormControl><FormMessage id={`education-degree-${index}-error`} /></FormItem>)} />
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                  <FormField name={`education.${index}.location`} control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">Location</FormLabel><FormControl><Input className="h-8" {...field} aria-describedby={`education-location-${index}-error`} /></FormControl><FormMessage id={`education-location-${index}-error`} /></FormItem>)} />
+                                  <FormField name={`education.${index}.gpa`} control={form.control} render={({ field }) => (<FormItem><FormLabel className="text-sm">GPA / %</FormLabel><FormControl><Input className="h-8" {...field} aria-describedby={`education-gpa-${index}-error`} /></FormControl><FormMessage id={`education-gpa-${index}-error`} /></FormItem>)} />
                                 </div>
                                 <FormField control={form.control} name={`education.${index}.endDate`} render={({ field }) => (
-                                    <FormItem className="flex flex-col"><FormLabel>Completion Date</FormLabel>
+                                    <FormItem className="flex flex-col"><FormLabel className="text-sm">Completion Date</FormLabel>
                                         <Popover><PopoverTrigger asChild><FormControl>
-                                            <Button variant="outline" className={cn('w-full justify-start text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {field.value ? format(field.value, 'dd-MMMM-yyyy') : <span>Pick a date</span>}
+                                            <Button variant="outline" className={cn('w-full h-8 justify-start text-left font-normal text-sm', !field.value && 'text-muted-foreground')} aria-label="Select completion date">
+                                                <CalendarIcon className="mr-2 h-3 w-3" />
+                                                {field.value ? format(field.value, 'dd-MMM-yyyy') : <span>Pick a date</span>}
                                             </Button>
                                         </FormControl></PopoverTrigger>
                                         <PopoverContent className="w-auto p-0" align="start">
@@ -462,9 +466,11 @@ export default function ResumeBuilderDialog({ data, onUpdate, children }: Resume
 
                   </div>
                 </ScrollArea>
-                <DialogFooter className="mt-auto border-t pt-4">
-                  <Button variant="outline" onClick={() => setOpen(false)}>Close</Button>
-                  <Button type="submit" form="resume-form" disabled={form.formState.isSubmitting || (Object.keys(form.formState.errors).length > 0 && form.formState.isSubmitted)}>Save Details</Button>
+                <DialogFooter className="mt-auto border-t pt-4 flex flex-row gap-2">
+                  <Button variant="outline" onClick={() => setOpen(false)} className="h-9">Close</Button>
+                  <Button type="submit" form="resume-form" disabled={form.formState.isSubmitting || (Object.keys(form.formState.errors).length > 0 && form.formState.isSubmitted)} className="h-9">
+                    {form.formState.isSubmitting ? 'Saving...' : 'Save Details'}
+                  </Button>
                 </DialogFooter>
               </form>
             </Form>

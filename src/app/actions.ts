@@ -12,7 +12,8 @@ import { generateJobSuggestions } from '@/ai/flows/generate-job-suggestions';
 import { generateApplicationEmail } from '@/ai/flows/generate-application-email';
 import { generateRelocationAdvice, generateRelocationRoadmap } from '@/ai/flows/generate-relocation-advice';
 import { generateTravelItinerary } from '@/ai/flows/generate-travel-itinerary';
-import type { GenerateTravelItineraryInput, GenerateTravelItineraryOutput, RelocationAdviceInput, RelocationRoadmapInput, GenerateTravelSuggestionOutput, GenerateTravelSuggestionInput, AppData, CriticalStepsData } from '@/lib/types';
+import { generateJobSpecificResume } from '@/ai/flows/generate-job-specific-resume';
+import type { GenerateTravelItineraryInput, GenerateTravelItineraryOutput, RelocationAdviceInput, RelocationRoadmapInput, GenerateTravelSuggestionOutput, GenerateTravelSuggestionInput, AppData, CriticalStepsData, JobApplication, ResumeData as ResumeDataType } from '@/lib/types';
 import { generateTravelSuggestion } from '@/ai/flows/generate-travel-suggestion';
 import { generateCriticalSteps } from '@/ai/flows/generate-critical-steps';
 
@@ -182,14 +183,52 @@ export async function getOrGenerateCriticalSteps(data: AppData): Promise<Critica
     // Generate new critical steps
     const result = await generateCriticalSteps({ context: data });
     
+    // Post-process to ensure text is concise and fits in 1-2 lines
+    const processedSteps = result.steps.map(step => ({
+      ...step,
+      text: step.text.length > 50 ? step.text.substring(0, 47) + '...' : step.text
+    }));
+    
     return {
-      steps: result.steps,
+      steps: processedSteps,
       generatedAt: new Date().toISOString(),
       dataHash: criticalDataHash,
     };
   } catch (error) {
     console.error('Error getting/generating critical steps:', error);
     const errorMessage = error instanceof Error ? error.message : 'Failed to generate critical steps. Please try again.';
+    return { error: errorMessage };
+  }
+}
+
+export async function generateJobSpecificResumeAction(
+  baseResume: ResumeDataType, 
+  jobApplication: JobApplication, 
+  jobDescription?: string
+): Promise<ResumeDataType | { error: string }> {
+  try {
+    console.log('🔧 Starting job-specific resume generation in server action');
+    
+    // Prepare job application with additional description if provided
+    const enhancedJobApplication = {
+      ...jobApplication,
+      // Add description as a separate field that our AI flow can use
+      additionalDescription: jobDescription
+    };
+
+    const input = {
+      baseResume,
+      jobApplication: enhancedJobApplication
+    };
+
+    console.log('📤 Calling generateJobSpecificResume with input for:', jobApplication.company);
+    const result = await generateJobSpecificResume(input);
+    
+    console.log('✅ Successfully generated job-specific resume in server action');
+    return result;
+  } catch (error) {
+    console.error('❌ Error generating job-specific resume in server action:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to generate job-specific resume. Please try again.';
     return { error: errorMessage };
   }
 }

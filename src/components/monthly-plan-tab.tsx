@@ -44,7 +44,7 @@ const MonthCard = ({ monthData, monthIndex, data, onToggleTask, onAddTask, onDel
         <Card className="bg-white dark:bg-card border-border">
             <CardHeader>
                 <CardTitle className="text-sm font-medium text-primary">{monthData.month}</CardTitle>
-                <CardDescription className="text-base text-muted-foreground">{monthData.theme}</CardDescription>
+                <CardDescription className="text-sm md:text-base text-muted-foreground">{monthData.theme}</CardDescription>
             </CardHeader>
             <CardContent>
                  <div className="space-y-3">
@@ -122,8 +122,8 @@ export default function MonthlyPlanTab({
          <div>
             <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="text-3xl font-bold text-foreground">Monthly Action Plan</h2>
-                  <p className="mt-1 text-base text-muted-foreground">Break down your year into manageable monthly chunks.</p>
+                  <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground">Monthly Action Plan</h2>
+                  <p className="mt-1 text-sm md:text-base text-muted-foreground">Break down your year into manageable monthly chunks.</p>
                 </div>
                 <div className="flex w-full shrink-0 gap-2 sm:w-auto">
                     <AiMonthlyPlanGeneratorDialog data={data} onPlanAdd={onAddPlan}>

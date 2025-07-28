@@ -72,7 +72,10 @@ export default function AddGoalDialog({ onGoalAdd }: AddGoalDialogProps) {
   });
 
   const onSubmit = (values: z.infer<typeof goalSchema>) => {
-    onGoalAdd(values);
+    onGoalAdd({
+      ...values,
+      deadline: values.deadline.toISOString()
+    });
     toast({
       title: 'Goal added!',
       description: `Your new goal "${values.title}" has been created.`,

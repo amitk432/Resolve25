@@ -169,44 +169,44 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <>
       <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-transparent shadow-xl border border-white/10">
-        <header className="flex items-center justify-between gap-4 bg-transparent p-4 sm:p-6 border-b border-white/10">
-          <div className="flex items-center gap-3">
+        <header className="flex items-center justify-between gap-2 bg-transparent p-3 sm:p-4 md:p-6 border-b border-white/10 min-h-[56px] md:min-h-[64px]">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             <div className="lg:hidden">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Menu className="h-6 w-6" />
+                  <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 min-h-[40px] min-w-[40px] shrink-0">
+                    <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="p-0 flex flex-col">
-                  <SheetHeader className="p-6 border-b">
-                    <SheetTitle className="flex items-center gap-3">
+                <SheetContent side="left" className="p-0 flex flex-col w-[280px] sm:w-[320px]">
+                  <SheetHeader className="p-4 sm:p-6 border-b">
+                    <SheetTitle className="flex items-center gap-2 sm:gap-3">
                       <img 
                         src="/icon.svg" 
                         alt="Resolve25 Logo" 
-                        className="h-6 w-6"
+                        className="h-5 w-5 sm:h-6 sm:w-6 shrink-0"
                       />
-                      <div className="flex flex-col text-left">
-                        <span className="font-bold">Resolve25</span>
-                        <span className="text-xs text-muted-foreground font-normal">Your AI-powered Life OS</span>
+                      <div className="flex flex-col text-left min-w-0">
+                        <span className="font-bold text-sm sm:text-base truncate">Resolve 25</span>
+                        <span className="text-xs text-muted-foreground font-normal truncate">Your AI-powered Life OS</span>
                       </div>
                     </SheetTitle>
                   </SheetHeader>
-                  <ScrollArea className="flex-1 p-6">
-                    <div className="space-y-2">
+                  <ScrollArea className="flex-1 p-4 sm:p-6">
+                    <div className="space-y-1 sm:space-y-2">
                       {navigationTabs.map((tab) => (
                         <SheetClose asChild key={tab.value}>
                           <Link
                             href={tab.value}
                             className={cn(
-                              "flex items-center gap-3 w-full p-3 rounded-lg text-left transition-colors",
+                              "flex items-center gap-3 w-full p-2.5 sm:p-3 rounded-lg text-left transition-colors text-sm sm:text-base",
                               pathname === tab.value
                                 ? "bg-accent text-accent-foreground border border-border"
                                 : "hover:bg-accent/50 hover:text-accent-foreground"
                             )}
                           >
-                            {tab.icon}
-                            <span>{tab.label}</span>
+                            <span className="shrink-0">{tab.icon}</span>
+                            <span className="truncate">{tab.label}</span>
                           </Link>
                         </SheetClose>
                       ))}
@@ -215,28 +215,31 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </SheetContent>
               </Sheet>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <img 
                 src="/icon.svg" 
                 alt="Resolve25 Logo" 
-                className="h-8 w-8"
+                className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 shrink-0"
               />
-              <div className="flex flex-col">
-                <h1 className="text-2xl font-bold leading-tight">Resolve25</h1>
-                <p className="text-xs text-muted-foreground">Your AI-powered Life OS</p>
+              <div className="flex flex-col min-w-0">
+                <h1 className="text-base sm:text-lg md:text-xl font-bold leading-tight truncate">
+                  <span className="sm:hidden">Resolve 25</span>
+                  <span className="hidden sm:inline">Resolve 25</span>
+                </h1>
+                <p className="text-xs text-muted-foreground truncate">Your AI-powered Life OS</p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <ThemeSwitcher />
             {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar className="h-10 w-10">
+                  <Button variant="ghost" className="relative h-9 w-9 sm:h-10 sm:w-10 rounded-full min-h-[40px] min-w-[40px]">
+                    <Avatar className="h-8 w-8 sm:h-9 sm:w-9">
                       <AvatarImage src={user.user_metadata?.avatar_url} alt={user.user_metadata?.name || user.email} />
-                      <AvatarFallback>{(user.user_metadata?.name || user.email)?.charAt(0).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback className="text-xs sm:text-sm">{(user.user_metadata?.name || user.email)?.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>

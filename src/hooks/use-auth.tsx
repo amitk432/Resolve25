@@ -13,6 +13,7 @@ type AuthContextType = {
   signInWithProvider: (provider: 'google' | 'github') => Promise<void>;
   signOut: () => Promise<void>;
   updateProfile: (updates: { name?: string; avatar_url?: string }) => Promise<void>;
+  clearAuthError: () => void;
   loading: boolean | string;
   error: AuthError | null;
 };
@@ -35,6 +36,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
         
+        // Handle token refresh errors
+        if (event === 'TOKEN_REFRESHED' && !session) {
+          // If token refresh failed, clear auth state and redirect to login
+          setSession(null);
+          setUser(null);
+          setHasInitialized(false);
+          setError(null);
+          router.push('/login');
+          return;
+        }
+        
         // Only redirect to dashboard on the first SIGNED_IN event after initialization
         // This prevents redirects when switching browser tabs or when already navigating
         if (event === 'SIGNED_IN' && session && !hasInitialized && !isNavigating) {
@@ -56,8 +68,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    // Initial session fetch
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Initial session fetch with error handling
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error && error.message.includes('refresh')) {
+        // Handle refresh token errors by clearing auth state
+        setSession(null);
+        setUser(null);
+        setLoading(false);
+        setError(null);
+        router.push('/login');
+        return;
+      }
+      
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -134,8 +156,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut();
     setSession(null);
     setUser(null);
+    setError(null);
+    setHasInitialized(false);
+    
+    // Clear any remaining auth data from localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('supabase.auth.token');
+      sessionStorage.clear();
+    }
+    
     router.push('/login');
     setLoading(false);
+  };
+
+  const clearAuthError = () => {
+    setError(null);
   };
 
   const value = {
@@ -146,6 +181,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signInWithProvider,
     signOut,
     updateProfile,
+    clearAuthError,
     loading,
     error,
   };

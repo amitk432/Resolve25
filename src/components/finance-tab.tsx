@@ -33,8 +33,8 @@ interface FinanceTabProps {
     onAddSip: (sip: Omit<SIP, 'id'>) => void;
     onUpdateSip: (sip: SIP) => void;
     onDeleteSip: (sipId: string) => void;
-    onAddLoan: (name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => void;
-    onUpdateLoan: (id: string, name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => void;
+    onAddLoan: (name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string, startDate?: string, endDate?: string) => void;
+    onUpdateLoan: (id: string, name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string, startDate?: string, endDate?: string) => void;
     onDeleteLoan: (id: string) => void;
     onAddIncomeSource: (source: Omit<IncomeSource, 'id'>) => void;
     onUpdateIncomeSource: (source: IncomeSource) => void;
@@ -47,6 +47,8 @@ const loanSchema = z.object({
   rate: z.string().optional(),
   tenure: z.string().optional(),
   emisPaid: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
 });
 
 const LoanCalculations = ({ loan }: { loan: Loan }) => {
@@ -122,7 +124,7 @@ export default function FinanceTab({
 
     const form = useForm<z.infer<typeof loanSchema>>({
         resolver: zodResolver(loanSchema),
-        defaultValues: { name: '', principal: '', rate: '', tenure: '', emisPaid: '' },
+        defaultValues: { name: '', principal: '', rate: '', tenure: '', emisPaid: '', startDate: '', endDate: '' },
     });
 
     const handleOpenDialog = (loan: Loan | null) => {
@@ -133,10 +135,12 @@ export default function FinanceTab({
                 principal: loan.principal,
                 rate: loan.rate || '',
                 tenure: loan.tenure || '',
-                emisPaid: loan.emisPaid || '0'
+                emisPaid: loan.emisPaid || '0',
+                startDate: loan.startDate || '',
+                endDate: loan.endDate || ''
             });
         } else {
-            form.reset({ name: '', principal: '', rate: '', tenure: '', emisPaid: '0' });
+            form.reset({ name: '', principal: '', rate: '', tenure: '', emisPaid: '0', startDate: '', endDate: '' });
         }
         setLoanDialogOpen(true);
     };
@@ -150,10 +154,10 @@ export default function FinanceTab({
 
     const onSubmit = (values: z.infer<typeof loanSchema>) => {
         if (editingLoan) {
-            onUpdateLoan(editingLoan.id, values.name, values.principal, values.rate, values.tenure, values.emisPaid);
+            onUpdateLoan(editingLoan.id, values.name, values.principal, values.rate, values.tenure, values.emisPaid, values.startDate, values.endDate);
             toast({ title: 'Loan Updated!', description: `"${values.name}" has been updated.` });
         } else {
-            onAddLoan(values.name, values.principal, values.rate, values.tenure, values.emisPaid);
+            onAddLoan(values.name, values.principal, values.rate, values.tenure, values.emisPaid, values.startDate, values.endDate);
             toast({ title: 'Loan Added!', description: `"${values.name}" has been added to your list.` });
         }
         handleDialogChange(false);
@@ -163,8 +167,8 @@ export default function FinanceTab({
         <div className="space-y-8">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-foreground">Loan & Investment Tracker</h2>
-                    <p className="mt-2 text-base text-muted-foreground">Manage your debts and grow your wealth.</p>
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground">Loan & Investment Tracker</h2>
+                    <p className="mt-2 text-sm md:text-base text-muted-foreground">Manage your debts and grow your wealth.</p>
                 </div>
                 <Button onClick={() => handleOpenDialog(null)} className="w-full sm:w-auto"><Plus className="mr-2 h-4 w-4"/> Add Loan</Button>
             </div>
@@ -172,7 +176,7 @@ export default function FinanceTab({
             <Card className="bg-white dark:bg-card border-border">
                 <CardHeader>
                     <CardTitle className="text-sm font-medium text-primary">Your Loans</CardTitle>
-                    <CardDescription className="text-base text-muted-foreground">An overview of your active and closed loans.</CardDescription>
+                    <CardDescription className="text-sm md:text-base text-muted-foreground">An overview of your active and closed loans.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {loans.length > 0 ? (
@@ -191,7 +195,7 @@ export default function FinanceTab({
                                 )}>
                                     <div className="flex justify-between items-start">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                                            <h4 className={cn("font-semibold text-lg", !isClosed && "text-card-foreground")}>{loan.name}</h4>
+                                            <h4 className={cn("font-semibold text-base sm:text-lg", !isClosed && "text-card-foreground")}>{loan.name}</h4>
                                             <Select value={loan.status} onValueChange={(value: LoanStatus) => onUpdateLoanStatus(loan.id, value)}>
                                                 <SelectTrigger className="w-full sm:w-[120px] h-9 text-sm">
                                                     <SelectValue />
@@ -235,6 +239,31 @@ export default function FinanceTab({
                                                 <span className="text-muted-foreground">Principal</span>
                                                 <span className="font-semibold text-right">₹{parseFloat(loan.principal).toLocaleString('en-IN')}</span>
                                             </div>
+                                            {(() => {
+                                                const p = parseFloat(loan.principal);
+                                                const r = loan.rate ? parseFloat(loan.rate) / 100 / 12 : undefined;
+                                                const n = loan.tenure ? parseInt(loan.tenure, 10) : undefined;
+                                                const paidCount = loan.emisPaid ? parseInt(loan.emisPaid, 10) : 0;
+                                                
+                                                let principalRemaining = p;
+                                                if (p > 0 && r !== undefined && r > 0 && n !== undefined && n > 0 && paidCount > 0) {
+                                                    const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                                                    let balance = p;
+                                                    for (let i = 0; i < paidCount; i++) {
+                                                        const interestPayment = balance * r;
+                                                        const principalPayment = emi - interestPayment;
+                                                        balance -= principalPayment;
+                                                    }
+                                                    principalRemaining = loan.status === 'Closed' ? 0 : Math.max(0, balance);
+                                                }
+                                                
+                                                return (
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-muted-foreground">Principal Remaining</span>
+                                                        <span className="font-semibold text-right text-orange-600">₹{principalRemaining.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                    </div>
+                                                );
+                                            })()}
                                             <div className="flex justify-between text-sm">
                                                 <span className="text-muted-foreground">Interest Rate</span>
                                                 <span className="font-medium text-right">{loan.rate || 'N/A'}%</span>
@@ -251,7 +280,50 @@ export default function FinanceTab({
                                     </div>
                                      {hasTenure && (
                                         <div className="mt-4 pt-4 border-t">
-                                            <h6 className="text-sm font-medium text-muted-foreground mb-2">EMI Repayment Progress</h6>
+                                            <div className="flex justify-between items-center mb-2">
+                                                <h6 className="text-sm font-medium text-muted-foreground">EMI Repayment Progress</h6>
+                                                <span className="text-xs font-semibold text-primary bg-primary/10 rounded px-2 py-1 border border-primary/30">
+                                                    End: {(() => {
+                                                      // Helper for formatting date as DD-Month-YYYY
+                                                      const formatDate = (date: Date) => {
+                                                        if (isNaN(date.getTime())) return 'N/A';
+                                                        const day = String(date.getDate()).padStart(2, '0');
+                                                        const month = date.toLocaleString('en-US', { month: 'long' });
+                                                        const year = date.getFullYear();
+                                                        return `${day}-${month}-${year}`;
+                                                      };
+                                                      // If endDate is provided, use it
+                                                      if (loan.endDate) {
+                                                        const d = new Date(loan.endDate);
+                                                        return formatDate(d);
+                                                      }
+                                                      // If startDate is provided, use startDate + tenure
+                                                      if (loan.startDate && loan.tenure) {
+                                                        const start = new Date(loan.startDate);
+                                                        if (!isNaN(start.getTime())) {
+                                                          const total = parseInt(loan.tenure, 10) || 0;
+                                                          const end = new Date(start);
+                                                          end.setMonth(end.getMonth() + total);
+                                                          return formatDate(end);
+                                                        }
+                                                      }
+                                                      // If no startDate, but tenure and emisPaid are provided
+                                                      if (loan.tenure && loan.emisPaid !== undefined) {
+                                                        const total = parseInt(loan.tenure, 10) || 0;
+                                                        const paid = parseInt(loan.emisPaid, 10) || 0;
+                                                        const today = new Date();
+                                                        // Calculate start month: current month - EMIs paid
+                                                        const start = new Date(today);
+                                                        start.setMonth(start.getMonth() - paid);
+                                                        // End date: start + tenure
+                                                        const end = new Date(start);
+                                                        end.setMonth(end.getMonth() + total);
+                                                        return formatDate(end);
+                                                      }
+                                                      return 'N/A';
+                                                    })()}
+                                                </span>
+                                            </div>
                                             <Progress value={isClosed ? 100 : emiProgress} />
                                             <div className="flex justify-between text-xs text-muted-foreground mt-2">
                                                 <span>{isClosed ? n : paidCount} / {n} EMIs Paid</span>
@@ -287,6 +359,149 @@ export default function FinanceTab({
                 onUpdateSource={onUpdateIncomeSource}
                 onDeleteSource={onDeleteIncomeSource}
             />
+            
+            {/* Monthly Summary Section */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-base sm:text-lg font-bold text-foreground">Monthly Summary</CardTitle>
+                    <CardDescription>All upcoming payments and EMIs due this month</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    {(() => {
+                        const currentMonth = new Date().getMonth();
+                        const currentYear = new Date().getFullYear();
+                        let totalMonthlyPayments = 0;
+                        const monthlyPayments: { name: string; amount: number; type: string; dueDate?: string }[] = [];
+                        
+                        // Calculate EMIs from active loans
+                        loans.filter(loan => loan.status !== 'Closed').forEach(loan => {
+                            const p = parseFloat(loan.principal);
+                            const r = loan.rate ? parseFloat(loan.rate) / 100 / 12 : undefined;
+                            const n = loan.tenure ? parseInt(loan.tenure, 10) : undefined;
+                            
+                            if (p > 0 && r !== undefined && r > 0 && n !== undefined && n > 0) {
+                                const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                                monthlyPayments.push({
+                                    name: loan.name,
+                                    amount: emi,
+                                    type: 'EMI',
+                                    dueDate: 'Every month'
+                                });
+                                totalMonthlyPayments += emi;
+                            }
+                        });
+                        
+                        // Add SIP investments
+                        sips.forEach(sip => {
+                            if (sip.frequency === 'Monthly') {
+                                const amount = parseFloat(sip.amount);
+                                monthlyPayments.push({
+                                    name: sip.name,
+                                    amount: amount,
+                                    type: 'SIP',
+                                    dueDate: 'Monthly'
+                                });
+                                totalMonthlyPayments += amount;
+                            }
+                        });
+                        
+                        return (
+                            <div className="space-y-4">
+                                {monthlyPayments.length > 0 ? (
+                                    <>
+                                        <div className="space-y-3">
+                                            {monthlyPayments.map((payment, index) => (
+                                                <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={cn(
+                                                            "w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium",
+                                                            payment.type === 'EMI' ? "bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400" 
+                                                            : "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                                                        )}>
+                                                            {payment.type === 'EMI' ? '₹' : '📈'}
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-medium text-foreground text-sm">{payment.name}</p>
+                                                            <p className="text-xs text-muted-foreground">{payment.type} • {payment.dueDate}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="font-semibold text-foreground">₹{payment.amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+                                                        <p className="text-xs text-muted-foreground">{payment.type}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        
+                                        <Separator />
+                                        
+                                        <div className="flex items-center justify-between p-4 rounded-lg bg-primary/5 border border-primary/20">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                                    <Banknote className="h-5 w-5 text-primary" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-foreground">Total Monthly Outflow</p>
+                                                    <p className="text-sm text-muted-foreground">EMIs + Investments</p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-xl font-bold text-primary">₹{totalMonthlyPayments.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+                                                <p className="text-sm text-muted-foreground">per month</p>
+                                            </div>
+                                        </div>
+                                        
+                                        {/* Monthly Income vs Outflow Comparison */}
+                                        {(() => {
+                                            const totalMonthlyIncome = incomeSources.reduce((sum, source) => sum + parseFloat(source.amount), 0);
+                                            const remainingIncome = totalMonthlyIncome - totalMonthlyPayments;
+                                            const outflowPercentage = totalMonthlyIncome > 0 ? (totalMonthlyPayments / totalMonthlyIncome) * 100 : 0;
+                                            
+                                            return totalMonthlyIncome > 0 ? (
+                                                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                                                    <h5 className="font-medium text-foreground mb-3">Income vs Outflow Analysis</h5>
+                                                    <div className="space-y-2">
+                                                        <div className="flex justify-between text-sm">
+                                                            <span className="text-muted-foreground">Monthly Income</span>
+                                                            <span className="font-medium text-green-600">₹{totalMonthlyIncome.toLocaleString('en-IN')}</span>
+                                                        </div>
+                                                        <div className="flex justify-between text-sm">
+                                                            <span className="text-muted-foreground">Monthly Outflow</span>
+                                                            <span className="font-medium text-orange-600">₹{totalMonthlyPayments.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                        </div>
+                                                        <div className="flex justify-between text-sm pt-2 border-t">
+                                                            <span className="text-muted-foreground">Remaining Income</span>
+                                                            <span className={cn("font-semibold", remainingIncome >= 0 ? "text-green-600" : "text-red-600")}>
+                                                                ₹{remainingIncome.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                                                            </span>
+                                                        </div>
+                                                        <div className="mt-3">
+                                                            <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                                                                <span>Outflow Ratio</span>
+                                                                <span>{outflowPercentage.toFixed(1)}% of income</span>
+                                                            </div>
+                                                            <Progress value={Math.min(outflowPercentage, 100)} className="h-2" />
+                                                            {outflowPercentage > 70 && (
+                                                                <p className="text-xs text-orange-600 mt-1">⚠️ High outflow ratio - consider reviewing expenses</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : null;
+                                        })()}
+                                    </>
+                                ) : (
+                                    <div className="text-center text-muted-foreground py-8">
+                                        <Banknote className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                                        <p>No monthly payments or EMIs found.</p>
+                                        <p className="text-sm">Add loans or SIPs to see your monthly summary.</p>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
+                </CardContent>
+            </Card>
 
             <Dialog open={isLoanDialogOpen} onOpenChange={handleDialogChange}>
                 <DialogContent>
@@ -356,6 +571,34 @@ export default function FinanceTab({
                                 )}
                             />
                             </div>
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <FormField
+                                    control={form.control}
+                                    name="startDate"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Start Date (Optional)</FormLabel>
+                                            <FormControl>
+                                                <Input type="date" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="endDate"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>End Date (Optional)</FormLabel>
+                                            <FormControl>
+                                                <Input type="date" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                             <DialogFooter>
                                 <Button type="button" variant="outline" onClick={() => handleDialogChange(false)}>Cancel</Button>
                                 <Button type="submit">{editingLoan ? 'Save Changes' : 'Add Loan'}</Button>
@@ -382,6 +625,14 @@ const sipSchema = z.object({
     targetAmount: z.string().optional(),
 });
 
+const emergencyFundSchema = z.object({
+    amount: z.string().min(1, { message: 'Amount is required.' }),
+});
+
+const emergencyTargetSchema = z.object({
+    target: z.string().min(1, { message: 'Target is required.' }),
+});
+
 function SavingsAndInvestmentsCard({
     emergencyFund,
     emergencyFundTarget,
@@ -404,10 +655,22 @@ function SavingsAndInvestmentsCard({
     const { toast } = useToast();
     const [isSipDialogOpen, setSipDialogOpen] = useState(false);
     const [editingSip, setEditingSip] = useState<SIP | null>(null);
+    const [isEmergencyFundDialogOpen, setEmergencyFundDialogOpen] = useState(false);
+    const [isEmergencyTargetDialogOpen, setEmergencyTargetDialogOpen] = useState(false);
 
     const sipForm = useForm<z.infer<typeof sipSchema>>({
         resolver: zodResolver(sipSchema),
         defaultValues: { name: '', amount: '', frequency: 'Monthly', startDate: '', targetAmount: '' },
+    });
+
+    const emergencyFundForm = useForm<z.infer<typeof emergencyFundSchema>>({
+        resolver: zodResolver(emergencyFundSchema),
+        defaultValues: { amount: emergencyFund || '' },
+    });
+
+    const emergencyTargetForm = useForm<z.infer<typeof emergencyTargetSchema>>({
+        resolver: zodResolver(emergencyTargetSchema),
+        defaultValues: { target: emergencyFundTarget || '' },
     });
 
     const handleOpenSipDialog = (sip: SIP | null) => {
@@ -444,6 +707,18 @@ function SavingsAndInvestmentsCard({
         handleSipDialogChange(false);
     };
 
+    const handleEmergencyFundUpdate = (data: z.infer<typeof emergencyFundSchema>) => {
+        onUpdateEmergencyFund(data.amount);
+        setEmergencyFundDialogOpen(false);
+        emergencyFundForm.reset();
+    };
+
+    const handleEmergencyTargetUpdate = (data: z.infer<typeof emergencyTargetSchema>) => {
+        onUpdateEmergencyFundTarget(data.target);
+        setEmergencyTargetDialogOpen(false);
+        emergencyTargetForm.reset();
+    };
+
     const emergencyFundProgress = useMemo(() => {
         const current = parseFloat(emergencyFund || '0');
         const target = parseFloat(emergencyFundTarget || '0');
@@ -456,23 +731,17 @@ function SavingsAndInvestmentsCard({
             <Card className="bg-white dark:bg-card border-border">
                 <CardHeader>
                     <CardTitle className="text-sm font-medium text-primary">Savings & Investments</CardTitle>
-                    <CardDescription className="text-base text-muted-foreground">Track your emergency fund and systematic investment plans.</CardDescription>
+                    <CardDescription className="text-sm md:text-base text-muted-foreground">Track your emergency fund and systematic investment plans.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold text-lg">Emergency Fund</h4>
+                            <h4 className="font-semibold text-base sm:text-lg">Emergency Fund</h4>
                             <div className="flex gap-2">
-                                <Button variant="outline" size="sm" onClick={() => {
-                                    const newAmount = prompt("Enter new emergency fund amount:", emergencyFund);
-                                    if (newAmount !== null) onUpdateEmergencyFund(newAmount);
-                                }}>
+                                <Button variant="outline" size="sm" onClick={() => setEmergencyFundDialogOpen(true)}>
                                     <Banknote className="mr-2 h-4 w-4" /> Update Fund
                                 </Button>
-                                <Button variant="outline" size="sm" onClick={() => {
-                                    const newTarget = prompt("Enter new emergency fund target:", emergencyFundTarget);
-                                    if (newTarget !== null) onUpdateEmergencyFundTarget(newTarget);
-                                }}>
+                                <Button variant="outline" size="sm" onClick={() => setEmergencyTargetDialogOpen(true)}>
                                     <Target className="mr-2 h-4 w-4" /> Set Target
                                 </Button>
                             </div>
@@ -491,7 +760,7 @@ function SavingsAndInvestmentsCard({
 
                     <div>
                         <div className="flex items-center justify-between mb-4">
-                            <h4 className="font-semibold text-lg">Systematic Investment Plans (SIPs)</h4>
+                            <h4 className="font-semibold text-base sm:text-lg">Systematic Investment Plans (SIPs)</h4>
                             <Button size="sm" onClick={() => handleOpenSipDialog(null)}>
                                 <Plus className="mr-2 h-4 w-4" /> Add SIP
                             </Button>
@@ -619,6 +888,84 @@ function SavingsAndInvestmentsCard({
                     </Form>
                 </DialogContent>
             </Dialog>
+
+            {/* Emergency Fund Update Dialog */}
+            <Dialog open={isEmergencyFundDialogOpen} onOpenChange={setEmergencyFundDialogOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Update Emergency Fund</DialogTitle>
+                        <DialogDescription>
+                            Update your current emergency fund amount.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Form {...emergencyFundForm}>
+                        <form onSubmit={emergencyFundForm.handleSubmit(handleEmergencyFundUpdate)} className="space-y-4">
+                            <FormField
+                                control={emergencyFundForm.control}
+                                name="amount"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Current Amount (₹)</FormLabel>
+                                        <FormControl>
+                                            <Input 
+                                                type="number" 
+                                                placeholder="e.g., 50000" 
+                                                {...field} 
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <DialogFooter>
+                                <Button type="button" variant="outline" onClick={() => setEmergencyFundDialogOpen(false)}>
+                                    Cancel
+                                </Button>
+                                <Button type="submit">Update Fund</Button>
+                            </DialogFooter>
+                        </form>
+                    </Form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Emergency Fund Target Dialog */}
+            <Dialog open={isEmergencyTargetDialogOpen} onOpenChange={setEmergencyTargetDialogOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Set Emergency Fund Target</DialogTitle>
+                        <DialogDescription>
+                            Set your emergency fund target amount.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Form {...emergencyTargetForm}>
+                        <form onSubmit={emergencyTargetForm.handleSubmit(handleEmergencyTargetUpdate)} className="space-y-4">
+                            <FormField
+                                control={emergencyTargetForm.control}
+                                name="target"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Target Amount (₹)</FormLabel>
+                                        <FormControl>
+                                            <Input 
+                                                type="number" 
+                                                placeholder="e.g., 100000" 
+                                                {...field} 
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <DialogFooter>
+                                <Button type="button" variant="outline" onClick={() => setEmergencyTargetDialogOpen(false)}>
+                                    Cancel
+                                </Button>
+                                <Button type="submit">Set Target</Button>
+                            </DialogFooter>
+                        </form>
+                    </Form>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }
@@ -682,7 +1029,7 @@ function MonthlyIncomeCard({
                     <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <CardTitle className="text-sm font-medium text-primary">Monthly Income</CardTitle>
-                            <CardDescription className="text-base text-muted-foreground">Track all your sources of income.</CardDescription>
+                            <CardDescription className="text-sm md:text-base text-muted-foreground">Track all your sources of income.</CardDescription>
                         </div>
                         <div className="flex w-full shrink-0 gap-2 sm:w-auto">
                             <Button variant="ghost" size="icon" onClick={() => setIsVisible(!isVisible)}>
@@ -700,7 +1047,7 @@ function MonthlyIncomeCard({
                             <div key={source.id} className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-card border">
                                 <span className="font-medium flex-grow min-w-0">{source.name}</span>
                                 <div className="flex items-center gap-4 shrink-0">
-                                    <span className="text-lg font-mono">
+                                    <span className="text-base sm:text-lg font-mono">
                                         {isVisible ? `₹${parseFloat(source.amount || '0').toLocaleString('en-IN')}` : '₹ ••••••'}
                                     </span>
                                     <div className="flex gap-1">
@@ -739,8 +1086,8 @@ function MonthlyIncomeCard({
                     <CardContent>
                         <Separator />
                         <div className="flex justify-between items-center pt-4">
-                            <span className="text-lg font-bold">Total Monthly Income</span>
-                            <span className="text-xl font-bold font-mono text-primary">
+                            <span className="text-base sm:text-lg font-bold">Total Monthly Income</span>
+                            <span className="text-lg sm:text-xl font-bold font-mono text-primary">
                                 {isVisible ? `₹${totalIncome.toLocaleString('en-IN')}` : '₹ ••••••'}
                             </span>
                         </div>

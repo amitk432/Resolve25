@@ -1,4 +1,6 @@
-'use client'
+
+'use client';
+import ResumeTemplatePreview from './resume-template-preview';
 
 import React, { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
@@ -17,7 +19,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Trash2, Plus, FileText, Download, Sparkles, ChevronDown, Clock, IndianRupee, Star, ListChecks, LinkIcon, MapPin, Rocket, Mail, CheckCircle, MoreVertical } from 'lucide-react';
 import AiSuggestionSection from './ai-suggestion-section';
 import ResumeBuilderDialog from './resume-builder-dialog';
-import ResumeTemplate from './resume-template';
+// ...existing code...
+// ...existing code...
+import JobSpecificResumeDownload from './job-specific-resume-download';
 import html2canvas from 'html2canvas';
 import jspdf from 'jspdf';
 import AiJobSuggestionDialog from './ai-job-suggestion-dialog';
@@ -134,50 +138,69 @@ export default function JobSearchTab({
         form.reset();
     }
     
-    const handleDownloadPdf = () => {
-        const input = resumeRef.current;
-        if (!input) {
-            console.error("Resume preview element not found.");
+    const handleDownloadPdf = async () => {
+        if (!data.resume) {
+            console.error("No resume data available.");
+            toast({
+                title: "Error",
+                description: "No resume data available to download.",
+                variant: "destructive"
+            });
             return;
         }
 
-        html2canvas(input, {
-            scale: 2, // Higher scale for better quality
-            useCORS: true,
-            scrollY: -window.scrollY,
-        }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jspdf({
-                orientation: 'portrait',
-                unit: 'pt',
-                format: 'a4'
+        // Find the resume preview element
+        const element = document.querySelector('[data-resume-preview]') as HTMLElement;
+        if (!element) {
+            console.error("Resume preview element not found.");
+            toast({
+                title: "Error", 
+                description: "Resume preview not found. Please ensure the resume is visible.",
+                variant: "destructive"
             });
+            return;
+        }
 
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-
-            const canvasWidth = canvas.width;
-            const canvasHeight = canvas.height;
-
-            const ratio = canvasWidth / canvasHeight;
-            let imgHeight = pdfWidth / ratio;
-            let heightLeft = imgHeight;
-
-            let position = 0;
-
-            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-            heightLeft -= pdfHeight;
-
-            while (heightLeft >= 0) {
-              position = heightLeft - imgHeight;
-              pdf.addPage();
-              pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-              heightLeft -= pdfHeight;
-            }
-
-            const resumeName = data.resume?.contactInfo?.name || 'resume';
-            pdf.save(`${resumeName.replace(/\s+/g, '_')}.pdf`);
-        });
+        try {
+            // Dynamically import html2pdf only on client side
+            const html2pdf = (await import('html2pdf.js')).default;
+            
+            html2pdf()
+                .set({
+                    margin: 0,
+                    filename: `${data.resume.contactInfo?.name || 'Resume'}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { 
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: true 
+                    },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                })
+                .from(element)
+                .save()
+                .then(() => {
+                    toast({
+                        title: "Success",
+                        description: "Resume downloaded successfully!"
+                    });
+                })
+                .catch((error: any) => {
+                    console.error("Error generating PDF:", error);
+                    toast({
+                        title: "Error",
+                        description: "Failed to generate PDF. Please try again.",
+                        variant: "destructive"
+                    });
+                });
+        } catch (error) {
+            console.error("Error loading html2pdf:", error);
+            toast({
+                title: "Error",
+                description: "Failed to load PDF generator. Please try again.",
+                variant: "destructive"
+            });
+        }
     };
 
     const handleMarkAsApplied = (index: number) => {
@@ -232,6 +255,18 @@ export default function JobSearchTab({
                                         <Mail className="mr-2 h-4 w-4" /> Generate Email
                                     </DropdownMenuItem>
                                 </GenerateEmailDialog>
+                            )}
+                            {data.resume && (
+                                <JobSpecificResumeDownload jobApplication={app} baseResume={data.resume}>
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                        <div className="flex items-center">
+                                            <div className="relative">
+                                                <FileText className="h-4 w-4" />
+                                                <Sparkles className="h-2 w-2 absolute -top-1 -right-1 text-teal-500" />
+                                            </div>
+                                        </div>
+                                    </DropdownMenuItem>
+                                </JobSpecificResumeDownload>
                             )}
                             {app.applyLink && (
                                 <DropdownMenuItem asChild>
@@ -323,8 +358,8 @@ export default function JobSearchTab({
         <div>
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-foreground">Job Application Tracker</h2>
-                <p className="mt-1 text-muted-foreground">Manage your job search pipeline from start to finish.</p>
+                <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground">Job Application Tracker</h2>
+                <p className="mt-1 text-sm md:text-base text-muted-foreground">Manage your job search pipeline from start to finish.</p>
               </div>
               <div className="flex items-center gap-2">
                 <AiJobSuggestionDialog resumeData={data.resume} onAddApplication={onAddApplication}>
@@ -446,7 +481,7 @@ export default function JobSearchTab({
               ) : (
                 <div className="text-center py-16 border-2 border-dashed rounded-lg">
                   <Briefcase className="mx-auto h-12 w-12 text-muted-foreground" />
-                  <h3 className="mt-2 text-lg font-medium">No Applications Yet</h3>
+                  <h3 className="mt-2 text-base sm:text-lg font-medium">No Applications Yet</h3>
                   <p className="mt-1 text-sm text-muted-foreground">Click "Add Application" to start tracking.</p>
                 </div>
               )}
@@ -558,18 +593,28 @@ export default function JobSearchTab({
                                                             </AlertDialogContent>
                                                         </AlertDialog>
                                                     )}
-                                                    {app.applyLink && (
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <Button asChild variant="outline" size="icon" className="h-8 w-8">
-                                                                    <a href={app.applyLink} target="_blank" rel="noopener noreferrer">
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button 
+                                                                asChild={!!app.applyLink} 
+                                                                variant="outline" 
+                                                                size="icon" 
+                                                                className="h-8 w-8"
+                                                                disabled={!app.applyLink}
+                                                            >
+                                                                {app.applyLink ? (
+                                                                    <a href={app.applyLink} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
                                                                         <LinkIcon className="h-4 w-4" />
                                                                     </a>
-                                                                </Button>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent><p>Open Application Link</p></TooltipContent>
-                                                        </Tooltip>
-                                                    )}
+                                                                ) : (
+                                                                    <LinkIcon className="h-4 w-4" />
+                                                                )}
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>{app.applyLink ? 'Open Application Link' : 'No application link available'}</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
                                                     {data.resume && (
                                                         <Tooltip>
                                                             <TooltipTrigger asChild>
@@ -581,6 +626,12 @@ export default function JobSearchTab({
                                                             </TooltipTrigger>
                                                             <TooltipContent><p>Generate Email</p></TooltipContent>
                                                         </Tooltip>
+                                                    )}
+                                                    {data.resume && (
+                                                        <JobSpecificResumeDownload 
+                                                            jobApplication={app} 
+                                                            baseResume={data.resume} 
+                                                        />
                                                     )}
                                                      <AlertDialog>
                                                         <Tooltip>
@@ -656,15 +707,33 @@ export default function JobSearchTab({
             {data.resume && (
                 <div className="mt-8">
                     <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-bold text-foreground">Resume Preview</h3>
+                        <h3 className="text-base sm:text-lg font-bold text-foreground">Resume Preview</h3>
                         <Button onClick={handleDownloadPdf}>
                             <Download className="mr-2 h-4 w-4" />
                             Download PDF
                         </Button>
                     </div>
-                    <div className="border rounded-lg overflow-auto">
-                        <div ref={resumeRef} className="bg-white p-4">
-                            <ResumeTemplate resume={data.resume} />
+                    <div 
+                        ref={resumeRef} 
+                        className="flex justify-center items-center bg-theme-background"
+                        style={{
+                            width: '100%',
+                            minHeight: '297mm',
+                            padding: '32px 0',
+                        }}
+                    >
+                        <div style={{
+                            width: '210mm',
+                            height: '297mm',
+                            boxShadow: '0 0 8px rgba(0,0,0,0.08)',
+                            background: 'transparent',
+                            display: 'flex',
+                            alignItems: 'stretch',
+                            justifyContent: 'center',
+                        }}>
+                            <div data-resume-preview>
+                                <ResumeTemplatePreview resumeData={data.resume} />
+                            </div>
                         </div>
                     </div>
                 </div>

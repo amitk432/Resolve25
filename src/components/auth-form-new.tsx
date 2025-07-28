@@ -46,7 +46,7 @@ export default function AuthForm({ defaultMode = 'login' }: AuthFormProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <CardTitle className="text-xl">{isLogin ? 'Welcome Back' : 'Create Account'}</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">{isLogin ? 'Welcome Back' : 'Create Account'}</CardTitle>
           <CardDescription className="text-sm">
             {isLogin 
               ? 'Enter your credentials to access your account.'

@@ -23,7 +23,7 @@ export default function Header() {
           <Target className="h-5 w-5 text-white" />
         </div>
         <div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">Resolve25</h1>
+            <h1 className="text-base sm:text-lg font-bold tracking-tight text-foreground">Resolve 25</h1>
             <p className="text-xs text-muted-foreground hidden sm:block">Your personal dashboard for achieving your goals.</p>
         </div>
       </div>

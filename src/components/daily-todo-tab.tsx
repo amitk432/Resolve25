@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Edit, CalendarIcon, Briefcase, User, ShoppingCart, AlertTriangle, ListTodo, Sparkles, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -91,9 +92,16 @@ const TaskItem = ({ task, onToggleTask, onEdit, onDelete, onMoveToNextDay }: { t
       </div>
       <div className="flex-shrink-0 hidden group-hover:flex items-center gap-1 ml-2">
         {isToday(startOfDay(parseISO(task.dueDate))) && (
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onMoveToNextDay(task.id)}>
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onMoveToNextDay(task.id)}>
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Move to tomorrow</p>
+            </TooltipContent>
+          </Tooltip>
         )}
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(task)}><Edit className="h-4 w-4" /></Button>
         <AlertDialog>
@@ -181,12 +189,22 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
         groups[dateKey].push(task);
     });
 
-    // Sort tasks within each group: incomplete first, then by title
+    // Sort tasks within each group: incomplete first, then by priority (High > Medium > Low), then by title
     for (const dateKey in groups) {
         groups[dateKey].sort((a, b) => {
+            // First, sort by completion status (incomplete first)
             if (a.completed !== b.completed) {
                 return a.completed ? 1 : -1;
             }
+            
+            // Then sort by priority (High > Medium > Low)
+            const priorityOrder = { 'High': 0, 'Medium': 1, 'Low': 2 };
+            const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+            if (priorityDiff !== 0) {
+                return priorityDiff;
+            }
+            
+            // Finally, sort alphabetically by title
             return a.title.localeCompare(b.title);
         });
     }
@@ -230,11 +248,12 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
 
 
   return (
-    <div>
+    <TooltipProvider>
+      <div>
       <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Daily To-Do List</h2>
-          <p className="mt-1 text-muted-foreground">Organize your day and stay on top of your tasks.</p>
+          <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground">Daily To-Do List</h2>
+          <p className="mt-1 text-sm md:text-base text-muted-foreground">Organize your day and stay on top of your tasks.</p>
         </div>
         <div className="flex w-full sm:w-auto gap-2">
             <AiTaskGeneratorDialog data={data} onTaskAdd={handleAiTaskAdd}>
@@ -263,7 +282,7 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
                              <div className="flex flex-col md:flex-row items-start md:items-center gap-2 w-full">
                                 <div className="flex-grow text-left">
                                     <div className="flex items-center gap-2">
-                                        <h3 className="font-semibold text-lg">{format(parseISO(group.date), 'MMMM d, yyyy')}</h3>
+                                        <h3 className="font-semibold text-base sm:text-lg">{format(parseISO(group.date), 'MMMM d, yyyy')}</h3>
                                         <Badge variant="secondary">{totalTasks}</Badge>
                                     </div>
                                 </div>
@@ -287,7 +306,7 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
         ) : (
           <div className="text-center py-16 border-2 border-dashed rounded-lg">
               <ListTodo className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-2 text-lg font-medium">No Tasks Yet</h3>
+              <h3 className="mt-2 text-base sm:text-lg font-medium">No Tasks Yet</h3>
               <p className="mt-1 text-sm text-muted-foreground">Click "Add Task" above to get started.</p>
           </div>
         )}
@@ -397,6 +416,7 @@ export default function DailyTodoTab({ tasks, onAddTask, onUpdateTask, onDeleteT
             contextData={{ tasks }}
         />
       </div>
-    </div>
+      </div>
+    </TooltipProvider>
   );
 }

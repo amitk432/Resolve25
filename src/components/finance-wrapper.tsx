@@ -62,7 +62,7 @@ export default function FinanceWrapper({ data, onUpdate }: FinanceWrapperProps) 
     });
   };
 
-  const handleAddLoan = (name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => {
+  const handleAddLoan = (name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string, startDate?: string, endDate?: string) => {
     onUpdate(draft => {
       if (!draft.loans) {
         draft.loans = [];
@@ -74,12 +74,14 @@ export default function FinanceWrapper({ data, onUpdate }: FinanceWrapperProps) 
         rate,
         tenure,
         emisPaid,
+        startDate,
+        endDate,
         status: 'Active' as LoanStatus,
       });
     });
   };
 
-  const handleUpdateLoan = (id: string, name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string) => {
+  const handleUpdateLoan = (id: string, name: string, principal: string, rate?: string, tenure?: string, emisPaid?: string, startDate?: string, endDate?: string) => {
     onUpdate(draft => {
       const loan = draft.loans?.find(l => l.id === id);
       if (loan) {
@@ -88,6 +90,8 @@ export default function FinanceWrapper({ data, onUpdate }: FinanceWrapperProps) 
         loan.rate = rate;
         loan.tenure = tenure;
         loan.emisPaid = emisPaid;
+        loan.startDate = startDate;
+        loan.endDate = endDate;
       }
     });
   };

@@ -83,72 +83,74 @@ export default function AiJobSuggestionDialog({ resumeData, onAddApplication, ch
         {children}
       </DialogTrigger>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <BrainCircuit className="text-primary" />
-            AI-Powered Job Suggestions
+        <DialogHeader className="pb-3">
+          <DialogTitle className="flex items-center gap-2 text-lg">
+            <BrainCircuit className="text-primary h-5 w-5" />
+            AI Job Suggestions
           </DialogTitle>
-          <DialogDescription>
-            Based on your resume, here are a few job openings the AI thinks are a good fit.
+          <DialogDescription className="text-sm">
+            AI-curated job matches based on your resume
           </DialogDescription>
         </DialogHeader>
         <div className="flex-grow overflow-y-auto pr-4 -mr-4">
             {isLoading && (
-            <div className="flex items-center justify-center p-16">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
             )}
             {!isLoading && suggestions.length > 0 && (
-            <div className="space-y-4">
+            <div className="space-y-3">
                 {suggestions.map((job, index) => (
                 <Card key={index} className="bg-white dark:bg-card">
-                    <CardHeader>
-                        <div className="flex justify-between items-start gap-4">
+                    <CardHeader className="pb-2">
+                        <div className="flex justify-between items-start gap-3">
                             <div className="flex-grow">
-                                <CardTitle className="text-lg flex items-center gap-2">
-                                  <Briefcase className="h-5 w-5" />
+                                <CardTitle className="text-base flex items-center gap-2">
+                                  <Briefcase className="h-4 w-4" />
                                   <div>
                                     {job.role}
-                                    <span className="text-base font-normal text-muted-foreground"> at {job.company}</span>
+                                    <span className="text-sm font-normal text-muted-foreground"> at {job.company}</span>
                                   </div>
                                 </CardTitle>
                             </div>
-                            <Button size="sm" onClick={() => handleAddApplication(job)}>
-                                <Plus className="mr-2 h-4 w-4" /> Add to Tracker
+                            <Button size="sm" onClick={() => handleAddApplication(job)} className="h-7 text-xs">
+                                <Plus className="mr-1.5 h-3 w-3" /> Add
                             </Button>
                         </div>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1.5"><MapPin className="h-4 w-4"/> {job.location}</div>
-                            <div className="flex items-center gap-1.5"><Clock className="h-4 w-4"/> {job.jobType}</div>
-                            {job.salaryRange && <div className="flex items-center gap-1.5"><IndianRupee className="h-4 w-4"/> {job.salaryRange}</div>}
+                    <CardContent className="space-y-3 pt-0">
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1"><MapPin className="h-3 w-3"/> {job.location}</div>
+                            <div className="flex items-center gap-1"><Clock className="h-3 w-3"/> {job.jobType}</div>
+                            {job.salaryRange && <div className="flex items-center gap-1"><IndianRupee className="h-3 w-3"/> {job.salaryRange}</div>}
                             {job.applyLink && (
-                                <div className="flex items-center gap-1.5">
-                                    <LinkIcon className="h-4 w-4" />
+                                <div className="flex items-center gap-1">
+                                    <LinkIcon className="h-3 w-3" />
                                     <a href={job.applyLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                                        Application Link
+                                        Apply
                                     </a>
                                 </div>
                             )}
                         </div>
-                        <p className="text-sm"><strong className="text-foreground">Why it's a fit:</strong> {job.reasoning}</p>
+                        <p className="text-xs"><strong className="text-foreground">Match reason:</strong> {job.reasoning}</p>
                         
                         {(job.keyResponsibilities || job.requiredSkills) && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                                 {job.keyResponsibilities && job.keyResponsibilities.length > 0 && (
                                     <div>
-                                        <h4 className="font-semibold mb-1 flex items-center gap-2"><ListChecks className="h-4 w-4"/> Key Responsibilities</h4>
-                                        <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                                            {job.keyResponsibilities.map((resp, i) => <li key={i}>{resp}</li>)}
+                                        <h4 className="font-medium mb-1 flex items-center gap-1.5 text-xs"><ListChecks className="h-3 w-3"/> Responsibilities</h4>
+                                        <ul className="list-disc list-inside text-muted-foreground space-y-0.5">
+                                            {job.keyResponsibilities.slice(0, 3).map((resp, i) => <li key={i}>{resp}</li>)}
+                                            {job.keyResponsibilities.length > 3 && <li className="text-xs opacity-70">+{job.keyResponsibilities.length - 3} more</li>}
                                         </ul>
                                     </div>
                                 )}
                                 {job.requiredSkills && job.requiredSkills.length > 0 && (
                                     <div>
-                                        <h4 className="font-semibold mb-1 flex items-center gap-2"><Star className="h-4 w-4"/> Required Skills</h4>
-                                        <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                                            {job.requiredSkills.map((skill, i) => <li key={i}>{skill}</li>)}
+                                        <h4 className="font-medium mb-1 flex items-center gap-1.5 text-xs"><Star className="h-3 w-3"/> Skills</h4>
+                                        <ul className="list-disc list-inside text-muted-foreground space-y-0.5">
+                                            {job.requiredSkills.slice(0, 3).map((skill, i) => <li key={i}>{skill}</li>)}
+                                            {job.requiredSkills.length > 3 && <li className="text-xs opacity-70">+{job.requiredSkills.length - 3} more</li>}
                                         </ul>
                                     </div>
                                 )}
@@ -160,14 +162,14 @@ export default function AiJobSuggestionDialog({ resumeData, onAddApplication, ch
             </div>
             )}
             {!isLoading && suggestions.length === 0 && (
-                <div className="text-center py-16">
-                    <p className="text-muted-foreground">No new suggestions at the moment.</p>
+                <div className="text-center py-12">
+                    <p className="text-muted-foreground text-sm">No new suggestions available</p>
                 </div>
             )}
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={handleGenerate} disabled={isLoading || !resumeData}>
-            {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Generating...</> : 'Regenerate'}
+        <DialogFooter className="pt-3">
+          <Button variant="outline" onClick={handleGenerate} disabled={isLoading || !resumeData} size="sm" className="h-8 text-sm">
+            {isLoading ? <><Loader2 className="mr-1.5 h-3 w-3 animate-spin"/>Generating...</> : 'Regenerate'}
           </Button>
         </DialogFooter>
       </DialogContent>

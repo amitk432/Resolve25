@@ -17,3 +17,32 @@ export function useIsMobile() {
 
   return !!isMobile
 }
+
+export function useDeviceType() {
+  const [deviceInfo, setDeviceInfo] = React.useState({
+    isIOS: false,
+    isAndroid: false,
+    isMobile: false,
+    isTablet: false,
+    touchSupport: false
+  })
+
+  React.useEffect(() => {
+    const userAgent = navigator.userAgent
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent)
+    const isAndroid = /Android/.test(userAgent)
+    const isMobile = window.innerWidth < MOBILE_BREAKPOINT
+    const isTablet = window.innerWidth >= MOBILE_BREAKPOINT && window.innerWidth < 1024
+    const touchSupport = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+
+    setDeviceInfo({
+      isIOS,
+      isAndroid,
+      isMobile,
+      isTablet,
+      touchSupport
+    })
+  }, [])
+
+  return deviceInfo
+}

@@ -90,7 +90,7 @@ const AISuggestionDialog = ({ onAddSuggestion, userData }: {
                         <Loader2 className="h-10 w-10 animate-spin text-primary" />
                     ) : suggestion ? (
                         <div className="text-center space-y-4">
-                            <p className="text-2xl font-bold text-primary">{suggestion.destination}</p>
+                            <p className="text-base sm:text-lg md:text-xl font-bold text-primary">{suggestion.destination}</p>
                             <p className="text-muted-foreground flex items-center justify-center gap-2">
                                 <Lightbulb className="h-4 w-4 text-yellow-400" />
                                 {suggestion.reasoning}
@@ -148,7 +148,7 @@ const TravelGoalItem = ({ goal, onDeleteGoal, onGetItinerary }: { goal: TravelGo
             <div className="flex-grow flex flex-col">
                 <div className="flex justify-between items-start">
                     <div>
-                        <h3 className="text-lg font-semibold">{goal.destination}</h3>
+                        <h3 className="text-base sm:text-lg font-semibold">{goal.destination}</h3>
                         {goal.status === 'Completed' ? (
                             <div className="text-sm font-medium text-green-600 dark:text-green-500 flex items-center mt-1">
                                 <CheckCircle className="mr-1.5 h-4 w-4" />
@@ -252,7 +252,7 @@ const ItineraryView = ({ itinerary, destination, onAddItineraryGoal }: { itinera
                 <div className="space-y-6">
                     <Accordion type="multiple" defaultValue={["General Tips", "Day 1"]} className="w-full space-y-4">
                          <AccordionItem value="General Tips" className="border rounded-lg bg-background">
-                            <AccordionTrigger className="p-4 hover:no-underline text-lg">
+                            <AccordionTrigger className="p-4 hover:no-underline text-base sm:text-lg">
                                 General Tips
                             </AccordionTrigger>
                             <AccordionContent className="px-6 pb-6">
@@ -266,7 +266,7 @@ const ItineraryView = ({ itinerary, destination, onAddItineraryGoal }: { itinera
                         
                         {itinerary.dailyPlan.map((day, index) => (
                              <AccordionItem value={day.title} key={index} className="border rounded-lg bg-background">
-                                <AccordionTrigger className="p-4 hover:no-underline text-lg">
+                                <AccordionTrigger className="p-4 hover:no-underline text-base sm:text-lg">
                                     <div className="flex items-center gap-3">
                                         {day.title}
                                         <span className="text-sm font-normal text-muted-foreground"> - {day.theme}</span>
@@ -400,8 +400,8 @@ export default function TravelGoalsTab({
     <div>
       <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h2 className="text-2xl font-bold text-foreground">Travel Goals & Wishlist</h2>
-            <p className="mt-1 text-muted-foreground">Dream, plan, and cherish your adventures.</p>
+            <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground">Travel Goals & Wishlist</h2>
+            <p className="mt-1 text-sm md:text-base text-muted-foreground">Dream, plan, and cherish your adventures.</p>
         </div>
         <div className="flex w-full shrink-0 gap-2 sm:w-auto">
             <AISuggestionDialog 
@@ -500,7 +500,7 @@ export default function TravelGoalsTab({
       {travelGoals.length === 0 ? (
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
             <Plane className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-2 text-lg font-medium">No Travel Goals Yet</h3>
+            <h3 className="mt-2 text-base sm:text-lg font-medium">No Travel Goals Yet</h3>
             <p className="mt-1 text-sm text-muted-foreground">Click "Add Travel Goal" to start your wishlist.</p>
         </div>
       ) : (

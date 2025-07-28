@@ -48,6 +48,7 @@
     "framer-motion": "^12.23.6",
     "genkit": "^1.13.0",
     "html2canvas": "^1.4.1",
+    "html2pdf.js": "^0.10.3",
     "immer": "^10.1.1",
     "jspdf": "^3.0.1",
     "lucide-react": "^0.475.0",

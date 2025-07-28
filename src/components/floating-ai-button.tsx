@@ -53,35 +53,35 @@ export default function FloatingAiButton({ moduleName, contextData }: FloatingAi
       <PopoverTrigger asChild>
         <Button
           size="icon"
-          className="rounded-full shadow-lg h-14 w-14 bg-primary hover:bg-primary/90"
+          className="rounded-full shadow-lg h-12 w-12 bg-primary hover:bg-primary/90"
         >
-          <Sparkles className="h-6 w-6" />
+          <Sparkles className="h-5 w-5" />
           <span className="sr-only">Get AI Suggestions</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80" align="end">
-        <div className="space-y-4">
-          <h4 className="font-medium leading-none flex items-center gap-2">
-            <BrainCircuit className="text-primary h-5 w-5"/>
+      <PopoverContent className="w-72" align="end">
+        <div className="space-y-3">
+          <h4 className="font-medium leading-none flex items-center gap-2 text-sm">
+            <BrainCircuit className="text-primary h-4 w-4"/>
             AI Suggestions
           </h4>
-          <div className="min-h-[100px] max-h-64 overflow-y-auto">
+          <div className="min-h-[80px] max-h-48 overflow-y-auto">
             {isLoading ? (
-              <div className="flex items-center justify-center p-4 h-full">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <div className="flex items-center justify-center py-4 h-full">
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
               </div>
             ) : (
               suggestions.length > 0 ? (
-                <ul className="space-y-2 list-none text-sm text-muted-foreground">
+                <ul className="space-y-1.5 list-none text-xs text-muted-foreground">
                   {suggestions.map((suggestion, index) => (
                     <li key={index} className="flex items-start gap-2">
-                      <Sparkles className="h-3.5 w-3.5 text-primary mt-1 flex-shrink-0" />
-                      <span>{suggestion}</span>
+                      <Sparkles className="h-3 w-3 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="leading-relaxed">{suggestion}</span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-muted-foreground text-center pt-4">No suggestions available at the moment.</p>
+                <p className="text-xs text-muted-foreground text-center py-3">No suggestions available</p>
               )
             )}
           </div>

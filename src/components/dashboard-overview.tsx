@@ -105,7 +105,108 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
         const gCompleted = allGoals.filter(g => (g.steps || []).length > 0 && (g.steps || []).every(s => s.completed)).length;
         const gInProgress = allGoals.filter(g => !(g.steps || []).every(s => s.completed)).length;
         
-        const nextTasks = allTasks.filter(t => !t.completed).slice(0, 3);
+        // Priority-based critical tasks generation (concise AI suggestions)
+        const prioritizedTasks = [];
+        
+        // 1. Finance Tracker priorities (highest priority) - Keep short and actionable
+        const loans = data.loans || [];
+        const activeLoan = loans.find(loan => loan.status === 'Active');
+        if (activeLoan) {
+            const principal = parseFloat(activeLoan.principal) || 0;
+            const rate = parseFloat(activeLoan.rate || '0') || 0;
+            const tenure = parseFloat(activeLoan.tenure || '0') || 0;
+            const emisPaid = parseFloat(activeLoan.emisPaid || '0') || 0;
+            
+            if (principal > 0 && tenure > 0) {
+                const monthlyRate = rate / 12 / 100;
+                const emi = monthlyRate > 0 ? 
+                    principal * monthlyRate * Math.pow(1 + monthlyRate, tenure) / (Math.pow(1 + monthlyRate, tenure) - 1) : 
+                    principal / tenure;
+                prioritizedTasks.push({ text: `Pay ${activeLoan.name} EMI ₹${Math.round(emi)}`, priority: 1 });
+            }
+        }
+        
+        const emergencyFund = parseFloat(data.emergencyFund) || 0;
+        const emergencyTarget = parseFloat(data.emergencyFundTarget) || 40000;
+        if (emergencyFund < emergencyTarget * 0.3) {
+            const needed = Math.round(emergencyTarget * 0.3 - emergencyFund);
+            prioritizedTasks.push({ text: `Build Emergency Fund +₹${needed}`, priority: 1 });
+        }
+        
+        // Check SIP investments - short suggestion
+        const sips = data.sips || [];
+        if (sips.length === 0 && prioritizedTasks.length < 2) {
+            prioritizedTasks.push({ text: `Start monthly SIP investment`, priority: 1 });
+        }
+        
+        // 2. Daily To-Do tasks (high priority) - concise format
+        const dailyTasks = data.dailyTasks || [];
+        const overdueDailyTask = dailyTasks.find(task => {
+            const dueDate = new Date(task.dueDate);
+            const today = new Date();
+            return !task.completed && dueDate < today;
+        });
+        if (overdueDailyTask && prioritizedTasks.length < 3) {
+            const shortTitle = overdueDailyTask.title.length > 25 ? 
+                overdueDailyTask.title.substring(0, 25) + '...' : 
+                overdueDailyTask.title;
+            prioritizedTasks.push({ text: `Complete: ${shortTitle}`, priority: 2 });
+        }
+        
+        const todayTasks = dailyTasks.filter(task => {
+            const dueDate = new Date(task.dueDate);
+            const today = new Date();
+            return !task.completed && dueDate.toDateString() === today.toDateString();
+        });
+        if (todayTasks.length > 0 && prioritizedTasks.length < 3) {
+            prioritizedTasks.push({ text: `Complete ${todayTasks.length} task${todayTasks.length > 1 ? 's' : ''} today`, priority: 2 });
+        }
+        
+        // 3. Monthly Plan tasks (medium priority) - short format
+        const monthlyPlans = data.monthlyPlan || [];
+        const currentMonth = new Date().toLocaleString('default', { month: 'long' });
+        const currentPlan = monthlyPlans.find(plan => plan.month.includes(currentMonth));
+        if (currentPlan && currentPlan.tasks && prioritizedTasks.length < 3) {
+            const incompleteTasks = currentPlan.tasks.filter(task => !task.done);
+            if (incompleteTasks.length > 0) {
+                prioritizedTasks.push({ text: `${incompleteTasks.length} monthly task${incompleteTasks.length > 1 ? 's' : ''} pending`, priority: 3 });
+            }
+        }
+        
+        // 4. Goals tasks (lower priority) - concise goal step
+        if (prioritizedTasks.length < 3) {
+            const nextGoalTasks = allTasks.filter(t => !t.completed).slice(0, 1);
+            if (nextGoalTasks.length > 0) {
+                const shortStep = nextGoalTasks[0].text.length > 30 ? 
+                    nextGoalTasks[0].text.substring(0, 30) + '...' : 
+                    nextGoalTasks[0].text;
+                prioritizedTasks.push({ text: `Goal: ${shortStep}`, priority: 4 });
+            }
+        }
+        
+        // Fill remaining slots with motivational/productivity suggestions
+        if (prioritizedTasks.length < 3) {
+            const motivationalTasks = [
+                "Review weekly progress",
+                "Plan tomorrow's priorities", 
+                "Update your goals status",
+                "Check financial dashboard",
+                "Schedule important calls"
+            ];
+            
+            const remainingSlots = 3 - prioritizedTasks.length;
+            for (let i = 0; i < remainingSlots; i++) {
+                if (motivationalTasks[i]) {
+                    prioritizedTasks.push({ text: motivationalTasks[i], priority: 5 });
+                }
+            }
+        }
+        
+        // Sort by priority and take top 3
+        const nextTasks = prioritizedTasks
+            .sort((a, b) => a.priority - b.priority)
+            .slice(0, 3)
+            .map(task => ({ text: task.text }));
         
         const fund = parseFloat(data.emergencyFund) || 0;
         const target = parseFloat(data.emergencyFundTarget) || 40000;
@@ -141,50 +242,62 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
     return (
         <div className="space-y-8">
             <div className="mb-6">
-                <h2 className="text-3xl font-bold text-foreground">Dashboard Overview</h2>
-                <p className="mt-2 text-base text-muted-foreground">A high-level look at your progress and key metrics.</p>
+                <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground">Dashboard Overview</h2>
+                <p className="mt-2 text-sm md:text-base text-muted-foreground">A high-level look at your progress and key metrics.</p>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 lg:gap-6">
                 <Card className="bg-white dark:bg-card border-border">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Overall Progress</CardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between pb-1 px-3 pt-3 xs:pb-2 xs:px-6 xs:pt-6">
+                        <CardTitle className="text-[10px] xs:text-xs sm:text-sm font-medium text-muted-foreground">
+                            <span className="hidden xs:inline">Overall Progress</span>
+                            <span className="xs:hidden">Progress</span>
+                        </CardTitle>
                         <Target className="h-4 w-4 text-primary" />
                     </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold text-foreground">{overallProgress}%</p>
+                    <CardContent className="px-3 pb-3 xs:px-6 xs:pb-6">
+                        <p className="text-sm sm:text-base md:text-lg font-bold text-foreground">{overallProgress}%</p>
                         <p className="text-xs text-muted-foreground mt-1 truncate">Based on all steps</p>
                          <Progress value={overallProgress} className="h-2 mt-4" />
                     </CardContent>
                 </Card>
                 <Card className="bg-white dark:bg-card border-border">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Emergency Fund</CardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between pb-1 px-3 pt-3 xs:pb-2 xs:px-6 xs:pt-6">
+                        <CardTitle className="text-[10px] xs:text-xs sm:text-sm font-medium text-muted-foreground">
+                            <span className="hidden xs:inline">Emergency Fund</span>
+                            <span className="xs:hidden">Emergency</span>
+                        </CardTitle>
                         <PiggyBank className="h-4 w-4 text-primary" />
                     </CardHeader>
-                    <CardContent>
-                         <p className="text-2xl font-bold text-foreground">₹{emergencyFundFormatted}</p>
+                    <CardContent className="px-3 pb-3 xs:px-6 xs:pb-6">
+                         <p className="text-sm sm:text-base md:text-lg font-bold text-foreground">₹{emergencyFundFormatted}</p>
                         <p className="text-xs text-muted-foreground mt-1 truncate">Target: ₹{emergencyFundTargetFormatted}</p>
                         <Progress value={emergencyFundProgress} className="h-2 mt-4" />
                     </CardContent>
                 </Card>
                 <Card className="bg-white dark:bg-card border-border">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Goals Status</CardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between pb-1 px-3 pt-3 xs:pb-2 xs:px-6 xs:pt-6">
+                        <CardTitle className="text-[10px] xs:text-xs sm:text-sm font-medium text-muted-foreground">
+                            <span className="hidden xs:inline">Goals Status</span>
+                            <span className="xs:hidden">Goals</span>
+                        </CardTitle>
                         <CheckCircle className="h-4 w-4 text-primary" />
                     </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold text-foreground">{goalsCompletedCount} / {totalGoals}</p>
+                    <CardContent className="px-3 pb-3 xs:px-6 xs:pb-6">
+                        <p className="text-sm sm:text-base md:text-lg font-bold text-foreground">{goalsCompletedCount} / {totalGoals}</p>
                         <p className="text-xs text-muted-foreground mt-1 truncate">Completed Goals</p>
                         <Progress value={completedGoalsProgress} className="h-2 mt-4" />
                     </CardContent>
                 </Card>
                 <Card className="bg-white dark:bg-card border-border">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Days Left '25</CardTitle>
+                    <CardHeader className="flex flex-row items-center justify-between pb-1 px-3 pt-3 xs:pb-2 xs:px-6 xs:pt-6">
+                        <CardTitle className="text-[10px] xs:text-xs sm:text-sm font-medium text-muted-foreground">
+                            <span className="hidden xs:inline">Days Left '25</span>
+                            <span className="xs:hidden">Days '25</span>
+                        </CardTitle>
                         <CalendarClock className="h-4 w-4 text-primary" />
                     </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold text-foreground">{daysLeft}</p>
+                    <CardContent className="px-3 pb-3 xs:px-6 xs:pb-6">
+                        <p className="text-sm sm:text-base md:text-lg font-bold text-foreground">{daysLeft}</p>
                         <p className="text-xs text-muted-foreground mt-1 truncate">{Math.round(100 - yearProgress)}% of year left</p>
                         <Progress value={yearProgress} className="h-2 mt-4" />
                     </CardContent>
@@ -194,7 +307,7 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
              <div className="mt-2">
                 <Card className="bg-white dark:bg-card border-border">
                     <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
+                        <CardTitle className="text-xs sm:text-sm md:text-base font-medium text-primary flex items-center gap-2">
                             <Brain className="h-5 w-5 text-primary" />
                             Next 3 Critical Steps
                         </CardTitle>
@@ -205,27 +318,27 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
                             </div>
                         )}
                     </CardHeader>
-                    <CardContent className="space-y-3">
+                    <CardContent className="space-y-2">
                         {aiCriticalSteps.length > 0 ? (
                             aiCriticalSteps.map((step, index) => (
-                               <div key={index} className="bg-white dark:bg-card p-3 rounded-lg border border-border flex items-center gap-3">
-                                    <ArrowRight className="text-primary h-4 w-4 flex-shrink-0" />
-                                    <span className="text-sm font-medium text-foreground">{step.text}</span>
+                               <div key={index} className="bg-muted/30 p-2 rounded-md flex items-start gap-2">
+                                    <ArrowRight className="text-primary h-3 w-3 flex-shrink-0 mt-0.5" />
+                                    <span className="text-xs sm:text-sm font-medium text-foreground leading-tight">{step.text}</span>
                                </div>
                             ))
                         ) : !isLoadingCriticalSteps ? (
                             // Fallback to static critical tasks if AI fails
                             criticalTasks.length > 0 ? (
                                 criticalTasks.map((task, index) => (
-                                   <div key={index} className="bg-white dark:bg-card p-3 rounded-lg flex items-center border border-border gap-3">
-                                        <ArrowRight className="text-primary mr-3 h-4 w-4 flex-shrink-0" />
-                                        <span className="text-sm text-foreground">{task.text}</span>
+                                   <div key={index} className="bg-muted/30 p-2 rounded-md flex items-start gap-2">
+                                        <ArrowRight className="text-primary h-3 w-3 flex-shrink-0 mt-0.5" />
+                                        <span className="text-xs sm:text-sm text-foreground leading-tight">{task.text}</span>
                                    </div>
                                 ))
                             ) : (
-                                 <div className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 p-3 rounded-lg flex items-center">
-                                    <CheckCircle className="mr-3 h-4 w-4"/>
-                                    <span className="text-sm font-medium">All goals and steps completed! Great job!</span>
+                                 <div className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 p-2 rounded-md flex items-center">
+                                    <CheckCircle className="mr-2 h-3 w-3"/>
+                                    <span className="text-xs sm:text-sm font-medium">All critical tasks completed!</span>
                                 </div>
                             )
                         ) : null}

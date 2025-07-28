@@ -333,13 +333,13 @@ const DailyTasksTab: React.FC<DailyTasksTabProps> = ({ data, onUpdate }) => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Daily To-Do List</h2>
-          <p className="mt-1 text-muted-foreground">Organize your day and stay on top of your tasks.</p>
+          <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground">Daily To-Do List</h2>
+          <p className="mt-1 text-sm md:text-base text-muted-foreground">Organize your day and stay on top of your tasks.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
           <Dialog open={isAiDialogOpen} onOpenChange={setAiDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline">
+              <Button variant="outline" className="w-full sm:w-auto">
                 <Sparkles className="h-4 w-4 mr-2" />
                 Generate with AI
               </Button>
@@ -436,7 +436,7 @@ const DailyTasksTab: React.FC<DailyTasksTabProps> = ({ data, onUpdate }) => {
           
           <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="w-full sm:w-auto">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Task
               </Button>
@@ -665,7 +665,7 @@ const DailyTasksTab: React.FC<DailyTasksTabProps> = ({ data, onUpdate }) => {
           <Card className="bg-white dark:bg-card">
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">No tasks yet</h3>
+              <h3 className="text-base sm:text-lg font-medium mb-2">No tasks yet</h3>
               <p className="text-muted-foreground text-center mb-4">
                 Start by adding your first task or use AI to generate some suggestions.
               </p>
@@ -700,7 +700,7 @@ const DailyTasksTab: React.FC<DailyTasksTabProps> = ({ data, onUpdate }) => {
                             <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                           )}
                           <div className="flex items-center gap-3 flex-wrap">
-                            <CardTitle className="text-lg leading-none">
+                            <CardTitle className="text-base sm:text-lg leading-none">
                               {format(date, 'EEEE, MMMM d, yyyy')}
                               {isCurrentDay && <span className="text-primary ml-2">(Today)</span>}
                             </CardTitle>

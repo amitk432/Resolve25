@@ -61,7 +61,7 @@ const prompt = ai.definePrompt({
   3. **Job Search** - Application status, interview progress, career advancement
   4. **Finance Tracker** - Emergency fund, loans, SIPs, income sources
   
-  Based on this analysis, identify the 3 MOST CRITICAL steps the user should take next from these areas only. Consider:
+  Based on this analysis, identify the 3 MOST CRITICAL steps the user should take next from these areas only.
   
   Priority Factors (focus only on these 4 areas):
   - **Goals**: Urgent deadlines approaching, blocked or stalled progress on important goals
@@ -70,6 +70,19 @@ const prompt = ai.definePrompt({
   - **Finance Tracker**: Emergency fund shortfalls, high-interest loans, SIP optimizations
   - High-impact actions that unlock progress across multiple areas
   - Financial security and stability needs
+  
+  CRITICAL REQUIREMENTS for step text:
+  - Keep each step text under 50 characters maximum
+  - Use concise, actionable language
+  - Avoid long explanations or detailed instructions
+  - Focus on the core action needed
+  - Use short, punchy phrases
+  - Example good formats:
+    * "Pay Home Loan EMI ₹45k"
+    * "Complete 3 overdue tasks"
+    * "Apply to 2 priority jobs"
+    * "Build emergency fund +₹20k"
+    * "Review monthly goals"
   
   Guidelines:
   - Focus on actionable, specific steps (not generic advice)
@@ -80,7 +93,7 @@ const prompt = ai.definePrompt({
   - Avoid suggesting steps that are already in progress or completed
   
   For each critical step, provide:
-  1. Clear, specific actionable text
+  1. Clear, specific actionable text (UNDER 50 CHARACTERS)
   2. Priority level (Critical > Urgent > High)
   3. Category (Goals/Career/Finance/Personal)
   4. Reasoning for why this is critical right now

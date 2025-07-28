@@ -132,54 +132,52 @@ export default function AiTipsDialog({ goal, data, onStepAdd, onMultipleStepsAdd
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+        <DialogHeader className="pb-3">
+          <DialogTitle className="flex items-center gap-2 text-lg">
             <BrainCircuit className="text-primary h-5 w-5" />
-            AI Actionable Step Suggestions
+            AI Action Steps
           </DialogTitle>
-          <DialogDescription>
-            Get personalized actionable steps to achieve your goal based on your data and progress.
+          <DialogDescription className="text-sm">
+            Personalized steps for your goal
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4">
-          <div className="font-medium">
-            Goal: <span className="font-normal text-muted-foreground">{goal.title}</span>
+        <div className="space-y-3">
+          <div className="text-sm">
+            <span className="font-medium">Goal:</span> <span className="text-muted-foreground">{goal.title}</span>
           </div>
           
           {isLoading && (
-            <div className="flex items-center justify-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-2">Generating personalized suggestions...</span>
+            <div className="flex items-center justify-center py-6">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <span className="ml-2 text-sm">Generating suggestions...</span>
             </div>
           )}
 
           {suggestions.length > 0 && (
-            <div className="space-y-4">
-              <h4 className="font-semibold">AI-Suggested Actionable Steps:</h4>
-              <div className="space-y-3">
+            <div className="space-y-3">
+              <h4 className="font-medium text-sm">Suggested Steps:</h4>
+              <div className="space-y-2">
                 {suggestions.map((suggestion, index) => (
-                  <div key={index} className="p-4 rounded-lg border bg-white dark:bg-card hover:bg-accent/30 transition-all duration-200">
-                    <div className="flex items-center gap-4">
+                  <div key={index} className="p-3 rounded-lg border bg-white dark:bg-card hover:bg-accent/30 transition-all duration-200">
+                    <div className="flex items-center gap-3">
                       <Checkbox
                         checked={suggestion.selected}
                         onCheckedChange={() => toggleSuggestionSelection(index)}
                         className="flex-shrink-0"
                       />
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="space-y-1">
-                            <p className="text-sm font-medium">{suggestion.text}</p>
-                            <p className="text-xs text-muted-foreground">{suggestion.reasoning}</p>
-                          </div>
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium">{suggestion.text}</p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">{suggestion.reasoning}</p>
                         </div>
-                        <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <Badge variant="outline" className={`text-xs ${getPriorityColor(suggestion.priority)}`}>
-                            {suggestion.priority} Priority
+                            {suggestion.priority}
                           </Badge>
                           <Badge variant="outline" className="text-xs flex items-center gap-1 text-purple-600 border-purple-200">
-                            <Sparkles className="h-3 w-3" />
-                            AI Generated
+                            <Sparkles className="h-2.5 w-2.5" />
+                            AI
                           </Badge>
                         </div>
                       </div>
@@ -191,31 +189,31 @@ export default function AiTipsDialog({ goal, data, onStepAdd, onMultipleStepsAdd
           )}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="pt-3">
           <Button variant="outline" onClick={() => {
             setOpen(false);
             setSuggestions([]);
-          }}>
+          }} size="sm" className="h-8 text-sm">
             Cancel
           </Button>
           {suggestions.length === 0 ? (
-            <Button onClick={handleGetSuggestions} disabled={isLoading}>
+            <Button onClick={handleGetSuggestions} disabled={isLoading} size="sm" className="h-8 text-sm">
               {isLoading ? (
                 <>
-                  <Sparkles className="h-4 w-4 mr-2 animate-spin" />
+                  <Sparkles className="h-3 w-3 mr-1.5 animate-spin" />
                   Generating...
                 </>
               ) : (
                 <>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Generate Step Suggestions
+                  <Sparkles className="h-3 w-3 mr-1.5" />
+                  Generate
                 </>
               )}
             </Button>
           ) : (
-            <Button onClick={handleAddSelectedSuggestions}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Selected Steps ({suggestions.filter(s => s.selected).length})
+            <Button onClick={handleAddSelectedSuggestions} size="sm" className="h-8 text-sm">
+              <Plus className="h-3 w-3 mr-1.5" />
+              Add Selected ({suggestions.filter(s => s.selected).length})
             </Button>
           )}
         </DialogFooter>

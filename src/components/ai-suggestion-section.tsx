@@ -52,48 +52,54 @@ export default function AiSuggestionSection({
   };
 
   return (
-    <Card className="mt-8 border-primary/20 bg-primary/5">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-primary">
-          <BrainCircuit />
+    <Card className="mt-6 border-primary/20 bg-primary/5">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-primary text-base">
+          <BrainCircuit className="h-4 w-4" />
           {title}
         </CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardDescription className="text-sm">{description}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         {showInput && (
-          <div className="mb-4">
+          <div className="mb-3">
             <Textarea
               placeholder="Add specific details or questions for the AI..."
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
-              className="bg-background"
+              className="bg-background text-sm min-h-[80px] resize-none"
+              rows={3}
             />
           </div>
         )}
 
         {isLoading && (
-          <div className="flex items-center justify-center p-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="flex items-center justify-center py-6">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         )}
 
         {suggestions.length > 0 && !isLoading && (
-          <div className="space-y-3">
-            <h4 className="font-semibold text-foreground">Here are a few suggestions:</h4>
-            <ul className="space-y-2 list-none">
+          <div className="space-y-2">
+            <h4 className="font-medium text-foreground text-sm">AI Suggestions:</h4>
+            <ul className="space-y-1.5 list-none">
               {suggestions.map((suggestion, index) => (
-                <li key={index} className="flex items-start gap-3">
-                  <Sparkles className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
-                  <p className="text-sm text-muted-foreground">{suggestion}</p>
+                <li key={index} className="flex items-start gap-2">
+                  <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-muted-foreground leading-relaxed">{suggestion}</p>
                 </li>
               ))}
             </ul>
           </div>
         )}
 
-        <Button onClick={handleGetSuggestions} disabled={isLoading} className="mt-4">
-          <Wand2 className="mr-2 h-4 w-4" />
+        <Button 
+          onClick={handleGetSuggestions} 
+          disabled={isLoading} 
+          className="mt-3 h-8 text-sm"
+          size="sm"
+        >
+          <Wand2 className="mr-1.5 h-3.5 w-3.5" />
           {isLoading ? 'Generating...' : 'Get AI Suggestions'}
         </Button>
       </CardContent>

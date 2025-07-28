@@ -92,7 +92,7 @@ export default function AiMonthlyPlanGeneratorDialog({ data, onPlanAdd, children
                     <CardHeader>
                         <div className="flex justify-between items-start gap-4">
                             <div className="flex-grow">
-                                <CardTitle className="text-lg flex items-center gap-2"><CalendarDays className="h-5 w-5"/>{plan.month}</CardTitle>
+                                <CardTitle className="text-base sm:text-lg flex items-center gap-2"><CalendarDays className="h-5 w-5"/>{plan.month}</CardTitle>
                                 <CardDescription className="mt-1">{plan.theme}</CardDescription>
                             </div>
                             <Button size="sm" onClick={() => handleAddPlan(plan)}>

@@ -27,7 +27,7 @@ const RoadmapView = ({ roadmap, country, onAddToGoals }: { roadmap: RelocationRo
             <Accordion type="multiple" defaultValue={['item-0', 'item-1']} className="w-full space-y-4">
                 {[roadmap.visa, roadmap.career, roadmap.housing, roadmap.cultural, roadmap.resources].map((section, index) => (
                     <AccordionItem value={`item-${index}`} key={index} className="border rounded-lg bg-background">
-                        <AccordionTrigger className="p-4 hover:no-underline text-lg">
+                        <AccordionTrigger className="p-4 hover:no-underline text-base sm:text-lg">
                             <div className="flex items-center gap-3">
                                 {section.title.includes("Visa") && <FileText className="h-5 w-5" />}
                                 {(section.title.includes("Career") || section.title.includes("Study")) && <Briefcase className="h-5 w-5" />}
@@ -164,14 +164,14 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
     return (
         <div className="space-y-8">
             <div>
-                <h2 className="text-3xl font-bold text-foreground">Global Living Advisor</h2>
-                <p className="mt-1 text-base text-muted-foreground">Discover your next home abroad with AI-powered relocation advice.</p>
+                <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground">Global Living Advisor</h2>
+                <p className="mt-1 text-sm md:text-base text-muted-foreground">Discover your next home abroad with AI-powered relocation advice.</p>
             </div>
             
             <Card className="bg-white dark:bg-card border-border">
                 <CardHeader>
                     <CardTitle className="text-sm font-medium text-primary">Your Relocation Profile</CardTitle>
-                    <CardDescription className="text-base text-muted-foreground">Fill out this questionnaire to get personalized country recommendations. Your resume details will be used automatically.</CardDescription>
+                    <CardDescription className="text-sm md:text-base text-muted-foreground">Fill out this questionnaire to get personalized country recommendations. Your resume details will be used automatically.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
@@ -267,7 +267,7 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
 
             {recommendations.length > 0 && (
                 <div className="space-y-6">
-                    <h3 className="text-xl font-bold text-foreground">Top Country Recommendations</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-foreground">Top Country Recommendations</h3>
                     <Accordion type="single" collapsible className="w-full space-y-4">
                         {recommendations.map((rec, index) => (
                             <AccordionItem value={`item-${index}`} key={index} className="border rounded-lg bg-background">
@@ -276,13 +276,13 @@ export default function LivingAdvisorTab({ data, onUpdate }: { data: AppData; on
                                         <div className="flex items-start sm:items-center gap-4 flex-1">
                                             <Map className="h-8 w-8 text-primary mt-1 sm:mt-0 flex-shrink-0"/>
                                             <div className="text-left">
-                                                <h4 className="text-lg font-semibold">{rec.country}</h4>
+                                                <h4 className="text-base sm:text-lg font-semibold">{rec.country}</h4>
                                                 <p className="text-sm text-muted-foreground">{rec.summary}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2 self-start sm:self-center ml-12 sm:ml-0">
                                             <Star className="h-5 w-5 text-yellow-500"/>
-                                            <span className="text-xl font-bold">{rec.suitabilityScore}</span>
+                                            <span className="text-lg sm:text-xl font-bold">{rec.suitabilityScore}</span>
                                             <span className="text-xs text-muted-foreground">/100</span>
                                         </div>
                                     </div>

@@ -103,7 +103,7 @@ export default function GoalItem({ goal, data, onStepToggle, onStepAdd, onMultip
                   {info.icon}
                   {goal.category}
                 </Badge>
-                <h3 className="font-semibold text-lg text-card-foreground">{goal.title}</h3>
+                <h3 className="font-semibold text-base sm:text-lg text-card-foreground">{goal.title}</h3>
                 {isCompleted && (
                   <Badge variant="default" className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1.5">
                       <Check className="h-4 w-4" />
@@ -128,7 +128,7 @@ export default function GoalItem({ goal, data, onStepToggle, onStepAdd, onMultip
         <AccordionContent className="px-6 pb-6">
             {goal.description && <p className="text-sm text-muted-foreground mb-4">{goal.description}</p>}
             <div className="space-y-3 mb-4">
-                <h4 className="font-medium text-base">Actionable Steps</h4>
+                <h4 className="font-medium text-sm sm:text-base">Actionable Steps</h4>
                 {steps.map(step => (
                     <div key={step.id} className="flex items-center gap-3 p-3 rounded-lg border bg-white dark:bg-card hover:bg-accent/30 transition-all duration-200">
                     <Checkbox

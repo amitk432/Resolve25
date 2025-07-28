@@ -64,8 +64,52 @@
   * {
     @apply border-border;
   }
+  
+  html {
+    /* Prevent zoom on iOS while maintaining accessibility */
+    -webkit-text-size-adjust: 100%;
+    /* Improve touch responsiveness on Android */
+    touch-action: manipulation;
+  }
+  
   body {
     @apply bg-background text-foreground;
+    /* Improve font rendering on Android */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevent horizontal scroll issues on mobile */
+    overflow-x: hidden;
+    /* Optimize for mobile performance */
+    -webkit-overflow-scrolling: touch;
+    /* Improve text rendering consistency */
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* Android-specific optimizations */
+  @supports (-webkit-touch-callout: none) {
+    /* iOS-specific styles */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+  }
+  
+  /* Improve button and input appearance on Android */
+  button,
+  input,
+  select,
+  textarea {
+    /* Remove default appearance variations between browsers */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    /* Ensure consistent touch behavior */
+    touch-action: manipulation;
+  }
+  
+  /* Ensure consistent scrolling behavior */
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
   }
 }
 
@@ -88,6 +132,92 @@
   
   .animate-glow {
     animation: glow 2s ease-in-out infinite alternate;
+  }
+  
+  /* Mobile-optimized touch targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+  
+  /* Smaller touch targets for mobile */
+  .touch-target-mobile {
+    min-height: 40px;
+    min-width: 40px;
+    touch-action: manipulation;
+  }
+  
+  /* Android-specific button styles */
+  .btn-android-optimized {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    outline: none;
+    border: none;
+    background-clip: padding-box;
+  }
+  
+  /* iOS-specific scroll improvements */
+  .scroll-ios {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  /* Android Chrome address bar fix */
+  .mobile-vh {
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  }
+  
+  /* Cross-platform font optimization */
+  .text-mobile-optimized {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* Android-specific header optimizations */
+  @media screen and (max-width: 640px) {
+    .mobile-header {
+      padding: 0.75rem;
+      min-height: 56px;
+    }
+    
+    .mobile-header .app-title {
+      font-size: 1.125rem; /* 18px */
+      line-height: 1.2;
+    }
+    
+    .mobile-header .app-icon {
+      width: 1.5rem; /* 24px */
+      height: 1.5rem; /* 24px */
+    }
+    
+    .mobile-button {
+      height: 2.25rem; /* 36px */
+      width: 2.25rem; /* 36px */
+      min-height: 36px;
+      min-width: 36px;
+    }
+  }
+  
+  /* Extra small screens (older/smaller Android phones) */
+  @media screen and (max-width: 375px) {
+    .mobile-header {
+      padding: 0.5rem;
+      min-height: 52px;
+    }
+    
+    .mobile-header .app-title {
+      font-size: 1rem; /* 16px */
+    }
+    
+    .mobile-header .app-icon {
+      width: 1.25rem; /* 20px */
+      height: 1.25rem; /* 20px */
+    }
   }
 }
 

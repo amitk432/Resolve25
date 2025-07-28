@@ -45,6 +45,8 @@ export interface Loan {
     emisPaid?: string; // Number of EMIs already paid
     status: LoanStatus;
     lastAutoUpdate?: string; // ISO string to track last EMI increment
+    startDate?: string; // ISO string for loan start date
+    endDate?: string; // ISO string for loan end date (calculated or manual)
 }
 
 export type JobStatus = 'Need to Apply' | 'Applied' | 'Interviewing' | 'Offer' | 'Rejected';

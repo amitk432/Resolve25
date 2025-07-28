@@ -72,8 +72,8 @@ export default function CarSaleTab({
         <div>
             <div className="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="text-3xl font-bold text-foreground">Car Sale Tracker</h2>
-                  <p className="mt-1 text-base text-muted-foreground">Manage the finances and checklist for selling your car.</p>
+                  <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground">Car Sale Tracker</h2>
+                  <p className="mt-1 text-sm md:text-base text-muted-foreground">Manage the finances and checklist for selling your car.</p>
                 </div>
             </div>
             
@@ -83,7 +83,7 @@ export default function CarSaleTab({
                         <CardHeader className="flex flex-row items-center justify-between">
                             <div className="space-y-1.5">
                                 <CardTitle className="text-sm font-medium text-primary">Financial Summary</CardTitle>
-                                <CardDescription className="text-base text-muted-foreground">Update your sale estimates.</CardDescription>
+                                <CardDescription className="text-sm md:text-base text-muted-foreground">Update your sale estimates.</CardDescription>
                             </div>
                             <TrendingUp className="h-5 w-5 text-primary" />
                         </CardHeader>
@@ -123,7 +123,7 @@ export default function CarSaleTab({
                         <CardFooter className="flex-col items-start space-y-2 bg-white dark:bg-card p-4 rounded-b-lg border-t">
                             <span className="text-sm text-muted-foreground">✅ Net Cash in Hand (Estimate)</span>
                             <span className={cn(
-                                "text-3xl font-bold",
+                                "text-lg sm:text-xl md:text-2xl font-bold",
                                 netCashInHand >= 0 ? 'text-green-600 dark:text-green-500' : 'text-destructive'
                             )}>
                                 {netCashInHand.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 })}
@@ -137,7 +137,7 @@ export default function CarSaleTab({
                                     <div className="flex items-center gap-4">
                                         <Mail className="h-5 w-5 text-primary" />
                                         <div>
-                                            <p className="text-lg font-semibold text-left">Foreclosure Request Email</p>
+                                            <p className="text-base sm:text-lg font-semibold text-left">Foreclosure Request Email</p>
                                             <p className="text-sm text-muted-foreground text-left">Click to view template</p>
                                         </div>
                                     </div>
@@ -163,7 +163,7 @@ export default function CarSaleTab({
                         <CardHeader  className="flex flex-row items-center justify-between">
                              <div className="space-y-1.5">
                                 <CardTitle className="text-sm font-medium text-primary">Sale Process Checklist</CardTitle>
-                                <CardDescription className="text-base text-muted-foreground">Track your sale step-by-step.</CardDescription>
+                                <CardDescription className="text-sm md:text-base text-muted-foreground">Track your sale step-by-step.</CardDescription>
                             </div>
                             <ClipboardCheck className="h-5 w-5 text-primary" />
                         </CardHeader>

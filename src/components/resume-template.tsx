@@ -1,152 +1,431 @@
 'use client';
 
+import React, { forwardRef } from 'react';
 import type { ResumeData } from '@/lib/types';
-import { Mail, Phone, MapPin, Linkedin, Github } from 'lucide-react';
-import { format } from 'date-fns';
 
-const SectionHeader = ({ title }: { title: string }) => (
-  <h2 className="text-sm font-bold text-teal-600 uppercase tracking-wider border-b-2 border-gray-200 pb-1 mb-3">{title}</h2>
+interface ResumeTemplateProps {
+  resumeData: ResumeData;
+}
+
+const ResumeTemplate = forwardRef<HTMLDivElement, ResumeTemplateProps>(
+  ({ resumeData }, ref) => {
+    // Add null checks
+    if (!resumeData) {
+      return (
+        <div ref={ref} className="bg-white text-black p-8">
+          <p>No resume data available</p>
+        </div>
+      );
+    }
+
+    const formatDate = (dateStr: string | null) => {
+      if (!dateStr) return '';
+      try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      } catch {
+        return dateStr;
+      }
+    };
+
+      const formatDateRange = (startDate: string | null, endDate: string | null, isCurrent: boolean): string => {
+      const start = formatDate(startDate) || 'Present';
+      const end = isCurrent ? 'Present' : (formatDate(endDate) || 'Present');
+      return `${start} - ${end}`;
+    };
+
+    return (
+      <div 
+        ref={ref} 
+        className="bg-white text-black"
+        style={{
+          width: '210mm',
+          height: '297mm',
+          fontFamily: 'Times, "Times New Roman", serif',
+          fontSize: '11pt',
+          lineHeight: '1.2',
+          padding: '25mm 25mm 25mm 25mm',
+          boxSizing: 'border-box',
+          margin: '0',
+          overflow: 'hidden',
+          color: '#000000'
+        }}
+      >
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: '6pt' }}>
+          <h1 style={{ 
+            fontSize: '18pt', 
+            fontWeight: 'bold', 
+            margin: '0 0 6pt 0',
+            textTransform: 'uppercase',
+            letterSpacing: '1pt',
+            color: '#000000'
+          }}>
+            {resumeData?.contactInfo?.name || 'Name Not Available'}
+          </h1>
+          
+          {/* Contact info in one line */}
+          <div style={{ 
+            fontSize: '11pt', 
+            lineHeight: '1.2',
+            color: '#000000',
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '8px'
+          }}>
+            {resumeData?.contactInfo?.phone && (
+              <span>{resumeData.contactInfo.phone}</span>
+            )}
+            {resumeData?.contactInfo?.email && (
+              <span>|</span>
+            )}
+            {resumeData?.contactInfo?.email && (
+              <a href={`mailto:${resumeData.contactInfo.email}`} style={{ color: '#000000', textDecoration: 'none' }}>
+                {resumeData.contactInfo.email}
+              </a>
+            )}
+            {resumeData?.contactInfo?.location && (
+              <>
+                <span>|</span>
+                <span>{resumeData.contactInfo.location}</span>
+              </>
+            )}
+            {resumeData?.contactInfo?.linkedin && (
+              <>
+                <span>|</span>
+                <a 
+                  href={resumeData.contactInfo.linkedin.startsWith('http') ? resumeData.contactInfo.linkedin : `https://linkedin.com/in/${resumeData.contactInfo.linkedin}`} 
+                  style={{ color: '#000000', textDecoration: 'none' }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {resumeData.contactInfo.linkedin.replace('https://linkedin.com/in/', '').replace('https://www.linkedin.com/in/', '')}
+                </a>
+              </>
+            )}
+            {resumeData?.contactInfo?.github && (
+              <>
+                <span>|</span>
+                <a 
+                  href={resumeData.contactInfo.github.startsWith('http') ? resumeData.contactInfo.github : `https://github.com/${resumeData.contactInfo.github}`} 
+                  style={{ color: '#000000', textDecoration: 'none' }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {resumeData.contactInfo.github.replace('https://github.com/', '')}
+                </a>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Professional Summary */}
+        {resumeData?.summary?.text && (
+          <div style={{ marginBottom: '8pt' }}>
+            <h2 style={{ 
+              fontSize: '12pt', 
+              fontWeight: 'bold', 
+              marginBottom: '6pt',
+              paddingBottom: '3pt',
+              textTransform: 'uppercase',
+              color: '#000000',
+              borderBottom: '2pt solid #000000',
+              letterSpacing: '0.5px'
+            }}>
+              Professional Summary
+            </h2>
+            <p style={{ 
+              textAlign: 'justify',
+              lineHeight: '1.3',
+              fontSize: '11pt',
+              margin: '0',
+              color: '#000000'
+            }}>
+              {resumeData.summary.text}
+            </p>
+          </div>
+        )}
+
+        {/* Skills */}
+        {resumeData?.skills && Object.keys(resumeData.skills).length > 0 && (
+          <div style={{ marginBottom: '8pt' }}>
+            <h2 style={{ 
+              fontSize: '12pt', 
+              fontWeight: 'bold', 
+              borderBottom: '1pt solid #000000',
+              marginBottom: '4pt',
+              paddingBottom: '1pt',
+              textTransform: 'uppercase',
+              color: '#000000'
+            }}>
+              Skills
+            </h2>
+            <div style={{ 
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '6pt',
+              fontSize: '11pt',
+              color: '#000000'
+            }}>
+              {Object.entries(resumeData.skills).map(([category, skillsString], categoryIndex) => (
+                <div key={categoryIndex} style={{ 
+                  minWidth: '120pt',
+                  marginBottom: '3pt'
+                }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: '1pt' }}>
+                    {category}:
+                  </div>
+                  <div style={{ lineHeight: '1.2' }}>
+                    {skillsString}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Skills */}
+        {resumeData?.skills && Object.keys(resumeData.skills).length > 0 && (
+          <div style={{ marginBottom: '8pt' }}>
+            <h2 style={{ 
+              fontSize: '12pt', 
+              fontWeight: 'bold', 
+              borderBottom: '1pt solid #000',
+              marginBottom: '4pt',
+              paddingBottom: '1pt',
+              textTransform: 'uppercase'
+            }}>
+              Technical Skills
+            </h2>
+            {Object.entries(resumeData.skills).map(([category, skills]) => (
+              skills && (
+                <div key={category} style={{ marginBottom: '3pt' }}>
+                  <span style={{ fontWeight: 'bold' }}>{category}:</span>{' '}
+                  <span>{skills}</span>
+                </div>
+              )
+            ))}
+          </div>
+        )}
+
+        {/* Professional Experience */}
+        {resumeData?.workExperience && resumeData.workExperience.length > 0 && (
+          <div style={{ 
+            marginBottom: (resumeData?.education && resumeData.education.length > 0) || 
+                         (resumeData?.projects && resumeData.projects.length > 0) ? '8pt' : '0' 
+          }}>
+            <h2 style={{ 
+              fontSize: '12pt', 
+              fontWeight: 'bold', 
+              borderBottom: '1pt solid #000000',
+              marginBottom: '4pt',
+              paddingBottom: '1pt',
+              textTransform: 'uppercase',
+              color: '#000000'
+            }}>
+              Professional Experience
+            </h2>
+            {resumeData.workExperience.map((exp, index) => (
+              <div key={index} style={{ marginBottom: index < resumeData.workExperience.length - 1 ? '6pt' : '0' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline',
+                  marginBottom: '2pt'
+                }}>
+                  <div>
+                    <div style={{ fontWeight: 'bold', fontSize: '11pt', color: '#000000' }}>
+                      {exp?.role || 'Role Not Specified'}
+                    </div>
+                    <div style={{ fontStyle: 'italic', fontSize: '11pt', color: '#000000' }}>
+                      {exp?.company || 'Company'} | {exp?.location || 'Location'}
+                    </div>
+                  </div>
+                  <div style={{ 
+                    fontSize: '11pt',
+                    fontWeight: 'bold',
+                    whiteSpace: 'nowrap',
+                    marginLeft: '20pt',
+                    color: '#000000'
+                  }}>
+                    {formatDateRange(exp?.startDate || null, exp?.endDate || null, exp?.isCurrent || false)}
+                  </div>
+                </div>
+                
+                {exp?.descriptionPoints && exp.descriptionPoints.length > 0 && (
+                  <ul style={{ 
+                    margin: '2pt 0 0 16pt',
+                    padding: '0',
+                    listStyleType: 'disc'
+                  }}>
+                    {exp.descriptionPoints.map((point, pointIndex) => (
+                      point && (
+                        <li key={pointIndex} style={{ 
+                          marginBottom: '1pt',
+                          textAlign: 'justify',
+                          lineHeight: '1.3',
+                          fontSize: '11pt',
+                          color: '#000000'
+                        }}>
+                          {point}
+                        </li>
+                      )
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Projects */}
+        {resumeData?.projects && resumeData.projects.length > 0 && (
+          <div style={{ marginBottom: '12pt' }}>
+            <h2 style={{ 
+              fontSize: '12pt', 
+              fontWeight: 'bold', 
+              borderBottom: '1pt solid #000',
+              marginBottom: '6pt',
+              paddingBottom: '2pt',
+              textTransform: 'uppercase'
+            }}>
+              Projects
+            </h2>
+            {resumeData.projects.map((project, index) => (
+              <div key={index} style={{ marginBottom: index < resumeData.projects.length - 1 ? '8pt' : '0' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline',
+                  marginBottom: '3pt'
+                }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '11pt' }}>
+                    {project?.name || 'Project Name'}
+                  </div>
+                  <div style={{ 
+                    fontSize: '10pt',
+                    fontWeight: 'bold',
+                    whiteSpace: 'nowrap',
+                    marginLeft: '20pt'
+                  }}>
+                    {formatDateRange(project?.startDate || null, project?.endDate || null, project?.isCurrent || false)}
+                  </div>
+                </div>
+                
+                {project?.description && (
+                  <p style={{ 
+                    margin: '0',
+                    textAlign: 'justify',
+                    lineHeight: '1.3',
+                    fontSize: '10pt'
+                  }}>
+                    {project.description}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+                {/* Education */}
+        {resumeData?.education && resumeData.education.length > 0 && (
+          <div style={{ marginBottom: resumeData?.projects && resumeData.projects.length > 0 ? '8pt' : '0' }}>
+            <h2 style={{ 
+              fontSize: '12pt', 
+              fontWeight: 'bold', 
+              borderBottom: '1pt solid #000000',
+              marginBottom: '4pt',
+              paddingBottom: '1pt',
+              textTransform: 'uppercase',
+              color: '#000000'
+            }}>
+              Education
+            </h2>
+            {resumeData.education.map((edu, index) => (
+              <div key={index} style={{ marginBottom: index < resumeData.education.length - 1 ? '4pt' : '0' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline'
+                }}>
+                  <div>
+                    <div style={{ fontWeight: 'bold', fontSize: '11pt', color: '#000000' }}>
+                      {edu?.degree || 'Degree'}
+                    </div>
+                    <div style={{ fontStyle: 'italic', fontSize: '11pt', color: '#000000' }}>
+                      {edu?.institution || 'Institution'} | {edu?.location || 'Location'}
+                    </div>
+                  </div>
+                  <div style={{ 
+                    fontSize: '11pt',
+                    fontWeight: 'bold',
+                    whiteSpace: 'nowrap',
+                    marginLeft: '20pt',
+                    color: '#000000'
+                  }}>
+                    {edu?.endDate ? formatDate(edu.endDate) : 'Present'}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Projects */}
+        {resumeData?.projects && resumeData.projects.length > 0 && (
+          <div style={{ marginBottom: '0' }}>
+            <h2 style={{ 
+              fontSize: '12pt', 
+              fontWeight: 'bold', 
+              borderBottom: '1pt solid #000000',
+              marginBottom: '4pt',
+              paddingBottom: '1pt',
+              textTransform: 'uppercase',
+              color: '#000000'
+            }}>
+              Projects
+            </h2>
+            {resumeData.projects.map((project, index) => (
+              <div key={index} style={{ marginBottom: index < resumeData.projects.length - 1 ? '4pt' : '0' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline'
+                }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '11pt', color: '#000000' }}>
+                    {project?.name || 'Project'}
+                  </div>
+                  <div style={{ 
+                    fontSize: '11pt',
+                    fontWeight: 'bold',
+                    whiteSpace: 'nowrap',
+                    marginLeft: '20pt',
+                    color: '#000000'
+                  }}>
+                    {formatDateRange(project?.startDate || null, project?.endDate || null, project?.isCurrent || false)}
+                  </div>
+                </div>
+                {project?.description && (
+                  <div style={{ 
+                    textAlign: 'justify',
+                    lineHeight: '1.3',
+                    fontSize: '11pt',
+                    marginTop: '1pt',
+                    color: '#000000'
+                  }}>
+                    {project.description}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
 );
 
-function formatDate(dateStr: string | null): string {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return '';
-    return format(date, 'MMM yyyy');
-}
+ResumeTemplate.displayName = 'ResumeTemplate';
 
-function formatDateRange(startDateStr: string | null, endDateStr: string | null, isCurrent: boolean): string {
-  const startFormatted = formatDate(startDateStr);
-
-  if (isCurrent) {
-    return startFormatted ? `${startFormatted} - Present` : 'Present';
-  }
-
-  const endFormatted = formatDate(endDateStr);
-  
-  if (startFormatted && endFormatted) {
-      return `${startFormatted} - ${endFormatted}`;
-  }
-  
-  return startFormatted || endFormatted;
-}
-
-export default function ResumeTemplate({ resume }: { resume: ResumeData }) {
-  const { contactInfo, summary, skills, workExperience, education, projects } = resume;
-
-  return (
-    // Base container with white background and font styles matching the resume
-    <div className="bg-white text-[#333] p-8 font-sans text-sm max-w-4xl mx-auto">
-      
-      {/* Header: Name and Contact Info */}
-      <header className="text-center mb-6">
-        <h1 className="text-4xl font-bold text-teal-600">{contactInfo.name}</h1>
-        <div className="flex justify-center items-center gap-x-3 gap-y-1 text-xs text-gray-500 mt-2 flex-wrap">
-          {contactInfo.location && <span className="flex items-center gap-1.5"><MapPin className="h-3 w-3" />{contactInfo.location}</span>}
-          {contactInfo.phone && 
-            <>
-                <span className="text-gray-300 hidden sm:inline-block">•</span>
-                <span className="flex items-center gap-1.5"><Phone className="h-3 w-3" />{contactInfo.phone}</span>
-            </>
-          }
-          {contactInfo.email && 
-            <>
-                <span className="text-gray-300 hidden sm:inline-block">•</span>
-                <a href={`mailto:${contactInfo.email}`} className="flex items-center gap-1.5 hover:text-teal-600"><Mail className="h-3 w-3" />{contactInfo.email}</a>
-            </>
-          }
-          {contactInfo.linkedin && (
-              <>
-                <span className="text-gray-300 hidden sm:inline-block">•</span>
-                <a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-teal-600"><Linkedin className="h-3 w-3" />{contactInfo.linkedin.replace(/^(https?:\/\/)?(www\.)?linkedin\.com\/in\//, '')}</a>
-              </>
-          )}
-          {contactInfo.github && (
-               <>
-                <span className="text-gray-300 hidden sm:inline-block">•</span>
-                <a href={contactInfo.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-teal-600"><Github className="h-3 w-3" />{contactInfo.github.replace(/^(https?:\/\/)?(www\.)?github\.com\//, '')}</a>
-               </>
-          )}
-        </div>
-      </header>
-
-      {/* Professional Summary & Title */}
-      <section className="mb-6">
-        <h3 className="text-xl font-bold text-gray-800 mb-2">{summary.title}</h3>
-        <p className="text-gray-700 text-justify leading-relaxed">{summary.text}</p>
-      </section>
-
-      {/* Skills */}
-      {Object.keys(skills).length > 0 && (
-        <section className="mb-6">
-          <SectionHeader title="Skills" />
-          <div className="flex flex-col gap-1">
-            {Object.entries(skills).map(([category, skillList]) => (
-              <div key={category} className="text-sm py-0.5">
-                <span className="font-bold text-gray-900">{category}: </span>
-                <span className="text-gray-700">{skillList}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Work Experience */}
-      {workExperience.length > 0 && (
-        <section className="mb-6">
-          <SectionHeader title="Work Experience" />
-          <div className="space-y-4">
-            {workExperience.map((job, index) => (
-              <div key={index}>
-                <div className="flex justify-between items-baseline">
-                  <h3 className="font-bold text-base text-gray-900">{job.company} <span className="font-normal text-gray-500 text-sm">• {job.location}</span></h3>
-                  <p className="text-sm font-medium text-gray-500">{formatDateRange(job.startDate, job.endDate, job.isCurrent)}</p>
-                </div>
-                <p className="font-semibold text-gray-800 italic">{job.role}</p>
-                <ul className="list-disc list-outside pl-6 mt-1 space-y-1.5 text-gray-700 text-justify">
-                  {job.descriptionPoints.map((point, i) => <li key={i}>{point}</li>)}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Projects */}
-      {projects.length > 0 && (
-        <section className="mb-6">
-          <SectionHeader title="Projects" />
-          <div className="space-y-4">
-            {projects.map((project, index) => (
-              <div key={index}>
-                <div className="flex justify-between items-baseline">
-                  <h3 className="font-bold text-base text-gray-900">{project.name}</h3>
-                   <p className="text-sm font-medium text-gray-500">{formatDateRange(project.startDate, project.endDate, project.isCurrent)}</p>
-                </div>
-                <p className="text-gray-700 text-justify leading-relaxed">{project.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-      
-      {/* Education */}
-      {education.length > 0 && (
-        <section>
-          <SectionHeader title="Education" />
-          <div className="space-y-3">
-            {education.map((edu, index) => (
-              <div key={index}>
-                <div className="flex justify-between items-start">
-                  <h3 className="font-bold text-base text-gray-900">{edu.institution}</h3>
-                  <p className="text-sm font-medium text-gray-500">{formatDate(edu.endDate)}</p>
-                </div>
-                <p className="text-gray-700">{edu.degree} • {edu.location} • {edu.gpa}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-    </div>
-  );
-}
+export default ResumeTemplate;

@@ -122,8 +122,8 @@ export default function GoalsTab({ data, onUpdate }: GoalsTabProps) {
         <div className="space-y-8">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-foreground">Your Goals for 2025</h2>
-                    <p className="mt-2 text-base text-muted-foreground">Set, track, and conquer your personal and professional goals.</p>
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground">Your Goals for 2025</h2>
+                    <p className="mt-2 text-sm md:text-base text-muted-foreground">Set, track, and conquer your personal and professional goals.</p>
                 </div>
                 <div className="flex w-full shrink-0 gap-2 sm:w-auto">
                     <AiGoalGeneratorDialog data={data} onGoalAdd={handleAiGoalAdd}>
@@ -155,8 +155,8 @@ export default function GoalsTab({ data, onUpdate }: GoalsTabProps) {
             ) : (
                 <div className="text-center py-16 border-2 border-dashed rounded-lg">
                     <Target className="mx-auto h-16 w-16 text-muted-foreground" />
-                    <h3 className="mt-4 text-xl font-medium">No Goals Yet</h3>
-                    <p className="mt-2 text-base text-muted-foreground">Click "Add New Goal" above to get started.</p>
+                    <h3 className="mt-4 text-lg sm:text-xl font-medium">No Goals Yet</h3>
+                    <p className="mt-2 text-sm md:text-base text-muted-foreground">Click "Add New Goal" above to get started.</p>
                 </div>
             )}
         </div>
