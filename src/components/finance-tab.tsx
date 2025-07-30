@@ -99,6 +99,62 @@ const LoanCalculations = ({ loan }: { loan: Loan }) => {
     );
 };
 
+const LoanPaymentDetails = ({ loan }: { loan: Loan }) => {
+    const p = parseFloat(loan.principal);
+    const r = loan.rate ? parseFloat(loan.rate) / 100 / 12 : undefined;
+    const n = loan.tenure ? parseInt(loan.tenure, 10) : undefined;
+    const paidCount = loan.emisPaid ? parseInt(loan.emisPaid, 10) : 0;
+    
+    if (paidCount === 0) {
+        return (
+            <p className="text-xs text-center text-muted-foreground pt-2">No EMIs paid yet.</p>
+        );
+    }
+
+    if (!r || !n || p <= 0 || r <= 0 || n <= 0) {
+        return (
+            <p className="text-xs text-center text-muted-foreground pt-2">Enter valid rate and tenure to see payment details.</p>
+        );
+    }
+
+    const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    let totalInterestPaid = 0;
+    let totalPrincipalPaid = 0;
+    let balance = p;
+
+    // Calculate cumulative payments
+    for (let i = 0; i < paidCount; i++) {
+        const interestPayment = balance * r;
+        const principalPayment = emi - interestPayment;
+        totalInterestPaid += interestPayment;
+        totalPrincipalPaid += principalPayment;
+        balance -= principalPayment;
+    }
+
+    const totalAmountPaid = totalInterestPaid + totalPrincipalPaid;
+
+    return (
+        <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Total Paid</span>
+                <span className="font-medium text-right">₹{totalAmountPaid.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Principal Paid</span>
+                <span className="font-medium text-blue-600 text-right">₹{totalPrincipalPaid.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Interest Paid</span>
+                <span className="font-medium text-red-600 text-right">₹{totalInterestPaid.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+            </div>
+            <div className="flex justify-between text-sm pt-2 mt-2 border-t">
+                <span className="text-muted-foreground">EMIs Paid</span>
+                <span className="font-medium text-right">{paidCount} / {n}</span>
+            </div>
+        </div>
+    );
+};
+
 export default function FinanceTab({ 
     loans = [], 
     emergencyFund = '', 
@@ -232,7 +288,7 @@ export default function FinanceTab({
                                         </div>
                                     </div>
                                     <Separator className="my-4" />
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4">
                                         <div className="space-y-2">
                                             <h5 className="text-sm font-medium text-muted-foreground">Loan Details</h5>
                                             <div className="flex justify-between text-sm">
@@ -276,6 +332,10 @@ export default function FinanceTab({
                                         <div className="space-y-2">
                                             <h5 className="text-sm font-medium text-muted-foreground">Repayment Summary</h5>
                                             <LoanCalculations loan={loan} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <h5 className="text-sm font-medium text-muted-foreground">Amounts Paid</h5>
+                                            <LoanPaymentDetails loan={loan} />
                                         </div>
                                     </div>
                                      {hasTenure && (
@@ -371,23 +431,38 @@ export default function FinanceTab({
                         const currentMonth = new Date().getMonth();
                         const currentYear = new Date().getFullYear();
                         let totalMonthlyPayments = 0;
+                        let totalSimpleInterest = 0;
                         const monthlyPayments: { name: string; amount: number; type: string; dueDate?: string }[] = [];
+                        const simpleInterestData: { name: string; principal: number; rate: number; interest: number }[] = [];
                         
-                        // Calculate EMIs from active loans
+                        // Calculate EMIs from active loans and Simple Interest for loans without tenure
                         loans.filter(loan => loan.status !== 'Closed').forEach(loan => {
                             const p = parseFloat(loan.principal);
                             const r = loan.rate ? parseFloat(loan.rate) / 100 / 12 : undefined;
                             const n = loan.tenure ? parseInt(loan.tenure, 10) : undefined;
                             
-                            if (p > 0 && r !== undefined && r > 0 && n !== undefined && n > 0) {
-                                const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-                                monthlyPayments.push({
-                                    name: loan.name,
-                                    amount: emi,
-                                    type: 'EMI',
-                                    dueDate: 'Every month'
-                                });
-                                totalMonthlyPayments += emi;
+                            if (p > 0 && r !== undefined && r > 0) {
+                                if (n !== undefined && n > 0) {
+                                    // Calculate EMI for loans with tenure
+                                    const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                                    monthlyPayments.push({
+                                        name: loan.name,
+                                        amount: emi,
+                                        type: 'EMI',
+                                        dueDate: 'Every month'
+                                    });
+                                    totalMonthlyPayments += emi;
+                                } else {
+                                    // Calculate simple interest for loans without tenure
+                                    const monthlyInterest = p * r;
+                                    simpleInterestData.push({
+                                        name: loan.name,
+                                        principal: p,
+                                        rate: loan.rate ? parseFloat(loan.rate) : 0,
+                                        interest: monthlyInterest
+                                    });
+                                    totalSimpleInterest += monthlyInterest;
+                                }
                             }
                         });
                         
@@ -451,11 +526,49 @@ export default function FinanceTab({
                                             </div>
                                         </div>
                                         
+                                        {/* Simple Monthly Interest Section */}
+                                        {simpleInterestData.length > 0 && (
+                                            <>
+                                                <Separator />
+                                                <div className="space-y-3">
+                                                    <h4 className="font-medium text-foreground">Simple Monthly Interest</h4>
+                                                    {simpleInterestData.map((item, index) => (
+                                                        <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-border bg-blue-50/50 dark:bg-blue-900/10">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 flex items-center justify-center text-xs font-medium">
+                                                                    %
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-medium text-foreground text-sm">{item.name}</p>
+                                                                    <p className="text-xs text-muted-foreground">Principal: ₹{item.principal.toLocaleString('en-IN')} @ {item.rate}%</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <p className="font-semibold text-blue-600">₹{item.interest.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+                                                                <p className="text-xs text-muted-foreground">per month</p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                    <div className="flex items-center justify-between p-3 rounded-lg bg-blue-100/50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                                                        <div>
+                                                            <p className="font-semibold text-foreground">Total Simple Interest</p>
+                                                            <p className="text-sm text-muted-foreground">Monthly interest on loans without EMI</p>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <p className="text-lg font-bold text-blue-600">₹{totalSimpleInterest.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+                                                            <p className="text-sm text-muted-foreground">per month</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
+                                        
                                         {/* Monthly Income vs Outflow Comparison */}
                                         {(() => {
                                             const totalMonthlyIncome = incomeSources.reduce((sum, source) => sum + parseFloat(source.amount), 0);
-                                            const remainingIncome = totalMonthlyIncome - totalMonthlyPayments;
-                                            const outflowPercentage = totalMonthlyIncome > 0 ? (totalMonthlyPayments / totalMonthlyIncome) * 100 : 0;
+                                            const totalOutflow = totalMonthlyPayments + totalSimpleInterest;
+                                            const remainingIncome = totalMonthlyIncome - totalOutflow;
+                                            const outflowPercentage = totalMonthlyIncome > 0 ? (totalOutflow / totalMonthlyIncome) * 100 : 0;
                                             
                                             return totalMonthlyIncome > 0 ? (
                                                 <div className="p-4 rounded-lg bg-muted/30 border border-border">
@@ -466,10 +579,20 @@ export default function FinanceTab({
                                                             <span className="font-medium text-green-600">₹{totalMonthlyIncome.toLocaleString('en-IN')}</span>
                                                         </div>
                                                         <div className="flex justify-between text-sm">
-                                                            <span className="text-muted-foreground">Monthly Outflow</span>
+                                                            <span className="text-muted-foreground">Monthly Outflow (EMI + SIP)</span>
                                                             <span className="font-medium text-orange-600">₹{totalMonthlyPayments.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                                         </div>
+                                                        {totalSimpleInterest > 0 && (
+                                                            <div className="flex justify-between text-sm">
+                                                                <span className="text-muted-foreground">Simple Interest</span>
+                                                                <span className="font-medium text-blue-600">₹{totalSimpleInterest.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                            </div>
+                                                        )}
                                                         <div className="flex justify-between text-sm pt-2 border-t">
+                                                            <span className="text-muted-foreground">Total Monthly Outflow</span>
+                                                            <span className="font-medium text-red-600">₹{totalOutflow.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                        </div>
+                                                        <div className="flex justify-between text-sm">
                                                             <span className="text-muted-foreground">Remaining Income</span>
                                                             <span className={cn("font-semibold", remainingIncome >= 0 ? "text-green-600" : "text-red-600")}>
                                                                 ₹{remainingIncome.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
@@ -610,8 +733,41 @@ export default function FinanceTab({
             <AiSuggestionSection
                 moduleName="Finance"
                 title="AI Financial Advisor"
-                description="Receive tips on managing loans, building your emergency fund, and starting investments."
-                contextData={{ loans, emergencyFund }}
+                description="Get personalized financial advice based on your complete financial profile including loans, EMIs, emergency fund, SIPs, and income."
+                showInput={true}
+                contextData={{ 
+                    loans, 
+                    emergencyFund, 
+                    emergencyFundTarget, 
+                    sips, 
+                    incomeSources,
+                    financialSummary: {
+                        totalMonthlyIncome: incomeSources.reduce((sum, source) => sum + parseFloat(source.amount), 0),
+                        totalMonthlyOutflow: loans.filter(loan => loan.status !== 'Closed').reduce((sum, loan) => {
+                            const p = parseFloat(loan.principal);
+                            const r = loan.rate ? parseFloat(loan.rate) / 100 / 12 : undefined;
+                            const n = loan.tenure ? parseInt(loan.tenure, 10) : undefined;
+                            if (p > 0 && r !== undefined && r > 0 && n !== undefined && n > 0) {
+                                const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                                return sum + emi;
+                            }
+                            return sum;
+                        }, 0) + sips.filter(sip => sip.frequency === 'Monthly').reduce((sum, sip) => sum + parseFloat(sip.amount), 0),
+                        totalSimpleMonthlyInterest: loans.filter(loan => loan.status !== 'Closed').reduce((sum, loan) => {
+                            const p = parseFloat(loan.principal);
+                            const r = loan.rate ? parseFloat(loan.rate) / 100 / 12 : undefined;
+                            const n = loan.tenure ? parseInt(loan.tenure, 10) : undefined;
+                            if (p > 0 && r !== undefined && r > 0 && (!n || n <= 0)) {
+                                return sum + (p * r);
+                            }
+                            return sum;
+                        }, 0),
+                        emergencyFundProgress: emergencyFund && emergencyFundTarget ? 
+                            (parseFloat(emergencyFund) / parseFloat(emergencyFundTarget)) * 100 : 0,
+                        totalActiveLoansPrincipal: loans.filter(loan => loan.status !== 'Closed').reduce((sum, loan) => sum + parseFloat(loan.principal), 0),
+                        totalSipInvestments: sips.reduce((sum, sip) => sum + parseFloat(sip.amount), 0)
+                    }
+                }}
             />
         </div>
     );

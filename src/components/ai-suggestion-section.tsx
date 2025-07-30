@@ -33,6 +33,17 @@ export default function AiSuggestionSection({
   const handleGetSuggestions = async () => {
     setIsLoading(true);
     setSuggestions([]);
+    
+    // Debug logging
+    if (process.env.NODE_ENV === 'development') {
+      console.log('AI Suggestion Request:', {
+        module: moduleName,
+        userQuery: userInput || 'No user query provided',
+        userInputLength: userInput?.length || 0,
+        hasContextData: !!contextData,
+      });
+    }
+    
     const result = await getModuleSuggestions({
       module: moduleName,
       context: contextData,
