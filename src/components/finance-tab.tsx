@@ -399,6 +399,151 @@ export default function FinanceTab({
                             No loans added yet. Click "Add Loan" to get started.
                         </div>
                     )}
+                    
+                    {/* Loans Summary Section */}
+                    {loans.length > 0 && (
+                        <>
+                            <Separator className="my-6" />
+                            <div className="space-y-4">
+                                <h4 className="font-semibold text-foreground">Loans Portfolio Summary</h4>
+                                {(() => {
+                                    const activeLoans = loans.filter(loan => loan.status !== 'Closed');
+                                    const closedLoans = loans.filter(loan => loan.status === 'Closed');
+                                    
+                                    let totalPrincipal = 0;
+                                    let totalRemainingPrincipal = 0;
+                                    let totalMonthlyEMI = 0;
+                                    let totalInterestPaid = 0;
+                                    let totalPrincipalPaid = 0;
+                                    let totalSimpleInterest = 0;
+                                    let totalInterestPayable = 0;
+                                    
+                                    loans.forEach(loan => {
+                                        const p = parseFloat(loan.principal);
+                                        const r = loan.rate ? parseFloat(loan.rate) / 100 / 12 : 0;
+                                        const n = loan.tenure ? parseInt(loan.tenure, 10) : 0;
+                                        const paidCount = loan.emisPaid ? parseInt(loan.emisPaid, 10) : 0;
+                                        
+                                        totalPrincipal += p;
+                                        
+                                        if (loan.status !== 'Closed' && p > 0 && r > 0) {
+                                            if (n > 0) {
+                                                // EMI-based loan
+                                                const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                                                totalMonthlyEMI += emi;
+                                                
+                                                const totalPayable = emi * n;
+                                                totalInterestPayable += (totalPayable - p);
+                                                
+                                                // Calculate amounts paid and remaining
+                                                let balance = p;
+                                                let interestPaid = 0;
+                                                let principalPaid = 0;
+                                                
+                                                for (let i = 0; i < paidCount; i++) {
+                                                    const interestPayment = balance * r;
+                                                    const principalPayment = emi - interestPayment;
+                                                    interestPaid += interestPayment;
+                                                    principalPaid += principalPayment;
+                                                    balance -= principalPayment;
+                                                }
+                                                
+                                                totalInterestPaid += interestPaid;
+                                                totalPrincipalPaid += principalPaid;
+                                                totalRemainingPrincipal += Math.max(0, balance);
+                                            } else {
+                                                // Simple interest loan
+                                                totalSimpleInterest += (p * r);
+                                                totalRemainingPrincipal += p; // Full principal remaining for simple interest
+                                            }
+                                        }
+                                    });
+                                    
+                                    return (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            {/* Portfolio Overview */}
+                                            <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                                                <h5 className="font-medium text-foreground mb-3 flex items-center gap-2">
+                                                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                                                    Portfolio Overview
+                                                </h5>
+                                                <div className="space-y-2">
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-muted-foreground">Total Loans</span>
+                                                        <span className="font-medium">{loans.length}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-muted-foreground">Active Loans</span>
+                                                        <span className="font-medium text-orange-600">{activeLoans.length}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-muted-foreground">Closed Loans</span>
+                                                        <span className="font-medium text-green-600">{closedLoans.length}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm pt-2 border-t">
+                                                        <span className="text-muted-foreground">Total Principal</span>
+                                                        <span className="font-semibold">₹{totalPrincipal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Monthly Obligations */}
+                                            <div className="p-4 rounded-lg bg-orange-50/50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800">
+                                                <h5 className="font-medium text-foreground mb-3 flex items-center gap-2">
+                                                    <div className="w-2 h-2 bg-orange-600 rounded-full"></div>
+                                                    Monthly Obligations
+                                                </h5>
+                                                <div className="space-y-2">
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-muted-foreground">Total EMI</span>
+                                                        <span className="font-medium text-orange-600">₹{totalMonthlyEMI.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-muted-foreground">Simple Interest</span>
+                                                        <span className="font-medium text-blue-600">₹{totalSimpleInterest.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm pt-2 border-t">
+                                                        <span className="text-muted-foreground">Total Monthly</span>
+                                                        <span className="font-semibold text-red-600">₹{(totalMonthlyEMI + totalSimpleInterest).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-muted-foreground">Remaining Principal</span>
+                                                        <span className="font-medium text-orange-600">₹{totalRemainingPrincipal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Payment Progress */}
+                                            <div className="p-4 rounded-lg bg-green-50/50 dark:bg-green-900/10 border border-green-200 dark:border-green-800">
+                                                <h5 className="font-medium text-foreground mb-3 flex items-center gap-2">
+                                                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                                                    Payment Progress
+                                                </h5>
+                                                <div className="space-y-2">
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-muted-foreground">Principal Paid</span>
+                                                        <span className="font-medium text-blue-600">₹{totalPrincipalPaid.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-muted-foreground">Interest Paid</span>
+                                                        <span className="font-medium text-red-600">₹{totalInterestPaid.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm pt-2 border-t">
+                                                        <span className="text-muted-foreground">Total Paid</span>
+                                                        <span className="font-semibold text-green-600">₹{(totalPrincipalPaid + totalInterestPaid).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-muted-foreground">Interest Payable</span>
+                                                        <span className="font-medium text-orange-600">₹{totalInterestPayable.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+                        </>
+                    )}
                 </CardContent>
             </Card>
 
