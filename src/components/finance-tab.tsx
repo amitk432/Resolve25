@@ -481,34 +481,110 @@ export default function FinanceTab({
                                                         <span className="font-medium text-green-600">{closedLoans.length}</span>
                                                     </div>
                                                     <div className="flex justify-between text-sm pt-2 border-t">
-                                                        <span className="text-muted-foreground">Total Principal</span>
-                                                        <span className="font-semibold">₹{totalPrincipal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                        <span className="text-muted-foreground">Total Principal (Active Loans)</span>
+                                                        <span className="font-semibold">₹{activeLoans.reduce((sum, loan) => sum + parseFloat(loan.principal), 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                                     </div>
                                                 </div>
                                             </div>
                                             
-                                            {/* Monthly Obligations */}
+                                            {/* Remaining Amounts */}
                                             <div className="p-4 rounded-lg bg-orange-50/50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-800">
                                                 <h5 className="font-medium text-foreground mb-3 flex items-center gap-2">
                                                     <div className="w-2 h-2 bg-orange-600 rounded-full"></div>
-                                                    Monthly Obligations
+                                                    Remaining Amounts
                                                 </h5>
                                                 <div className="space-y-2">
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-muted-foreground">Total EMI</span>
-                                                        <span className="font-medium text-orange-600">₹{totalMonthlyEMI.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                        <span className="text-muted-foreground">Principal Remaining (Active Loans)</span>
+                                                        <span className="font-medium text-orange-600">₹{activeLoans.reduce((sum, loan) => {
+                                                            const p = parseFloat(loan.principal);
+                                                            const r = loan.rate ? parseFloat(loan.rate) / 100 / 12 : 0;
+                                                            const n = loan.tenure ? parseInt(loan.tenure, 10) : 0;
+                                                            const paidCount = loan.emisPaid ? parseInt(loan.emisPaid, 10) : 0;
+                                                            if (p > 0 && r > 0 && n > 0 && paidCount > 0) {
+                                                                const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                                                                let balance = p;
+                                                                for (let i = 0; i < paidCount; i++) {
+                                                                    const interestPayment = balance * r;
+                                                                    const principalPayment = emi - interestPayment;
+                                                                    balance -= principalPayment;
+                                                                }
+                                                                return sum + Math.max(0, balance);
+                                                            } else if (p > 0 && r > 0 && n === 0) {
+                                                                return sum + p;
+                                                            }
+                                                            return sum + p;
+                                                        }, 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                                     </div>
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-muted-foreground">Simple Interest</span>
-                                                        <span className="font-medium text-blue-600">₹{totalSimpleInterest.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                        <span className="text-muted-foreground">Interest Remaining (Active Loans)</span>
+                                                        <span className="font-medium text-red-600">₹{activeLoans.reduce((sum, loan) => {
+                                                            const p = parseFloat(loan.principal);
+                                                            const r = loan.rate ? parseFloat(loan.rate) / 100 / 12 : 0;
+                                                            const n = loan.tenure ? parseInt(loan.tenure, 10) : 0;
+                                                            const paidCount = loan.emisPaid ? parseInt(loan.emisPaid, 10) : 0;
+                                                            if (p > 0 && r > 0 && n > 0) {
+                                                                const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                                                                const totalPayable = emi * n;
+                                                                let interestPaid = 0;
+                                                                let balance = p;
+                                                                for (let i = 0; i < paidCount; i++) {
+                                                                    const interestPayment = balance * r;
+                                                                    const principalPayment = emi - interestPayment;
+                                                                    interestPaid += interestPayment;
+                                                                    balance -= principalPayment;
+                                                                }
+                                                                const totalInterest = totalPayable - p;
+                                                                return sum + Math.max(0, totalInterest - interestPaid);
+                                                            }
+                                                            return sum;
+                                                        }, 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                                     </div>
                                                     <div className="flex justify-between text-sm pt-2 border-t">
-                                                        <span className="text-muted-foreground">Total Monthly</span>
-                                                        <span className="font-semibold text-red-600">₹{(totalMonthlyEMI + totalSimpleInterest).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
-                                                    </div>
-                                                    <div className="flex justify-between text-sm">
-                                                        <span className="text-muted-foreground">Remaining Principal</span>
-                                                        <span className="font-medium text-orange-600">₹{totalRemainingPrincipal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                                                        <span className="text-muted-foreground">Total Remaining (Principal + Interest)</span>
+                                                        <span className="font-semibold text-red-600">₹{(() => {
+                                                            const principal = activeLoans.reduce((sum, loan) => {
+                                                                const p = parseFloat(loan.principal);
+                                                                const r = loan.rate ? parseFloat(loan.rate) / 100 / 12 : 0;
+                                                                const n = loan.tenure ? parseInt(loan.tenure, 10) : 0;
+                                                                const paidCount = loan.emisPaid ? parseInt(loan.emisPaid, 10) : 0;
+                                                                if (p > 0 && r > 0 && n > 0 && paidCount > 0) {
+                                                                    const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                                                                    let balance = p;
+                                                                    for (let i = 0; i < paidCount; i++) {
+                                                                        const interestPayment = balance * r;
+                                                                        const principalPayment = emi - interestPayment;
+                                                                        balance -= principalPayment;
+                                                                    }
+                                                                    return sum + Math.max(0, balance);
+                                                                } else if (p > 0 && r > 0 && n === 0) {
+                                                                    return sum + p;
+                                                                }
+                                                                return sum + p;
+                                                            }, 0);
+                                                            const interest = activeLoans.reduce((sum, loan) => {
+                                                                const p = parseFloat(loan.principal);
+                                                                const r = loan.rate ? parseFloat(loan.rate) / 100 / 12 : 0;
+                                                                const n = loan.tenure ? parseInt(loan.tenure, 10) : 0;
+                                                                const paidCount = loan.emisPaid ? parseInt(loan.emisPaid, 10) : 0;
+                                                                if (p > 0 && r > 0 && n > 0) {
+                                                                    const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                                                                    const totalPayable = emi * n;
+                                                                    let interestPaid = 0;
+                                                                    let balance = p;
+                                                                    for (let i = 0; i < paidCount; i++) {
+                                                                        const interestPayment = balance * r;
+                                                                        const principalPayment = emi - interestPayment;
+                                                                        interestPaid += interestPayment;
+                                                                        balance -= principalPayment;
+                                                                    }
+                                                                    const totalInterest = totalPayable - p;
+                                                                    return sum + Math.max(0, totalInterest - interestPaid);
+                                                                }
+                                                                return sum;
+                                                            }, 0);
+                                                            return (principal + interest).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+                                                        })()}</span>
                                                     </div>
                                                 </div>
                                             </div>
