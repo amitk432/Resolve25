@@ -17,14 +17,14 @@ export default function Header() {
   const { user, signOut } = useAuth();
 
   return (
-    <header className="flex h-16 items-center border-b border-border/50 bg-background/95 backdrop-blur-md px-4 md:px-6 sticky top-0 z-50 shadow-sm">
-      <div className="flex items-center gap-3">
-        <div className="bg-gradient-primary p-2 rounded-lg shadow-md">
-          <Target className="h-5 w-5 text-white" />
+    <header className="flex h-24 items-center border-b-2 border-primary/20 bg-gradient-to-r from-background via-background/95 to-background/90 backdrop-blur-md px-6 md:px-8 sticky top-0 z-50 shadow-xl">
+      <div className="flex items-center gap-6">
+        <div className="bg-gradient-to-br from-primary to-accent p-4 rounded-2xl shadow-xl ring-2 ring-primary/20">
+          <Target className="h-10 w-10 text-white drop-shadow-sm" />
         </div>
-        <div>
-            <h1 className="text-base sm:text-lg font-bold tracking-tight text-foreground">Resolve 25</h1>
-            <p className="text-xs text-muted-foreground hidden sm:block">Your personal dashboard for achieving your goals.</p>
+        <div className="flex flex-col">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Resolve 25</h1>
+            <p className="text-base text-muted-foreground hidden sm:block font-semibold tracking-wide">Your AI-powered Life OS</p>
         </div>
       </div>
       <div className="ml-auto flex items-center gap-4">

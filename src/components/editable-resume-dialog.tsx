@@ -75,41 +75,15 @@ export default function EditableResumeDialog({
   const handleDownload = async () => {
     setIsDownloading(true);
     try {
-      // Find the resume preview element
-      const element = document.querySelector('[data-resume-preview]') as HTMLElement;
-      if (!element) {
-        console.error('Resume preview element not found');
-        toast({
-          title: "Download Failed",
-          description: "Resume preview not found. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Dynamically import html2pdf only on client side
-      const html2pdf = (await import('html2pdf.js')).default;
+      // Use the high-quality PDF generator instead of html2pdf
+      const { HighQualityPDFGenerator } = await import('@/lib/pdf-generator');
       
-      const fileName = `resume-${jobApplication?.company || 'download'}.pdf`;
-      
-      await html2pdf()
-        .set({
-          margin: 0,
-          filename: fileName,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { 
-            scale: 2,
-            useCORS: true,
-            allowTaint: true 
-          },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        })
-        .from(element)
-        .save();
+      const fileName = `${resumeData.contactInfo?.name?.replace(/\s+/g, '_') || 'Resume'}_${jobApplication?.company?.replace(/\s+/g, '_') || 'Download'}.pdf`;
+      await HighQualityPDFGenerator.downloadResume(resumeData, fileName);
 
       toast({
         title: "Resume Downloaded",
-        description: `Job-specific resume for ${jobApplication.company} has been downloaded successfully.`,
+        description: `Job-specific resume for ${jobApplication?.company || 'the position'} has been downloaded successfully.`,
       });
       onClose();
     } catch (error) {

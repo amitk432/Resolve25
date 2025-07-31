@@ -5,6 +5,7 @@ import { useState } from 'react';
 import type { JobApplication, ResumeData } from '@/lib/types';
 import type { SuggestedJobApplication } from '@/ai/flows/generate-job-suggestions';
 import { getAIJobSuggestions } from '@/app/actions';
+import { useUserPreferences } from '@/contexts/user-preferences-context';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,20 +17,23 @@ import {
   DialogFooter,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { BrainCircuit, Sparkles, Loader2, Plus, Briefcase, MapPin, Clock, IndianRupee, ListChecks, Star, LinkIcon } from 'lucide-react';
+import { BrainCircuit, Sparkles, Loader2, Plus, Briefcase, MapPin, Clock, IndianRupee, ListChecks, Star, Globe } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 interface AiJobSuggestionDialogProps {
   resumeData: ResumeData | null | undefined;
   onAddApplication: (application: Omit<JobApplication, 'status'>) => void;
   children: React.ReactNode;
+  existingApplications?: JobApplication[];
 }
 
-export default function AiJobSuggestionDialog({ resumeData, onAddApplication, children }: AiJobSuggestionDialogProps) {
+export default function AiJobSuggestionDialog({ resumeData, onAddApplication, children, existingApplications = [] }: AiJobSuggestionDialogProps) {
   const [open, setOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<SuggestedJobApplication[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { preferences } = useUserPreferences(); // Add user preferences
   const { toast } = useToast();
 
   const handleGenerate = async () => {
@@ -43,7 +47,11 @@ export default function AiJobSuggestionDialog({ resumeData, onAddApplication, ch
     }
     setIsLoading(true);
     setSuggestions([]);
-    const result = await getAIJobSuggestions({ resume: resumeData });
+    const result = await getAIJobSuggestions({ 
+      resume: resumeData, 
+      userPreferences: preferences,
+      existingApplications: existingApplications
+    });
     setIsLoading(false);
 
     if (result && 'error' in result) {
@@ -87,9 +95,20 @@ export default function AiJobSuggestionDialog({ resumeData, onAddApplication, ch
           <DialogTitle className="flex items-center gap-2 text-lg">
             <BrainCircuit className="text-primary h-5 w-5" />
             AI Job Suggestions
+            {preferences.jobLocationPreference === 'worldwide' && (
+              <Badge variant="secondary" className="ml-2">
+                <Globe className="h-3 w-3 mr-1" />
+                Global Search
+              </Badge>
+            )}
           </DialogTitle>
           <DialogDescription className="text-sm">
-            AI-curated job matches based on your resume
+            AI-curated job matches based on your resume and preferences
+            {preferences.jobLocationPreference === 'worldwide' && (
+              <span className="block mt-1 text-blue-600">
+                🌍 Searching worldwide for international opportunities with visa sponsorship
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
         <div className="flex-grow overflow-y-auto pr-4 -mr-4">
@@ -119,19 +138,44 @@ export default function AiJobSuggestionDialog({ resumeData, onAddApplication, ch
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-3 pt-0">
-                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                            <div className="flex items-center gap-1"><MapPin className="h-3 w-3"/> {job.location}</div>
-                            <div className="flex items-center gap-1"><Clock className="h-3 w-3"/> {job.jobType}</div>
-                            {job.salaryRange && <div className="flex items-center gap-1"><IndianRupee className="h-3 w-3"/> {job.salaryRange}</div>}
-                            {job.applyLink && (
-                                <div className="flex items-center gap-1">
-                                    <LinkIcon className="h-3 w-3" />
-                                    <a href={job.applyLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                                        Apply
-                                    </a>
-                                </div>
+                        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1 whitespace-nowrap">
+                              <MapPin className="h-3 w-3 flex-shrink-0"/> 
+                              <span className="truncate">{job.location}</span>
+                              {job.country && job.country !== 'India' && (
+                                <Badge variant="secondary" className="ml-1 text-xs flex-shrink-0">
+                                  🌍 {job.country}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1 whitespace-nowrap"><Clock className="h-3 w-3 flex-shrink-0"/> {job.jobType}</div>
+                            {job.workArrangement && (
+                              <div className="flex items-center gap-1 whitespace-nowrap">
+                                <Briefcase className="h-3 w-3 flex-shrink-0"/> {job.workArrangement}
+                              </div>
+                            )}
+                            {job.salaryRange && (
+                              <div className="flex items-center gap-1 whitespace-nowrap">
+                                <IndianRupee className="h-3 w-3 flex-shrink-0"/> 
+                                <span className="truncate">{job.salaryRange}</span>
+                              </div>
                             )}
                         </div>
+                        
+                        {/* Visa Sponsorship Information */}
+                        {job.visaSponsorship?.available && (
+                          <div className="p-2 bg-green-50 dark:bg-green-950 rounded border border-green-200 dark:border-green-800">
+                            <p className="text-xs text-green-700 dark:text-green-300 font-medium">
+                              ✅ Visa Sponsorship Available
+                              {job.visaSponsorship.types && (
+                                <span className="block mt-1">
+                                  Types: {job.visaSponsorship.types.join(', ')}
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        )}
+                        
                         <p className="text-xs"><strong className="text-foreground">Match reason:</strong> {job.reasoning}</p>
                         
                         {(job.keyResponsibilities || job.requiredSkills) && (

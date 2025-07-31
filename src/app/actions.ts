@@ -95,7 +95,7 @@ export async function getParsedResume(input: ParseResumeInput): Promise<ResumeDa
   }
 }
 
-export async function getAIJobSuggestions(input: { resume: any }) {
+export async function getAIJobSuggestions(input: { resume: any; userPreferences?: any; existingApplications?: any[] }) {
   try {
     const result = await generateJobSuggestions(input);
     return result;

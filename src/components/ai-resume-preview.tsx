@@ -74,55 +74,22 @@ const AiResumePreview: React.FC<AiResumePreviewProps> = ({
       return;
     }
 
-    // Find the resume preview element
-    const element = document.querySelector('[data-ai-resume-preview]') as HTMLElement;
-    if (!element) {
-      console.error("Resume preview element not found.");
-      toast({
-        title: "Error", 
-        description: "Resume preview not found. Please ensure the resume is visible.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     try {
-      // Dynamically import html2pdf only on client side
-      const html2pdf = (await import('html2pdf.js')).default;
+      // Use the high-quality PDF generator instead of html2pdf
+      const { HighQualityPDFGenerator } = await import('@/lib/pdf-generator');
       
-      html2pdf()
-        .set({
-          margin: 0,
-          filename: `${resumeData.contactInfo?.name || 'AI-Generated-Resume'}.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { 
-            scale: 2,
-            useCORS: true,
-            allowTaint: true 
-          },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        })
-        .from(element)
-        .save()
-        .then(() => {
-          toast({
-            title: "Success",
-            description: "Resume downloaded successfully!"
-          });
-        })
-        .catch((error: any) => {
-          console.error("Error generating PDF:", error);
-          toast({
-            title: "Error",
-            description: "Failed to generate PDF. Please try again.",
-            variant: "destructive"
-          });
-        });
-    } catch (error) {
-      console.error("Error loading html2pdf:", error);
+      const fileName = `${resumeData.contactInfo?.name?.replace(/\s+/g, '_') || 'AI_Generated'}_Resume.pdf`;
+      await HighQualityPDFGenerator.downloadResume(resumeData, fileName);
+
       toast({
-        title: "Error",
-        description: "Failed to load PDF generator. Please try again.",
+        title: "Download Complete",
+        description: "Your AI-generated resume has been downloaded successfully.",
+      });
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      toast({
+        title: "Download Failed",
+        description: "Failed to download the resume. Please try again.",
         variant: "destructive"
       });
     }

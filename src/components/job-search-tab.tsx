@@ -16,14 +16,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Trash2, Plus, FileText, Download, Sparkles, ChevronDown, Clock, IndianRupee, Star, ListChecks, LinkIcon, MapPin, Rocket, Mail, CheckCircle, MoreVertical } from 'lucide-react';
+import { Trash2, Plus, FileText, Download, Sparkles, ChevronDown, Clock, IndianRupee, Star, ListChecks, LinkIcon, MapPin, Rocket, Mail, CheckCircle, MoreVertical, Wand2 } from 'lucide-react';
 import AiSuggestionSection from './ai-suggestion-section';
 import ResumeBuilderDialog from './resume-builder-dialog';
 // ...existing code...
 // ...existing code...
 import JobSpecificResumeDownload from './job-specific-resume-download';
-import html2canvas from 'html2canvas';
-import jspdf from 'jspdf';
+import { HighQualityPDFGenerator } from '@/lib/pdf-generator';
 import AiJobSuggestionDialog from './ai-job-suggestion-dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import { Badge } from './ui/badge';
@@ -35,6 +34,7 @@ import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Briefcase } from 'lucide-react';
+import CustomResumeGeneratorDialog from './custom-resume-generator-dialog';
 
 interface JobSearchTabProps {
     applications?: JobApplication[];
@@ -149,55 +149,19 @@ export default function JobSearchTab({
             return;
         }
 
-        // Find the resume preview element
-        const element = document.querySelector('[data-resume-preview]') as HTMLElement;
-        if (!element) {
-            console.error("Resume preview element not found.");
-            toast({
-                title: "Error", 
-                description: "Resume preview not found. Please ensure the resume is visible.",
-                variant: "destructive"
-            });
-            return;
-        }
-
         try {
-            // Dynamically import html2pdf only on client side
-            const html2pdf = (await import('html2pdf.js')).default;
+            const fileName = `${data.resume.contactInfo?.name?.replace(/\s+/g, '_') || 'Resume'}.pdf`;
+            await HighQualityPDFGenerator.downloadResume(data.resume, fileName);
             
-            html2pdf()
-                .set({
-                    margin: 0,
-                    filename: `${data.resume.contactInfo?.name || 'Resume'}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { 
-                        scale: 2,
-                        useCORS: true,
-                        allowTaint: true 
-                    },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                })
-                .from(element)
-                .save()
-                .then(() => {
-                    toast({
-                        title: "Success",
-                        description: "Resume downloaded successfully!"
-                    });
-                })
-                .catch((error: any) => {
-                    console.error("Error generating PDF:", error);
-                    toast({
-                        title: "Error",
-                        description: "Failed to generate PDF. Please try again.",
-                        variant: "destructive"
-                    });
-                });
+            toast({
+                title: "Success",
+                description: "Resume downloaded successfully!"
+            });
         } catch (error) {
-            console.error("Error loading html2pdf:", error);
+            console.error("Error generating PDF:", error);
             toast({
                 title: "Error",
-                description: "Failed to load PDF generator. Please try again.",
+                description: "Failed to generate PDF. Please try again.",
                 variant: "destructive"
             });
         }
@@ -362,7 +326,11 @@ export default function JobSearchTab({
                 <p className="mt-1 text-sm md:text-base text-muted-foreground">Manage your job search pipeline from start to finish.</p>
               </div>
               <div className="flex items-center gap-2">
-                <AiJobSuggestionDialog resumeData={data.resume} onAddApplication={onAddApplication}>
+                <AiJobSuggestionDialog 
+                  resumeData={data.resume} 
+                  onAddApplication={onAddApplication}
+                  existingApplications={data.jobApplications || []}
+                >
                     <Button variant="outline" size="icon">
                         <Sparkles className="h-4 w-4" />
                     </Button>
@@ -493,17 +461,18 @@ export default function JobSearchTab({
                     <TableHeader>
                         <TableRow>
                             <TableHead className="w-12"></TableHead>
-                            <TableHead>Company</TableHead>
-                            <TableHead>Role</TableHead>
-                            <TableHead className="hidden sm:table-cell">Date Applied</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead className="text-center">Actions</TableHead>
+                            <TableHead className="w-[25%] lg:w-[20%]">Company</TableHead>
+                            <TableHead className="w-[25%] lg:w-[20%]">Role</TableHead>
+                            <TableHead className="hidden lg:table-cell lg:w-[15%]">Location</TableHead>
+                            <TableHead className="hidden sm:table-cell w-[20%] lg:w-[15%]">Date Applied</TableHead>
+                            <TableHead className="w-[15%]">Status</TableHead>
+                            <TableHead className="text-center w-[15%]">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {applications.length === 0 ? (
                              <TableRow>
-                                <TableCell colSpan={7} className="text-center text-muted-foreground h-24">No applications added yet.</TableCell>
+                                <TableCell colSpan={8} className="text-center text-muted-foreground h-24">No applications added yet.</TableCell>
                              </TableRow>
                         ) : (
                             applications.map((app, index) => (
@@ -540,11 +509,19 @@ export default function JobSearchTab({
                                             </TooltipProvider>
                                         </TableCell>
                                         <TableCell>{app.role}</TableCell>
+                                        <TableCell className="hidden lg:table-cell">
+                                            <div className="flex items-center gap-1 text-muted-foreground">
+                                                <MapPin className="h-3 w-3" />
+                                                <span className="text-sm">{app.location || 'N/A'}</span>
+                                            </div>
+                                        </TableCell>
                                         <TableCell className="hidden sm:table-cell">
                                             {app.status === 'Need to Apply' ? (
-                                                <span className="text-muted-foreground italic">Pending</span>
+                                                <span className="text-muted-foreground italic text-sm">Pending</span>
                                             ) : (
-                                                format(parseISO(app.date), 'dd-MMMM-yyyy')
+                                                <span className="text-sm font-medium">
+                                                    {format(parseISO(app.date), 'dd-MMM-yyyy')}
+                                                </span>
                                             )}
                                         </TableCell>
                                         <TableCell>
@@ -552,7 +529,7 @@ export default function JobSearchTab({
                                                 <Badge variant="outline">Need to Apply</Badge>
                                             ) : (
                                                 <Select value={app.status} onValueChange={(value: JobStatus) => onUpdateStatus(index, value)}>
-                                                    <SelectTrigger className="w-[150px]">
+                                                    <SelectTrigger className="w-[120px]">
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -708,10 +685,18 @@ export default function JobSearchTab({
                 <div className="mt-8">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="text-base sm:text-lg font-bold text-foreground">Resume Preview</h3>
-                        <Button onClick={handleDownloadPdf}>
-                            <Download className="mr-2 h-4 w-4" />
-                            Download PDF
-                        </Button>
+                        <div className="flex gap-2">
+                            <CustomResumeGeneratorDialog originalResumeData={data.resume}>
+                                <Button variant="outline" size="sm">
+                                    <Wand2 className="mr-2 h-4 w-4" />
+                                    Custom Resume
+                                </Button>
+                            </CustomResumeGeneratorDialog>
+                            <Button onClick={handleDownloadPdf}>
+                                <Download className="mr-2 h-4 w-4" />
+                                Download PDF
+                            </Button>
+                        </div>
                     </div>
                     <div 
                         ref={resumeRef} 

@@ -305,7 +305,7 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
             </div>
 
              <div className="mt-2">
-                <Card className="bg-white dark:bg-card border-border">
+                <Card className="bg-card border-border">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="text-xs sm:text-sm md:text-base font-medium text-primary flex items-center gap-2">
                             <Brain className="h-5 w-5 text-primary" />
@@ -321,7 +321,7 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
                     <CardContent className="space-y-2">
                         {aiCriticalSteps.length > 0 ? (
                             aiCriticalSteps.map((step, index) => (
-                               <div key={index} className="bg-muted/30 p-2 rounded-md flex items-start gap-2">
+                               <div key={index} className="bg-background border border-border p-3 rounded-md flex items-start gap-2">
                                     <ArrowRight className="text-primary h-3 w-3 flex-shrink-0 mt-0.5" />
                                     <span className="text-xs sm:text-sm font-medium text-foreground leading-tight">{step.text}</span>
                                </div>
@@ -330,13 +330,13 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
                             // Fallback to static critical tasks if AI fails
                             criticalTasks.length > 0 ? (
                                 criticalTasks.map((task, index) => (
-                                   <div key={index} className="bg-muted/30 p-2 rounded-md flex items-start gap-2">
+                                   <div key={index} className="bg-background border border-border p-3 rounded-md flex items-start gap-2">
                                         <ArrowRight className="text-primary h-3 w-3 flex-shrink-0 mt-0.5" />
                                         <span className="text-xs sm:text-sm text-foreground leading-tight">{task.text}</span>
                                    </div>
                                 ))
                             ) : (
-                                 <div className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 p-2 rounded-md flex items-center">
+                                 <div className="bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 p-3 rounded-md flex items-center">
                                     <CheckCircle className="mr-2 h-3 w-3"/>
                                     <span className="text-xs sm:text-sm font-medium">All critical tasks completed!</span>
                                 </div>

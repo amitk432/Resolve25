@@ -30,6 +30,7 @@ import { format, isToday, isPast } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import AiSuggestionSection from '@/components/ai-suggestion-section';
+import { useUserPreferences } from '@/contexts/user-preferences-context';
 
 interface DailyTasksTabProps {
   data: AppData;
@@ -60,13 +61,14 @@ const DailyTasksTab: React.FC<DailyTasksTabProps> = ({ data, onUpdate }) => {
   }>>([]);
   const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set([format(new Date(), 'yyyy-MM-dd')]));
   const { toast } = useToast();
+  const { preferences } = useUserPreferences();
 
   const form = useForm<z.infer<typeof taskSchema>>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
       title: '',
       description: '',
-      category: 'Personal',
+      category: preferences.workProfileEnabled ? 'Work' : 'Personal',
       priority: 'Medium',
       dueDate: new Date().toISOString().split('T')[0],
     },
@@ -217,14 +219,20 @@ const DailyTasksTab: React.FC<DailyTasksTabProps> = ({ data, onUpdate }) => {
         title: values.title,
         description: values.description,
         completed: false,
-        category: values.category || 'Personal',
+        category: values.category || (preferences.workProfileEnabled ? 'Work' : 'Personal'),
         priority: values.priority || 'Medium',
         dueDate: values.dueDate + 'T00:00:00.000Z',
         source: 'manual',
       });
     });
     
-    form.reset();
+    form.reset({
+      title: '',
+      description: '',
+      category: preferences.workProfileEnabled ? 'Work' : 'Personal',
+      priority: 'Medium',
+      dueDate: new Date().toISOString().split('T')[0],
+    });
     setDialogOpen(false);
     toast({
       title: "Task added!",

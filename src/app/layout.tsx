@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/hooks/use-auth';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
+import { UserPreferencesProvider } from '@/contexts/user-preferences-context';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -44,11 +45,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <main className="flex-grow">
-              {children}
-            </main>
-          </AuthProvider>
+          <UserPreferencesProvider>
+            <AuthProvider>
+              <main className="flex-grow">
+                {children}
+              </main>
+            </AuthProvider>
+          </UserPreferencesProvider>
           <Toaster />
         </ThemeProvider>
       </body>

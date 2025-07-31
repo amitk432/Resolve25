@@ -7,13 +7,15 @@ import { supabase } from '@/lib/supabase';
 import { produce } from 'immer';
 import type { AppData } from '@/lib/types';
 import { initialData } from '@/lib/data';
-import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, LogOut, ListTodo, Globe, Menu } from 'lucide-react';
+import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, LogOut, ListTodo, Globe, Menu, Settings, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { EditProfileDialog } from './edit-profile-dialog';
+import ProfilePersonalizationDialog from '@/components/profile-personalization-dialog';
+import { useUserPreferences } from '@/contexts/user-preferences-context';
 import { useToast } from '@/hooks/use-toast';
 import { ThemeSwitcher } from './theme-switcher';
 import { cn } from '@/lib/utils';
@@ -52,6 +54,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isProfileDialogOpen, setProfileDialogOpen] = useState(false);
   const [data, setData] = useState<AppData | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Add user preferences hook
+  const { preferences, updatePreferences } = useUserPreferences();
 
   // Load user data with caching
   useEffect(() => {
@@ -252,8 +257,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => setProfileDialogOpen(true)}>
+                    <User className="mr-2 h-4 w-4" />
                     Edit Profile
                   </DropdownMenuItem>
+                  
+                  {/* Profile Personalization Option */}
+                  <ProfilePersonalizationDialog
+                    preferences={preferences}
+                    onSave={updatePreferences}
+                    trigger={
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Profile Personalization</span>
+                      </DropdownMenuItem>
+                    }
+                  />
+                  
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut}>
                     <LogOut className="mr-2 h-4 w-4" />

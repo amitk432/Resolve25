@@ -1,272 +1,553 @@
+'use client';
 
-import jsPDF from 'jspdf';
+import { PDFDocument, PDFPage, rgb, StandardFonts } from 'pdf-lib';
 import type { ResumeData } from './types';
 
-export function generateResumePDF(resumeData: ResumeData): jsPDF {
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  pdf.setFont('times', 'normal');
-  pdf.setFontSize(11);
-  let yPosition = 25.4; // 25.4mm top padding
-  const leftMargin = 25.4; // 25.4mm left
-  const rightMargin = 210 - 25.4; // 25.4mm right
-  const lineHeight = 5.1; // 1.3 line height for 11pt
-  const sectionSpacing = 7; // 18pt section gap
+interface PDFGeneratorOptions {
+  resumeData: ResumeData;
+  fileName?: string;
+}
 
-  // Helper to add an icon (SVG/PNG) next to text
-  const addIcon = (iconData: string, x: number, y: number, width: number, height: number) => {
-    pdf.addImage(iconData, 'PNG', x, y, width, height);
+export class HighQualityPDFGenerator {
+  private doc: PDFDocument;
+  private currentPage: PDFPage;
+  private currentY: number;
+  private margin = {
+    top: 50,
+    bottom: 50,
+    left: 50,
+    right: 50
   };
+  private pageWidth: number;
+  private pageHeight: number;
+  private fonts: any = {};
 
-  // Helper for section headings
-  const addSectionHeading = (title: string) => {
-    yPosition += sectionSpacing;
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(0, 86, 179);
-    pdf.setFontSize(12);
-    pdf.text(title.toUpperCase(), leftMargin, yPosition);
-    pdf.setDrawColor(186, 206, 246);
-    pdf.setLineWidth(0.57);
-    pdf.line(leftMargin, yPosition + 2, rightMargin, yPosition + 2); // Underline
-    yPosition += 6.5; // Tight gap after heading for pixel-perfect look
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(34, 34, 34);
-    pdf.setFontSize(11);
-  };
-
-  // Header: Name centered, bold, uppercase, 18pt
-  if (resumeData?.contactInfo?.name) {
-    pdf.setFont('times', 'bold');
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFontSize(18);
-    const nameText = resumeData.contactInfo.name.toUpperCase();
-    const nameWidth = pdf.getTextWidth(nameText);
-    const nameX = (210 - nameWidth) / 2;
-    pdf.text(nameText, nameX, yPosition);
-    yPosition += 8;
-    pdf.setFontSize(11);
-    pdf.setFont('times', 'normal');
-    pdf.setTextColor(51, 51, 51); // #333
-    // Contact info centered, 11pt, line height 1.4
-    let contactY = yPosition;
-    const contactLines = [];
-    let contactLine = '';
-    if (resumeData.contactInfo.phone) contactLine += resumeData.contactInfo.phone;
-    if (resumeData.contactInfo.email) contactLine += (contactLine ? ' | ' : '') + resumeData.contactInfo.email;
-    if (contactLine) contactLines.push(contactLine);
-    if (resumeData.contactInfo.location) contactLines.push(resumeData.contactInfo.location);
-    let socialLine = '';
-    if (resumeData.contactInfo.linkedin) socialLine += 'LinkedIn: ' + resumeData.contactInfo.linkedin.replace('https://', '').replace('http://', '');
-    if (resumeData.contactInfo.linkedin && resumeData.contactInfo.github) socialLine += ' | ';
-    if (resumeData.contactInfo.github) socialLine += 'GitHub: ' + resumeData.contactInfo.github.replace('https://', '').replace('http://', '');
-    if (socialLine) contactLines.push(socialLine);
-    contactLines.forEach(line => {
-      const lineWidth = pdf.getTextWidth(line);
-      const lineX = (210 - lineWidth) / 2;
-      pdf.text(line, lineX, contactY);
-      contactY += 6.5; // 1.4 line height for 11pt
-    });
-    yPosition = contactY + 6; // 20pt bottom margin
-    pdf.setTextColor(0, 0, 0);
+  constructor() {
+    this.doc = null as any;
+    this.currentPage = null as any;
+    this.currentY = 0;
+    this.pageWidth = 0;
+    this.pageHeight = 0;
   }
 
-  // Contact Info with PNG/SVG icons for pixel-perfect output
-  const contactInfo = [];
-  // Define base64 PNGs for icons (replace these with your actual base64 PNGs)
-  const phoneIcon = '';
-  const emailIcon = '';
-  const locationIcon = '';
-  const linkedinIcon = '';
-  const githubIcon = '';
-  if (resumeData?.contactInfo?.phone) contactInfo.push({ icon: phoneIcon, value: resumeData.contactInfo.phone });
-  if (resumeData?.contactInfo?.email) contactInfo.push({ icon: emailIcon, value: resumeData.contactInfo.email });
-  if (resumeData?.contactInfo?.location) contactInfo.push({ icon: locationIcon, value: resumeData.contactInfo.location });
-  if (resumeData?.contactInfo?.linkedin) {
-    const linkedinUsername = resumeData.contactInfo.linkedin.replace('https://www.linkedin.com/in/', '').replace('linkedin.com/in/', '');
-    contactInfo.push({ icon: linkedinIcon, value: linkedinUsername });
+  async initialize() {
+    this.doc = await PDFDocument.create();
+    this.currentPage = this.doc.addPage();
+    const { width, height } = this.currentPage.getSize();
+    this.pageWidth = width;
+    this.pageHeight = height;
+    this.currentY = height - this.margin.top;
+
+    // Load fonts
+    this.fonts = {
+      regular: await this.doc.embedFont(StandardFonts.Helvetica),
+      bold: await this.doc.embedFont(StandardFonts.HelveticaBold),
+      italic: await this.doc.embedFont(StandardFonts.HelveticaOblique),
+      boldItalic: await this.doc.embedFont(StandardFonts.HelveticaBoldOblique),
+    };
   }
-  if (resumeData?.contactInfo?.github) {
-    const githubUsername = resumeData.contactInfo.github.replace(/^(https?:\/\/)?(www\.)?github\.com\//, '');
-    contactInfo.push({ icon: githubIcon, value: githubUsername });
+
+  private checkPageSpace(requiredHeight: number): void {
+    if (this.currentY - requiredHeight < this.margin.bottom) {
+      this.addNewPage();
+    }
   }
-  if (contactInfo.length > 0) {
-    // Center contact row, 120mm wide
-    pdf.setTextColor(68, 68, 68);
-    pdf.setFontSize(11);
-    let totalWidth = 0;
-    contactInfo.forEach((item) => {
-      totalWidth += (item.icon ? 7 : 0) + pdf.getTextWidth(item.value) + 10;
-    });
-    let contactX = (210 - totalWidth) / 2;
-    contactInfo.forEach((item, idx) => {
-      if (item.icon) {
-        addIcon(item.icon, contactX, yPosition - 2, 5.5, 5.5); // Adjust y for vertical alignment
-        contactX += 7; // icon width + gap
+
+  private addNewPage(): void {
+    this.currentPage = this.doc.addPage();
+    this.currentY = this.pageHeight - this.margin.top;
+  }
+
+  private drawText(text: string, x: number, y: number, options: any = {}): number {
+    const {
+      font = this.fonts.regular,
+      size = 11,
+      color = rgb(0, 0, 0),
+      maxWidth = this.pageWidth - this.margin.left - this.margin.right,
+      align = 'left'
+    } = options;
+
+    // Handle text wrapping with proper word breaks
+    const words = text.split(' ');
+    let lines = [];
+    let currentLine = '';
+
+    for (const word of words) {
+      const testLine = currentLine + (currentLine ? ' ' : '') + word;
+      const textWidth = font.widthOfTextAtSize(testLine, size);
+      
+      if (textWidth <= maxWidth) {
+        currentLine = testLine;
+      } else {
+        if (currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          // Handle very long words
+          lines.push(word);
+          currentLine = '';
+        }
       }
-      pdf.setFont('helvetica', 'normal');
-      pdf.text(item.value, contactX, yPosition + 3); // Adjust y for vertical alignment
-      contactX += pdf.getTextWidth(item.value) + 10;
-    });
-    yPosition += 12; // More spacing for pixel-perfect look
-    pdf.setTextColor(34, 34, 34);
-    pdf.setFontSize(11);
-    pdf.setFont('helvetica', 'normal');
-  }
+    }
+    if (currentLine) lines.push(currentLine);
 
-  // Summary
-  if (resumeData?.summary?.text) {
-    addSectionHeading('Professional Summary');
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(11);
-    pdf.setTextColor(34, 34, 34);
-    const summaryLines = pdf.splitTextToSize(resumeData.summary.text, rightMargin - leftMargin);
-    pdf.text(summaryLines, leftMargin, yPosition);
-    yPosition += summaryLines.length * 6.5 + 2; // 1.4 line height, tight gap after summary
-  }
-
-  // Skills
-  if (resumeData?.skills && Object.keys(resumeData.skills).length > 0) {
-    addSectionHeading('Technical Skills');
-    Object.entries(resumeData.skills).forEach(([category, skills]) => {
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(11);
-      pdf.setTextColor(34, 86, 179);
-      pdf.text(`${category}:`, leftMargin, yPosition);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(11);
-      pdf.setTextColor(34, 34, 34);
-      const skillsText = ` ${skills}`;
-      const categoryWidth = pdf.getTextWidth(`${category}:`);
-      pdf.text(skillsText, leftMargin + categoryWidth, yPosition);
-      yPosition += 6.5;
-    });
-    yPosition += 2; // Tight gap after skills
-  }
-
-  // Experience
-  if (resumeData?.workExperience && resumeData.workExperience.length > 0) {
-    addSectionHeading('Professional Experience');
-    resumeData.workExperience.forEach((exp: any, index: number) => {
-      if (yPosition > 250) {
-        pdf.addPage();
-        yPosition = 25.4;
+    // Draw each line with proper spacing
+    let currentY = y;
+    for (let i = 0; i < lines.length; i++) {
+      this.checkPageSpace(size + 4);
+      
+      let drawX = x;
+      if (align === 'center') {
+        const lineWidth = font.widthOfTextAtSize(lines[i], size);
+        drawX = x + (maxWidth - lineWidth) / 2;
+      } else if (align === 'right') {
+        const lineWidth = font.widthOfTextAtSize(lines[i], size);
+        drawX = x + maxWidth - lineWidth;
       }
-      // Pixel-perfect layout: left for role/company, right for date range
-      pdf.setFont('times', 'bold');
-      pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(12);
-      pdf.text(exp.role || 'Role Not Specified', leftMargin, yPosition);
-      pdf.setFontSize(11);
-      pdf.setFont('times', 'italic');
-      pdf.text(`${exp.company || 'Company'} | ${exp.location || 'Location'}`, leftMargin, yPosition + 6);
-      pdf.setFont('times', 'bold');
-      let startDateStr = exp.startDate ? new Date(exp.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Present';
-      let endDateStr = exp.isCurrent ? 'Present' : (exp.endDate ? new Date(exp.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Present');
-      const dateRange = `${startDateStr} - ${endDateStr}`;
-      const dateWidth = pdf.getTextWidth(dateRange);
-      pdf.text(dateRange, rightMargin - dateWidth, yPosition);
-      yPosition += 12; // 12pt gap after entry
-      pdf.setFont('times', 'normal');
+      
+      this.currentPage.drawText(lines[i], {
+        x: drawX,
+        y: currentY,
+        size,
+        font,
+        color
+      });
+      
+      currentY -= (size + 4);
+    }
+
+    return currentY - 8; // Return the new Y position
+  }
+
+  private drawSectionHeader(title: string): void {
+    this.checkPageSpace(25);
+    
+    // Draw title
+    this.currentPage.drawText(title.toUpperCase(), {
+      x: this.margin.left,
+      y: this.currentY,
+      size: 12,
+      font: this.fonts.bold,
+      color: rgb(0, 0.34, 0.7) // Blue color #0056b3
+    });
+
+    // Draw underline
+    this.currentPage.drawLine({
+      start: { x: this.margin.left, y: this.currentY - 3 },
+      end: { x: this.pageWidth - this.margin.right, y: this.currentY - 3 },
+      thickness: 1.5,
+      color: rgb(0, 0.34, 0.7)
+    });
+
+    this.currentY -= 20;
+  }
+
+  private drawContactInfo(contactInfo: any): void {
+    // Name - centered and properly sized
+    this.checkPageSpace(35);
+    const nameText = contactInfo.name?.toUpperCase() || 'NAME NOT AVAILABLE';
+    const nameWidth = this.fonts.bold.widthOfTextAtSize(nameText, 18);
+    const nameX = (this.pageWidth - nameWidth) / 2;
+    
+    this.currentPage.drawText(nameText, {
+      x: nameX,
+      y: this.currentY,
+      size: 18,
+      font: this.fonts.bold,
+      color: rgb(0, 0.34, 0.7)
+    });
+    this.currentY -= 28;
+
+    // Contact details in a centered line matching the expected output
+    const contactDetails = [];
+    if (contactInfo.phone) contactDetails.push(`${contactInfo.phone}`);
+    if (contactInfo.email) contactDetails.push(`${contactInfo.email}`);
+    if (contactInfo.location) contactDetails.push(`${contactInfo.location}`);
+    if (contactInfo.linkedin) {
+      const linkedinHandle = contactInfo.linkedin.replace(/^(https?:\/\/)?(www\.)?linkedin\.com\/in\//, '');
+      contactDetails.push(`${linkedinHandle}`);
+    }
+    if (contactInfo.github) {
+      const githubHandle = contactInfo.github.replace(/^(https?:\/\/)?(www\.)?github\.com\//, '');
+      contactDetails.push(`${githubHandle}`);
+    }
+
+    if (contactDetails.length > 0) {
+      const contactLine = contactDetails.join(' | ');
+      const maxWidth = this.pageWidth - this.margin.left - this.margin.right;
+      
+      // Check if it fits on one line
+      const contactWidth = this.fonts.regular.widthOfTextAtSize(contactLine, 10);
+      
+      if (contactWidth <= maxWidth) {
+        // Single line - center it
+        const contactX = Math.max(this.margin.left, (this.pageWidth - contactWidth) / 2);
+        
+        this.checkPageSpace(15);
+        this.currentPage.drawText(contactLine, {
+          x: contactX,
+          y: this.currentY,
+          size: 10,
+          font: this.fonts.regular,
+          color: rgb(0.27, 0.27, 0.27)
+        });
+        this.currentY -= 15;
+      } else {
+        // Multi-line - use text wrapping
+        const newY = this.drawText(contactLine, this.margin.left, this.currentY, {
+          font: this.fonts.regular,
+          size: 10,
+          color: rgb(0.27, 0.27, 0.27),
+          maxWidth: maxWidth,
+          align: 'center'
+        });
+        this.currentY = newY;
+      }
+    }
+    this.currentY -= 15;
+  }
+
+  private drawProfessionalSummary(summary: any): void {
+    if (!summary?.text) return;
+    
+    this.drawSectionHeader('Professional Summary');
+    
+    const newY = this.drawText(summary.text, this.margin.left, this.currentY, {
+      font: this.fonts.regular,
+      size: 10.5,
+      color: rgb(0.13, 0.13, 0.13),
+      maxWidth: this.pageWidth - this.margin.left - this.margin.right
+    });
+    
+    this.currentY = newY - 15; // Add section spacing
+  }
+
+  private drawSkills(skills: Record<string, string>): void {
+    if (!skills || Object.keys(skills).length === 0) {
+      return;
+    }
+
+    this.drawSectionHeader('Skills');
+    
+    const maxWidth = this.pageWidth - this.margin.left - this.margin.right;
+    
+    for (const [category, skillList] of Object.entries(skills)) {
+      // Skip empty skills
+      if (!skillList || !skillList.trim()) {
+        continue;
+      }
+      
+      this.checkPageSpace(18);
+      
+      // Calculate the full text to check if it fits on one line
+      const fullText = `${category}: ${skillList}`;
+      const fullTextWidth = this.fonts.regular.widthOfTextAtSize(fullText, 10.5);
+      
+      if (fullTextWidth <= maxWidth) {
+        // Single line - draw category in bold, skills in regular
+        const categoryText = `${category}: `;
+        const categoryWidth = this.fonts.bold.widthOfTextAtSize(categoryText, 10.5);
+        
+        this.currentPage.drawText(categoryText, {
+          x: this.margin.left,
+          y: this.currentY,
+          size: 10.5,
+          font: this.fonts.bold,
+          color: rgb(0, 0.34, 0.7)
+        });
+
+        this.currentPage.drawText(skillList, {
+          x: this.margin.left + categoryWidth,
+          y: this.currentY,
+          size: 10.5,
+          font: this.fonts.regular,
+          color: rgb(0.13, 0.13, 0.13)
+        });
+        
+        this.currentY -= 16;
+      } else {
+        // Multi-line - draw category in bold first, then skills wrapped below
+        this.currentPage.drawText(`${category}:`, {
+          x: this.margin.left,
+          y: this.currentY,
+          size: 10.5,
+          font: this.fonts.bold,
+          color: rgb(0, 0.34, 0.7)
+        });
+        
+        this.currentY -= 16;
+        
+        const newY = this.drawText(skillList, this.margin.left, this.currentY, {
+          font: this.fonts.regular,
+          size: 10.5,
+          color: rgb(0.13, 0.13, 0.13),
+          maxWidth: maxWidth
+        });
+        this.currentY = newY - 4;
+      }
+    }
+    this.currentY -= 10; // Add section spacing
+  }
+
+  private formatDateRange(startDate: string | null, endDate: string | null, isCurrent: boolean): string {
+    const formatDate = (dateStr: string | null) => {
+      if (!dateStr) return '';
+      try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      } catch {
+        return dateStr || '';
+      }
+    };
+
+    const start = formatDate(startDate) || 'Present';
+    const end = isCurrent ? 'Present' : (formatDate(endDate) || 'Present');
+    return `${start} - ${end}`;
+  }
+
+  private drawWorkExperience(workExperience: any[]): void {
+    if (!workExperience || workExperience.length === 0) return;
+
+    this.drawSectionHeader('Professional Experience');
+
+    for (let i = 0; i < workExperience.length; i++) {
+      const exp = workExperience[i];
+      this.checkPageSpace(50);
+
+      // Job title and date range on same line
+      const jobTitle = exp.role || 'Role Not Specified';
+      const dateRange = this.formatDateRange(exp.startDate, exp.endDate, exp.isCurrent);
+      
+      // Calculate positions
+      const titleWidth = this.fonts.bold.widthOfTextAtSize(jobTitle, 10.5);
+      const dateWidth = this.fonts.bold.widthOfTextAtSize(dateRange, 10.5);
+      const availableWidth = this.pageWidth - this.margin.left - this.margin.right;
+      
+      // Draw job title
+      this.currentPage.drawText(jobTitle, {
+        x: this.margin.left,
+        y: this.currentY,
+        size: 10.5,
+        font: this.fonts.bold,
+        color: rgb(0.13, 0.13, 0.13)
+      });
+
+      // Draw date range (right aligned)
+      this.currentPage.drawText(dateRange, {
+        x: this.pageWidth - this.margin.right - dateWidth,
+        y: this.currentY,
+        size: 10.5,
+        font: this.fonts.bold,
+        color: rgb(0, 0.34, 0.7)
+      });
+
+      this.currentY -= 16;
+
+      // Company and location
+      const companyLocation = `${exp.company || 'Company'} | ${exp.location || 'Location'}`;
+      this.currentPage.drawText(companyLocation, {
+        x: this.margin.left,
+        y: this.currentY,
+        size: 10.5,
+        font: this.fonts.italic,
+        color: rgb(0.27, 0.27, 0.27)
+      });
+
+      this.currentY -= 18;
+
+      // Description points with proper bullet alignment
       if (exp.descriptionPoints && exp.descriptionPoints.length > 0) {
-        exp.descriptionPoints.forEach((point: string) => {
-          if (point) {
-            const bulletPoint = `• ${point}`;
-            const pointLines = pdf.splitTextToSize(bulletPoint, rightMargin - leftMargin - 6);
-            pdf.text(pointLines, leftMargin + 6, yPosition, { align: 'justify' });
-            yPosition += pointLines.length * 6.5; // 1.4 line height for 11pt
+        for (const point of exp.descriptionPoints) {
+          if (point && point.trim()) {
+            this.checkPageSpace(20);
+            
+            // Draw bullet point using simple character
+            this.currentPage.drawText('-', {
+              x: this.margin.left + 12,
+              y: this.currentY,
+              size: 10.5,
+              font: this.fonts.regular,
+              color: rgb(0.13, 0.13, 0.13)
+            });
+
+            // Draw point text with proper wrapping and indentation
+            const newY = this.drawText(point, this.margin.left + 24, this.currentY, {
+              font: this.fonts.regular,
+              size: 10.5,
+              color: rgb(0.13, 0.13, 0.13),
+              maxWidth: this.pageWidth - this.margin.left - this.margin.right - 36
+            });
+            
+            this.currentY = newY - 2;
           }
+        }
+      }
+
+      // Add spacing between work experiences
+      if (i < workExperience.length - 1) {
+        this.currentY -= 12;
+      }
+    }
+    
+    this.currentY -= 15; // Add section spacing
+  }
+
+  private drawProjects(projects: any[]): void {
+    if (!projects || projects.length === 0) return;
+
+    this.drawSectionHeader('Projects');
+
+    for (let i = 0; i < projects.length; i++) {
+      const project = projects[i];
+      this.checkPageSpace(35);
+
+      // Project name and date on same line
+      const projectName = project.name || 'Project Name';
+      this.currentPage.drawText(projectName, {
+        x: this.margin.left,
+        y: this.currentY,
+        size: 10.5,
+        font: this.fonts.bold,
+        color: rgb(0.13, 0.13, 0.13)
+      });
+
+      // Add date if available (right aligned)
+      if (project.date) {
+        const dateWidth = this.fonts.regular.widthOfTextAtSize(project.date, 10.5);
+        this.currentPage.drawText(project.date, {
+          x: this.pageWidth - this.margin.right - dateWidth,
+          y: this.currentY,
+          size: 10.5,
+          font: this.fonts.regular,
+          color: rgb(0, 0.34, 0.7)
         });
       }
-      if (index < resumeData.workExperience.length - 1) {
-        yPosition += 4; // 12pt gap between experiences
-      }
-    });
-    yPosition += 6; // 18pt section gap
-  }
 
-  // Projects
-  if (resumeData?.projects && resumeData.projects.length > 0) {
-    if (yPosition > 240) {
-      pdf.addPage();
-      yPosition = 25.4;
-    }
-    addSectionHeading('Projects');
-    resumeData.projects.forEach((project: any, index: number) => {
-      if (yPosition > 250) {
-        pdf.addPage();
-        yPosition = 25.4;
+      this.currentY -= 16;
+
+      // Technologies
+      if (project.technologies) {
+        const techText = `Technologies: ${project.technologies}`;
+        this.currentPage.drawText(techText, {
+          x: this.margin.left,
+          y: this.currentY,
+          size: 10,
+          font: this.fonts.italic,
+          color: rgb(0.27, 0.27, 0.27)
+        });
+        this.currentY -= 14;
       }
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(11);
-      pdf.setTextColor(34, 34, 34);
-      pdf.text(project.name || 'Project', leftMargin, yPosition);
-      if (project.startDate || project.endDate) {
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(11);
-        pdf.setTextColor(34, 86, 179);
-        const startDate = project.startDate ? new Date(project.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Present';
-        const endDate = project.isCurrent ? 'Present' : (project.endDate ? new Date(project.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Present');
-        const dateRange = `${startDate} - ${endDate}`;
-        const dateWidth = pdf.getTextWidth(dateRange);
-        pdf.text(dateRange, rightMargin - dateWidth, yPosition);
-      }
-      yPosition += 6.5;
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(11);
-      pdf.setTextColor(34, 34, 34);
+
+      // Description with proper wrapping
       if (project.description) {
-        const descLines = pdf.splitTextToSize(project.description, rightMargin - leftMargin);
-        pdf.text(descLines, leftMargin, yPosition);
-        yPosition += descLines.length * 6.5 + 1;
+        const newY = this.drawText(project.description, this.margin.left, this.currentY, {
+          font: this.fonts.regular,
+          size: 10.5,
+          color: rgb(0.13, 0.13, 0.13),
+          maxWidth: this.pageWidth - this.margin.left - this.margin.right
+        });
+        this.currentY = newY;
       }
-      if (index < resumeData.projects.length - 1) {
-        yPosition += 2; // Tight gap between projects
-      }
-    });
-    yPosition += 2; // Tight gap after projects section
-  }
 
-  // Education
-  if (resumeData?.education && resumeData.education.length > 0) {
-    if (yPosition > 240) {
-      pdf.addPage();
-      yPosition = 25.4;
+      // Add spacing between projects
+      if (i < projects.length - 1) {
+        this.currentY -= 12;
+      }
     }
-    addSectionHeading('Education');
-    resumeData.education.forEach((edu: any, index: number) => {
-      if (yPosition > 250) {
-        pdf.addPage();
-        yPosition = 25.4;
-      }
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(11);
-      pdf.setTextColor(34, 34, 34);
-      pdf.text(edu.degree || 'Degree', leftMargin, yPosition);
-      if (edu.endDate) {
-        pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(11);
-        pdf.setTextColor(34, 86, 179);
-        const endDate = new Date(edu.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-        const dateWidth = pdf.getTextWidth(endDate);
-        pdf.text(endDate, rightMargin - dateWidth, yPosition);
-      }
-      yPosition += 6.5;
-      pdf.setFont('helvetica', 'italic');
-      pdf.setFontSize(11);
-      pdf.setTextColor(34, 34, 34);
-      const institutionText = `${edu.institution || 'Institution'} | ${edu.location || 'Location'}`;
-      pdf.text(institutionText, leftMargin, yPosition);
-      yPosition += 6.5; // Tight gap after education institution
-      if (index < resumeData.education.length - 1) {
-        yPosition += 2; // Tight gap between education entries
-      }
-    });
+    
+    this.currentY -= 15; // Add section spacing
   }
 
-  return pdf;
+  private drawEducation(education: any[]): void {
+    if (!education || education.length === 0) return;
+
+    this.drawSectionHeader('Education');
+
+    for (let i = 0; i < education.length; i++) {
+      const edu = education[i];
+      this.checkPageSpace(30);
+
+      // Degree and year on same line
+      const degree = edu.degree || 'Degree';
+      this.currentPage.drawText(degree, {
+        x: this.margin.left,
+        y: this.currentY,
+        size: 10.5,
+        font: this.fonts.bold,
+        color: rgb(0.13, 0.13, 0.13)
+      });
+
+      // Year (right aligned)
+      if (edu.year) {
+        const yearWidth = this.fonts.regular.widthOfTextAtSize(edu.year, 10.5);
+        this.currentPage.drawText(edu.year, {
+          x: this.pageWidth - this.margin.right - yearWidth,
+          y: this.currentY,
+          size: 10.5,
+          font: this.fonts.regular,
+          color: rgb(0, 0.34, 0.7)
+        });
+      }
+
+      this.currentY -= 16;
+
+      // Institution with proper wrapping
+      const institution = edu.institution || 'Institution';
+      const newY = this.drawText(institution, this.margin.left, this.currentY, {
+        font: this.fonts.italic,
+        size: 10.5,
+        color: rgb(0.27, 0.27, 0.27),
+        maxWidth: this.pageWidth - this.margin.left - this.margin.right
+      });
+      
+      this.currentY = newY;
+
+      // Add spacing between education entries
+      if (i < education.length - 1) {
+        this.currentY -= 12;
+      }
+    }
+    
+    this.currentY -= 15; // Add section spacing
+  }
+
+  async generatePDF(options: PDFGeneratorOptions): Promise<Uint8Array> {
+    const { resumeData } = options;
+
+    await this.initialize();
+
+    // Draw all sections
+    this.drawContactInfo(resumeData.contactInfo);
+    this.drawProfessionalSummary(resumeData.summary);
+    this.drawSkills(resumeData.skills);
+    this.drawWorkExperience(resumeData.workExperience);
+    this.drawProjects(resumeData.projects);
+    this.drawEducation(resumeData.education);
+
+    return await this.doc.save();
+  }
+
+  static async downloadResume(resumeData: ResumeData, fileName = 'resume.pdf'): Promise<void> {
+    const generator = new HighQualityPDFGenerator();
+    const pdfBytes = await generator.generatePDF({ resumeData });
+
+    // Create download link
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
 }
 
-export function downloadResumePDF(resumeData: ResumeData, filename?: string) {
-  const pdf = generateResumePDF(resumeData);
-  const finalFilename = filename || `${resumeData?.contactInfo?.name || 'Resume'}.pdf`;
-  pdf.save(finalFilename);
+// Legacy function for backward compatibility
+export async function generateResumePDF(resumeData: ResumeData): Promise<Uint8Array> {
+  const generator = new HighQualityPDFGenerator();
+  return generator.generatePDF({ resumeData });
 }
+
+export default HighQualityPDFGenerator;
