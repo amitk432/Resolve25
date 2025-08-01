@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import DashboardLayout from '@/components/dashboard-layout';
 import DashboardOverview from '@/components/dashboard-overview';
+import FeatureGuard from '@/components/feature-guard';
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -33,8 +34,10 @@ export default function DashboardPage() {
   }
 
   return (
-    <DashboardLayout>
-      <DashboardOverview data={{} as any} />
-    </DashboardLayout>
+    <FeatureGuard featureName="dashboard">
+      <DashboardLayout>
+        <DashboardOverview data={{} as any} />
+      </DashboardLayout>
+    </FeatureGuard>
   );
 }

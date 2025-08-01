@@ -5,10 +5,13 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { AppData, CriticalStep } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, CheckCircle, Target, PiggyBank, CalendarClock, Brain, Clock } from 'lucide-react';
+import { ArrowRight, CheckCircle, Target, PiggyBank, CalendarClock, Brain, Clock, Settings, UserCog, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import AiSuggestionSection from './ai-suggestion-section';
+import { EditProfileDialog } from './edit-profile-dialog';
 import { getOrGenerateCriticalSteps } from '@/app/actions';
+import { useAuth } from '@/hooks/use-auth';
 
 interface DashboardOverviewProps {
     data: AppData;
@@ -16,10 +19,16 @@ interface DashboardOverviewProps {
 }
 
 export default function DashboardOverview({ data, onUpdate }: DashboardOverviewProps) {
+    const { user } = useAuth();
     const [daysLeft, setDaysLeft] = useState(0);
     const [aiCriticalSteps, setAiCriticalSteps] = useState<CriticalStep[]>([]);
     const [isLoadingCriticalSteps, setIsLoadingCriticalSteps] = useState(false);
     const [criticalStepsGenerated, setCriticalStepsGenerated] = useState(false);
+    const [showEditProfile, setShowEditProfile] = useState(false);
+
+    // Check if user has configured their features
+    const userEnabledFeatures = user?.user_metadata?.enabled_features;
+    const hasConfiguredFeatures = userEnabledFeatures && Array.isArray(userEnabledFeatures) && userEnabledFeatures.length > 1; // More than just dashboard
 
     useEffect(() => {
         const endOfYear = new Date('2025-12-31');
@@ -241,6 +250,50 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
 
     return (
         <div className="space-y-8">
+            {/* Feature Configuration Prompt */}
+            {!hasConfiguredFeatures && (
+                <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-3 text-blue-900 dark:text-blue-100">
+                            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                                <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            Welcome to Resolve25! 🎉
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <p className="text-blue-800 dark:text-blue-200">
+                            Get started by selecting the features you'd like to use. This will customize your dashboard and unlock the tools that matter most to you.
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                            <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
+                                <Target className="h-3 w-3 mr-1" />
+                                Goals & Planning
+                            </Badge>
+                            <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
+                                <PiggyBank className="h-3 w-3 mr-1" />
+                                Finance Tracking
+                            </Badge>
+                            <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
+                                <Brain className="h-3 w-3 mr-1" />
+                                AI Task Manager
+                            </Badge>
+                            <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
+                                <CalendarClock className="h-3 w-3 mr-1" />
+                                And More...
+                            </Badge>
+                        </div>
+                        <Button 
+                            onClick={() => setShowEditProfile(true)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                            <Settings className="h-4 w-4 mr-2" />
+                            Configure Features
+                        </Button>
+                    </CardContent>
+                </Card>
+            )}
+
             <div className="mb-6">
                 <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground">Dashboard Overview</h2>
                 <p className="mt-2 text-sm md:text-base text-muted-foreground">A high-level look at your progress and key metrics.</p>
@@ -352,6 +405,12 @@ export default function DashboardOverview({ data, onUpdate }: DashboardOverviewP
                 description="Get comprehensive insights based on your goals, career, finances, and life data to optimize your personal growth."
                 contextData={data}
                 showInput={true}
+            />
+            
+            {/* Edit Profile Dialog */}
+            <EditProfileDialog 
+                open={showEditProfile} 
+                onOpenChange={setShowEditProfile}
             />
         </div>
     )

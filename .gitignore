@@ -10,6 +10,9 @@
 !.yarn/releases
 !.yarn/versions
 
+# automation server dependencies
+/src/automation-server/node_modules
+
 # testing
 /coverage
 
@@ -39,3 +42,7 @@ next-env.d.ts
 
 .genkit/*
 .env*
+
+# test files
+test-url-cleanup.js
+pglite-debug.log

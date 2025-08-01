@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import DashboardLayout from '@/components/dashboard-layout';
 import TravelGoalsWrapper from '@/components/travel-goals-wrapper';
+import FeatureGuard from '@/components/feature-guard';
 
 export default function TravelGoalsPage() {
   const { user, loading: authLoading } = useAuth();
@@ -33,8 +34,10 @@ export default function TravelGoalsPage() {
   }
 
   return (
-    <DashboardLayout>
-      <TravelGoalsWrapper />
-    </DashboardLayout>
+    <FeatureGuard featureName="travel-goals">
+      <DashboardLayout>
+        <TravelGoalsWrapper />
+      </DashboardLayout>
+    </FeatureGuard>
   );
 }

@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "src/pages/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "AUTOMATION_SERVER_URL": "https://your-automation-server.railway.app"
+  }
+}

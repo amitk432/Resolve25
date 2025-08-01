@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import DashboardLayout from '@/components/dashboard-layout';
 import CarSaleWrapper from '@/components/car-sale-wrapper';
+import FeatureGuard from '@/components/feature-guard';
 
 export default function CarSalePage() {
   const { user, loading: authLoading } = useAuth();
@@ -33,8 +34,10 @@ export default function CarSalePage() {
   }
 
   return (
-    <DashboardLayout>
-      <CarSaleWrapper />
-    </DashboardLayout>
+    <FeatureGuard featureName="car-sale">
+      <DashboardLayout>
+        <CarSaleWrapper />
+      </DashboardLayout>
+    </FeatureGuard>
   );
 }

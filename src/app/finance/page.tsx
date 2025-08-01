@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import DashboardLayout from '@/components/dashboard-layout';
 import FinanceWrapper from '@/components/finance-wrapper';
+import FeatureGuard from '@/components/feature-guard';
 
 export default function FinancePage() {
   const { user, loading: authLoading } = useAuth();
@@ -33,8 +34,10 @@ export default function FinancePage() {
   }
 
   return (
-    <DashboardLayout>
-      <FinanceWrapper />
-    </DashboardLayout>
+    <FeatureGuard featureName="finance">
+      <DashboardLayout>
+        <FinanceWrapper />
+      </DashboardLayout>
+    </FeatureGuard>
   );
 }

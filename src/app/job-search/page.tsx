@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import DashboardLayout from '@/components/dashboard-layout';
 import JobSearchTab from '@/components/job-search-tab';
+import FeatureGuard from '@/components/feature-guard';
 
 export default function JobSearchPage() {
   const { user, loading: authLoading } = useAuth();
@@ -33,8 +34,10 @@ export default function JobSearchPage() {
   }
 
   return (
-    <DashboardLayout>
-      <JobSearchTab />
-    </DashboardLayout>
+    <FeatureGuard featureName="job-search">
+      <DashboardLayout>
+        <JobSearchTab />
+      </DashboardLayout>
+    </FeatureGuard>
   );
 }

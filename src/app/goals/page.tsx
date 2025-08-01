@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import DashboardLayout from '@/components/dashboard-layout';
 import GoalsTab from '@/components/goals-tab';
+import FeatureGuard from '@/components/feature-guard';
 
 export default function GoalsPage() {
   const { user, loading: authLoading } = useAuth();
@@ -33,8 +34,10 @@ export default function GoalsPage() {
   }
 
   return (
-    <DashboardLayout>
-      <GoalsTab data={{} as any} onUpdate={() => {}} />
-    </DashboardLayout>
+    <FeatureGuard featureName="goals">
+      <DashboardLayout>
+        <GoalsTab data={{} as any} onUpdate={() => {}} />
+      </DashboardLayout>
+    </FeatureGuard>
   );
 }

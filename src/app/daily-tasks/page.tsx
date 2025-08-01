@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import DashboardLayout from '@/components/dashboard-layout';
 import DailyTasksTab from '@/components/daily-tasks-tab';
+import FeatureGuard from '@/components/feature-guard';
 import type { AppData } from '@/lib/types';
 
 interface DailyTasksPageContentProps {
@@ -51,8 +52,10 @@ export default function DailyTasksPage() {
   }
 
   return (
-    <DashboardLayout>
-      <DailyTasksPageContent />
-    </DashboardLayout>
+    <FeatureGuard featureName="daily-todo">
+      <DashboardLayout>
+        <DailyTasksPageContent />
+      </DashboardLayout>
+    </FeatureGuard>
   );
 }

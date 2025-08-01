@@ -20,7 +20,21 @@ const getApiKey = () => {
   );
 };
 
+// Available Gemini models mapping
+export const GEMINI_MODELS = {
+  'gemini-2.5-pro': 'googleai/gemini-2.5-pro',
+  'gemini-2.0-flash': 'googleai/gemini-2.0-flash',
+  'gemini-1.5-pro': 'googleai/gemini-1.5-pro',
+  'gemini-1.5-flash': 'googleai/gemini-1.5-flash',
+  'gemini-1.0-pro': 'googleai/gemini-1.0-pro',
+} as const;
+
 export const ai = genkit({
   plugins: [googleAI({apiKey: getApiKey()})],
-  model: 'googleai/gemini-2.0-flash',
+  model: 'googleai/gemini-2.5-pro', // Default model
 });
+
+// Helper function to get the correct model identifier
+export const getGeminiModel = (modelId: string): string => {
+  return GEMINI_MODELS[modelId as keyof typeof GEMINI_MODELS] || 'googleai/gemini-2.5-pro';
+};

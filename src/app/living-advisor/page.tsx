@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import DashboardLayout from '@/components/dashboard-layout';
 import LivingAdvisorWrapper from '@/components/living-advisor-wrapper';
+import FeatureGuard from '@/components/feature-guard';
 
 export default function LivingAdvisorPage() {
   const { user, loading: authLoading } = useAuth();
@@ -33,8 +34,10 @@ export default function LivingAdvisorPage() {
   }
 
   return (
-    <DashboardLayout>
-      <LivingAdvisorWrapper />
-    </DashboardLayout>
+    <FeatureGuard featureName="living-advisor">
+      <DashboardLayout>
+        <LivingAdvisorWrapper />
+      </DashboardLayout>
+    </FeatureGuard>
   );
 }

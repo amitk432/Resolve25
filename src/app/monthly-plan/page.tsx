@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import DashboardLayout from '@/components/dashboard-layout';
 import MonthlyPlanWrapper from '@/components/monthly-plan-wrapper';
+import FeatureGuard from '@/components/feature-guard';
 
 export default function MonthlyPlanPage() {
   const { user, loading: authLoading } = useAuth();
@@ -33,8 +34,10 @@ export default function MonthlyPlanPage() {
   }
 
   return (
-    <DashboardLayout>
-      <MonthlyPlanWrapper />
-    </DashboardLayout>
+    <FeatureGuard featureName="monthly-plan">
+      <DashboardLayout>
+        <MonthlyPlanWrapper />
+      </DashboardLayout>
+    </FeatureGuard>
   );
 }

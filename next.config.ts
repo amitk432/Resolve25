@@ -53,6 +53,28 @@ const nextConfig: NextConfig = {
     ],
   },
   webpack: (config, { isServer }) => {
+    // Prevent Node.js modules from being bundled in the browser
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+        path: false,
+        os: false,
+        stream: false,
+        http: false,
+        https: false,
+        zlib: false,
+        url: false,
+        util: false,
+        buffer: false,
+        events: false,
+        async_hooks: false,
+      };
+    }
+    
     // Suppress warnings for optional dependencies in OpenTelemetry
     config.externals.push('@opentelemetry/exporter-jaeger');
     

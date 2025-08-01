@@ -12,7 +12,7 @@ type AuthContextType = {
   signUpWithEmail: (email: string, password: string, name?: string) => Promise<void>;
   signInWithProvider: (provider: 'google' | 'github') => Promise<void>;
   signOut: () => Promise<void>;
-  updateProfile: (updates: { name?: string; avatar_url?: string }) => Promise<void>;
+  updateProfile: (updates: { name?: string; avatar_url?: string; enabled_features?: string[] }) => Promise<void>;
   clearAuthError: () => void;
   loading: boolean | string;
   error: AuthError | null;
@@ -141,13 +141,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Don't set loading to false here since we're redirecting
   };
 
-  const updateProfile = async (updates: { name?: string; avatar_url?: string }) => {
+  const updateProfile = async (updates: { name?: string; avatar_url?: string; enabled_features?: string[] }) => {
     setLoading(true);
     setError(null);
-    const { error } = await supabase.auth.updateUser({
+    const { data, error } = await supabase.auth.updateUser({
       data: updates,
     });
-    if (error) setError(error);
+    
+    if (error) {
+      setError(error);
+    } else if (data?.user) {
+      // Update the local user state immediately
+      setUser(data.user);
+    }
+    
     setLoading(false);
   };
 

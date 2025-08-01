@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { AppData, DailyTask, Goal, JobApplication, JobStatus, Loan, LoanStatus, TravelGoal, IncomeSource, SIP, Task } from '@/lib/types';
-import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, LogOut, ListTodo, Globe, Menu } from 'lucide-react';
+import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, LogOut, ListTodo, Globe, Menu, Bot } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import FinanceTab from './finance-tab';
 import JobSearchTab from './job-search-tab';
 import TravelGoalsTab from './travel-goals-tab';
 import DailyTodoTab from './daily-todo-tab';
+import AITaskManager from './ai-task-manager';
 import { EditProfileDialog } from './edit-profile-dialog';
 import { useToast } from '@/hooks/use-toast';
 import type { SuggestedMonthlyPlan } from '@/ai/flows/generate-monthly-plan-suggestions';
@@ -312,7 +313,44 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
       { value: 'travel-goals', label: 'Travel Goals', icon: <Plane/> },
       { value: 'car-sale', label: 'Car Sale', icon: <Car/> },
       { value: 'finance', label: 'Finance Tracker', icon: <PiggyBank/> },
+      { value: 'ai-task-manager', label: 'AI Task Manager', icon: <Bot/> },
     ];
+
+    // Filter tabs based on user's enabled features
+    const userEnabledFeatures = user?.user_metadata?.enabled_features;
+    
+    // If no user is available, only show dashboard
+    if (!user) {
+      return (
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-background/95 backdrop-blur-md shadow-2xl border border-border/50">
+          <div className="p-8 text-center">
+            <p>Loading user data...</p>
+          </div>
+        </div>
+      );
+    }
+    
+    const visibleTabs = allTabs.filter(tab => {
+      // Dashboard is always visible (mandatory)
+      if (tab.value === 'dashboard') {
+        return true;
+      }
+      
+      // If no preferences set, only show dashboard tab until user configures features
+      if (!userEnabledFeatures || !Array.isArray(userEnabledFeatures)) {
+        return false;
+      }
+      
+      // Show tabs that are in user's enabled features
+      return userEnabledFeatures.includes(tab.value);
+    });
+
+    // Ensure activeTab is always valid - if current tab is not visible, switch to first visible tab
+    useEffect(() => {
+      if (visibleTabs.length > 0 && !visibleTabs.some(tab => tab.value === activeTab)) {
+        setActiveTab(visibleTabs[0].value);
+      }
+    }, [visibleTabs, activeTab]);
 
 
   return (
@@ -345,7 +383,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                         </div>
                     </SheetHeader>
                     <nav className="flex-grow p-4 space-y-2 overflow-y-auto">
-                        {allTabs.map(tab => (
+                        {visibleTabs.map(tab => (
                             <SheetClose asChild key={tab.value}>
                             <Button
                                 variant={activeTab === tab.value ? 'default' : 'ghost'}
@@ -437,7 +475,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
           <div className="px-4">
             <ScrollArea className="w-full whitespace-nowrap">
               <TabsList className="h-auto p-3 bg-transparent">
-                    {[...allTabs].map(tab => (
+                    {visibleTabs.map(tab => (
                       <TabsTrigger key={tab.value} value={tab.value} className="mx-1">{tab.icon}{tab.label}</TabsTrigger>
                     ))}
               </TabsList>
@@ -448,6 +486,23 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
         <div className={cn("relative p-4 md:p-8 bg-gradient-to-br from-background via-background/98 to-background/95 transition-all duration-500 min-h-[600px]", activeTab ? 'opacity-100' : 'opacity-0')}>
             <TabsContent value="dashboard">
                 <DashboardOverview data={data} />
+                
+                {/* Show message if no additional features are enabled */}
+                {(!userEnabledFeatures || !Array.isArray(userEnabledFeatures) || userEnabledFeatures.length === 0 || (userEnabledFeatures.length === 1 && userEnabledFeatures[0] === 'dashboard')) && (
+                    <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">🎯 Customize Your Experience</h3>
+                        <p className="text-blue-700 dark:text-blue-300 mb-4">
+                            You haven't selected any additional features yet. Click "Edit Profile" in the user menu to choose which modules you'd like to use, including AI Task Manager, Goals, Finance Tracker, and more.
+                        </p>
+                        <Button 
+                            onClick={() => setProfileDialogOpen(true)}
+                            variant="outline" 
+                            className="border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300"
+                        >
+                            Select Features
+                        </Button>
+                    </div>
+                )}
             </TabsContent>
             <TabsContent value="goals">
                 <GoalsTab data={data} onUpdate={onUpdate} />
@@ -527,6 +582,9 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                     onUpdate={onUpdate}
                     data={data}
                 />
+            </TabsContent>
+            <TabsContent value="ai-task-manager">
+                <AITaskManager />
             </TabsContent>
         </div>
       </Tabs>

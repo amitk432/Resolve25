@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { produce } from 'immer';
 import type { AppData } from '@/lib/types';
 import { initialData } from '@/lib/data';
-import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, LogOut, ListTodo, Globe, Menu, Settings, User } from 'lucide-react';
+import { LayoutDashboard, Target, CalendarDays, Car, PiggyBank, Briefcase, Plane, LogOut, ListTodo, Globe, Menu, Settings, User, Bot } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -44,6 +44,7 @@ const navigationTabs = [
   { value: '/travel-goals', label: 'Travel Goals', icon: <Plane className="h-4 w-4" /> },
   { value: '/car-sale', label: 'Car Sale', icon: <Car className="h-4 w-4" /> },
   { value: '/finance', label: 'Finance Tracker', icon: <PiggyBank className="h-4 w-4" /> },
+  { value: '/ai-task-manager', label: 'AI Task Manager', icon: <Bot className="h-4 w-4" /> },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -163,6 +164,38 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     [user, toast]
   );
 
+  // Filter navigation tabs based on user's enabled features
+  const userEnabledFeatures = user?.user_metadata?.enabled_features;
+  const visibleTabs = useMemo(() => {
+    return navigationTabs.filter(tab => {
+      // Dashboard is always visible (mandatory)
+      if (tab.value === '/dashboard') {
+        return true;
+      }
+      
+      // If no preferences set, only show dashboard tab until user configures features
+      if (!userEnabledFeatures || !Array.isArray(userEnabledFeatures)) {
+        return false;
+      }
+      
+      // Map route paths to feature names
+      const routeToFeatureMap: Record<string, string> = {
+        '/goals': 'goals',
+        '/daily-tasks': 'daily-todo',
+        '/monthly-plan': 'monthly-plan',
+        '/job-search': 'job-search',
+        '/living-advisor': 'living-advisor',
+        '/travel-goals': 'travel-goals',
+        '/car-sale': 'car-sale',
+        '/finance': 'finance',
+        '/ai-task-manager': 'ai-task-manager',
+      };
+      
+      const featureName = routeToFeatureMap[tab.value];
+      return featureName ? userEnabledFeatures.includes(featureName) : false;
+    });
+  }, [userEnabledFeatures]);
+
   if (loading || !data) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -199,7 +232,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   </SheetHeader>
                   <ScrollArea className="flex-1 p-4 sm:p-6">
                     <div className="space-y-1 sm:space-y-2">
-                      {navigationTabs.map((tab) => (
+                      {visibleTabs.map((tab) => (
                         <SheetClose asChild key={tab.value}>
                           <Link
                             href={tab.value}
@@ -289,7 +322,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="px-2">
             <ScrollArea className="w-full whitespace-nowrap">
               <div className="flex h-auto p-2 space-x-1">
-                {navigationTabs.map((tab) => (
+                {visibleTabs.map((tab) => (
                   <Link
                     key={tab.value}
                     href={tab.value}
@@ -311,6 +344,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         <div className="relative p-4 md:p-8 bg-transparent">
           {React.cloneElement(children as React.ReactElement<{ data?: AppData; onUpdate?: (updater: (draft: AppData) => void) => void }>, { data, onUpdate: updateData })}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-center py-4 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-border rounded-full px-4 py-2 shadow-sm">
+            <p className="text-sm text-muted-foreground flex items-center gap-1">
+              Built with 
+              <span className="text-red-500 animate-pulse text-base">❤</span> 
+              by 
+              <span className="font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+                AmiT
+              </span>
+            </p>
+          </div>
         </div>
       </div>
 
