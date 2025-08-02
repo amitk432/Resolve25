@@ -114,6 +114,17 @@ async function cleanup() {
   console.log('🧹 Cleanup completed');
 }
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Resolve25 Automation Server', 
+    status: 'running',
+    version: '1.0.0',
+    endpoints: ['/health', '/wake', '/api/automation/submit', '/api/automation/status/:taskId'],
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Health check endpoint for production monitoring
 app.get('/health', (req, res) => {
   res.json({ 
