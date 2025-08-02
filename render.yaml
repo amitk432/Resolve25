@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: ai-automation-server
+    name: resolve25-automation-server
     env: node
     region: oregon
     plan: starter
