@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const { chromium, firefox } = require('playwright');
-const { execSync } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -57,10 +56,8 @@ const BROWSER_CONFIG = {
   ]
 };
 
-// Initialize browser on demand
+// Initialize browser on startup
 async function initializeBrowser() {
-  if (browser) return browser;
-  
   try {
     console.log('🚀 Initializing browser...');
     browser = await chromium.launch(BROWSER_CONFIG);
@@ -68,21 +65,7 @@ async function initializeBrowser() {
     return browser;
   } catch (error) {
     console.error('❌ Failed to initialize browser:', error);
-    console.log('🔧 Attempting to install Playwright browsers...');
-    
-    try {
-      // Try to install browsers if they're missing
-      const { execSync } = require('child_process');
-      execSync('npx playwright install chromium', { stdio: 'inherit' });
-      console.log('✅ Playwright browsers installed, retrying...');
-      
-      browser = await chromium.launch(BROWSER_CONFIG);
-      console.log('✅ Browser initialized successfully after installation');
-      return browser;
-    } catch (installError) {
-      console.error('❌ Failed to install browsers:', installError);
-      throw error; // Throw original error
-    }
+    throw error;
   }
 }
 
@@ -247,8 +230,9 @@ async function processTask(task) {
     console.log(`🎯 Processing task: ${task.id}`);
     task.status = 'running';
     
-    // Initialize browser on demand
-    await initializeBrowser();
+    if (!browser) {
+      await initializeBrowser();
+    }
     
     const context = await browser.newContext({
       viewport: { width: 1920, height: 1080 },
@@ -410,13 +394,12 @@ if (process.env.NODE_ENV === 'production' && process.env.ENABLE_KEEP_ALIVE === '
 // Start server
 async function startServer() {
   try {
-    // Don't initialize browser at startup - do it on demand
-    console.log('🚀 Starting automation server...');
+    await initializeBrowser();
     
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Automation server running on port ${PORT}`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🔧 Browser: Will initialize on first request`);
+      console.log(`🔧 Browser: ${browser ? 'Ready' : 'Not initialized'}`);
       console.log(`📊 Memory usage: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`);
     });
   } catch (error) {
