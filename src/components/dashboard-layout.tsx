@@ -45,6 +45,7 @@ const navigationTabs = [
   { value: '/car-sale', label: 'Car Sale', icon: <Car className="h-4 w-4" /> },
   { value: '/finance', label: 'Finance Tracker', icon: <PiggyBank className="h-4 w-4" /> },
   { value: '/ai-task-manager', label: 'AI Task Manager', icon: <Bot className="h-4 w-4" /> },
+  { value: '/director-ai', label: 'Director AI', icon: <Bot className="h-4 w-4" /> },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
