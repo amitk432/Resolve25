@@ -5,6 +5,6 @@
     }
   },
   "env": {
-    "AUTOMATION_SERVER_URL": "https://your-automation-server.railway.app"
+    "AUTOMATION_SERVER_URL": "https://resolve25-automation-server.onrender.com"
   }
 }
