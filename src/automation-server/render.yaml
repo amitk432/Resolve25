@@ -1,16 +1,11 @@
 services:
   - type: web
     name: ai-automation-server
-    env: node
+    env: docker
     region: oregon
     plan: starter
-    rootDir: src/automation-server
-    buildCommand: npm install --only=production
-    startCommand: node server.js
     dockerfilePath: ./Dockerfile
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        sync: false # Let the platform set the port
     healthCheckPath: /health
