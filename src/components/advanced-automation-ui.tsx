@@ -102,15 +102,29 @@ const TASK_TEMPLATES: TaskTemplate[] = [
 
 export default function AdvancedAutomationUI({ className }: AdvancedAutomationUIProps) {
   // State Management
-  const [engine, setEngine] = useState<AdvancedAutomationEngine | null>(null);
+  const [engine, setEngine] = useState<AutomationApiWrapper | null>(null);
   const [isEngineInitialized, setIsEngineInitialized] = useState(false);
   const [currentTask, setCurrentTask] = useState<AutomationTask | null>(null);
-  const [taskResults, setTaskResults] = useState<AutomationResult[]>([]);
-  const [engineConfig, setEngineConfig] = useState<EngineConfig>({
-    headless: false,
-    maxConcurrency: 3,
-    timeout: 30000,
-    retries: 3
+  const [taskResults, setTaskResults] = useState<TaskResult[]>([]);
+  const [engineConfig, setEngineConfig] = useState<AutomationEngineConfig>({
+    maxConcurrentTasks: 3,
+    browserConfig: {
+      headless: false,
+      timeout: 30000,
+      viewport: { width: 1920, height: 1080 }
+    },
+    aiConfig: {
+      enableSmartWaits: true,
+      enableElementDetection: true,
+      enableErrorRecovery: true,
+      enablePerformanceOptimization: true
+    },
+    debugConfig: {
+      enableLogging: true,
+      captureScreenshots: false,
+      captureTraces: false,
+      logLevel: 'info'
+    }
   });
   
   // UI State
@@ -134,31 +148,10 @@ export default function AdvancedAutomationUI({ className }: AdvancedAutomationUI
   useEffect(() => {
     const initEngine = async () => {
       try {
-        const newEngine = new AdvancedAutomationEngine();
-        
-        // Set up event listeners for real-time feedback
-        newEngine.on('engine_initialized', () => {
-          setIsEngineInitialized(true);
-          addLog('✅ Automation engine initialized successfully');
-        });
-        
-        newEngine.on('task_completed', (data: { task: AutomationTask, result: AutomationResult }) => {
-          setTaskResults(prev => [...prev, data.result]);
-          setPerformanceMetrics(data.result.performance);
-          addLog(`✅ Task ${data.task.id} completed successfully`);
-        });
-        
-        newEngine.on('task_failed', (data: { task: AutomationTask, result: AutomationResult, error: any }) => {
-          setTaskResults(prev => [...prev, data.result]);
-          addLog(`❌ Task ${data.task.id} failed: ${data.error.message}`);
-        });
-        
-        newEngine.on('engine_error', (data: { error: any }) => {
-          addLog(`🚨 Engine error: ${data.error.message}`);
-        });
-        
-        await newEngine.initialize(engineConfig);
+        const newEngine = new AutomationApiWrapper(engineConfig);
         setEngine(newEngine);
+        setIsEngineInitialized(true);
+        addLog('✅ Automation engine initialized successfully');
       } catch (error) {
         addLog(`❌ Failed to initialize engine: ${error instanceof Error ? error.message : String(error)}`);
       }
@@ -167,9 +160,7 @@ export default function AdvancedAutomationUI({ className }: AdvancedAutomationUI
     initEngine();
     
     return () => {
-      if (engine) {
-        engine.cleanup();
-      }
+      // Cleanup if needed
     };
   }, []);
 
@@ -220,8 +211,7 @@ export default function AdvancedAutomationUI({ className }: AdvancedAutomationUI
     const newValidation: ValidationRule = {
       type: 'presence',
       selector: '',
-      expected: true,
-      required: true
+      expected: true
     };
     setTaskValidations(prev => [...prev, newValidation]);
   };
@@ -258,12 +248,24 @@ export default function AdvancedAutomationUI({ className }: AdvancedAutomationUI
         url: taskUrl,
         actions: taskActions,
         validations: taskValidations,
-        errorHandling: { strategy: 'retry', notificationLevel: 'warning' },
-        performance: { enableParallelization: false, batchSize: 1, cacheElements: true, optimizeSelectors: true, preloadResources: false }
+        errorHandling: { 
+          retryStrategy: 'exponential',
+          maxRetries: 3,
+          captureScreenshot: true,
+          captureTrace: false,
+          fallbackActions: []
+        },
+        performance: { 
+          networkIdle: false,
+          waitUntil: 'domcontentloaded',
+          timeout: 30000,
+          enableCache: true,
+          disableImages: false
+        }
       },
       retryCount: 0,
-      maxRetries: engineConfig.retries || 3,
-      timeout: engineConfig.timeout || 30000,
+      maxRetries: 3,
+      timeout: 30000,
       createdAt: new Date(),
       status: 'pending'
     };
@@ -277,13 +279,40 @@ export default function AdvancedAutomationUI({ className }: AdvancedAutomationUI
     }, 500);
 
     try {
-      const result = await engine.executeTask(task);
-      setExecutionProgress(100);
+      const taskId = await engine.submitTask({
+        type: task.type,
+        priority: task.priority,
+        config: task.config,
+        retryCount: task.retryCount,
+        maxRetries: task.maxRetries,
+        timeout: task.timeout
+      });
       
-      if (result.success) {
-        addLog(`✅ Task completed successfully in ${result.executionTime}ms`);
-      } else {
-        addLog(`❌ Task failed with ${result.errors.length} errors`);
+      // Poll for task completion
+      let attempts = 0;
+      const maxAttempts = 60; // 60 seconds timeout
+      
+      while (attempts < maxAttempts) {
+        const taskStatus = await engine.getTaskStatus(taskId);
+        if (taskStatus.status === 'completed' || taskStatus.status === 'failed') {
+          const result = await engine.getTaskResult(taskId);
+          setTaskResults(prev => [...prev, result]);
+          setExecutionProgress(100);
+          
+          if (result.status === 'success') {
+            addLog(`✅ Task completed successfully in ${result.metadata.duration}ms`);
+          } else {
+            addLog(`❌ Task failed: ${result.error}`);
+          }
+          break;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        attempts++;
+      }
+      
+      if (attempts >= maxAttempts) {
+        addLog(`⏰ Task timed out after ${maxAttempts} seconds`);
       }
     } catch (error) {
       addLog(`❌ Task execution failed: ${error instanceof Error ? error.message : String(error)}`);
@@ -569,14 +598,6 @@ export default function AdvancedAutomationUI({ className }: AdvancedAutomationUI
                         onChange={(e) => updateValidation(index, 'expected', e.target.value)}
                         placeholder="Expected value"
                       />
-                      
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          checked={validation.required}
-                          onCheckedChange={(checked) => updateValidation(index, 'required', checked)}
-                        />
-                        <span className="text-sm">Required</span>
-                      </div>
                     </div>
                     
                     <Button
@@ -678,7 +699,7 @@ export default function AdvancedAutomationUI({ className }: AdvancedAutomationUI
                   <div>
                     <p className="text-sm font-medium text-slate-600">Total Time</p>
                     <p className="text-2xl font-bold">
-                      {performanceMetrics ? `${performanceMetrics.totalExecutionTime}ms` : '0ms'}
+                      {performanceMetrics ? `${performanceMetrics.executionTime}ms` : '0ms'}
                     </p>
                   </div>
                   <Clock className="w-8 h-8 text-blue-500" />
@@ -690,9 +711,9 @@ export default function AdvancedAutomationUI({ className }: AdvancedAutomationUI
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-slate-600">Avg Step Time</p>
+                    <p className="text-sm font-medium text-slate-600">Load Time</p>
                     <p className="text-2xl font-bold">
-                      {performanceMetrics ? `${Math.round(performanceMetrics.averageStepTime)}ms` : '0ms'}
+                      {performanceMetrics ? `${Math.round(performanceMetrics.loadTime)}ms` : '0ms'}
                     </p>
                   </div>
                   <TrendingUp className="w-8 h-8 text-green-500" />
@@ -704,9 +725,9 @@ export default function AdvancedAutomationUI({ className }: AdvancedAutomationUI
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-slate-600">Success Rate</p>
+                    <p className="text-sm font-medium text-slate-600">Network Requests</p>
                     <p className="text-2xl font-bold">
-                      {performanceMetrics ? `${Math.round(performanceMetrics.successRate * 100)}%` : '0%'}
+                      {performanceMetrics ? performanceMetrics.networkRequests : '0'}
                     </p>
                   </div>
                   <CheckCircle className="w-8 h-8 text-purple-500" />
@@ -815,13 +836,13 @@ export default function AdvancedAutomationUI({ className }: AdvancedAutomationUI
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base">Task {result.taskId}</CardTitle>
                     <div className="flex items-center space-x-2">
-                      {result.success ? (
+                      {result.status === 'success' ? (
                         <Badge className="bg-green-100 text-green-800">Success</Badge>
                       ) : (
                         <Badge variant="destructive">Failed</Badge>
                       )}
                       <span className="text-sm text-slate-600">
-                        {result.executionTime}ms
+                        {result.metadata.duration}ms
                       </span>
                     </div>
                   </div>
@@ -829,34 +850,30 @@ export default function AdvancedAutomationUI({ className }: AdvancedAutomationUI
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <p className="text-sm font-medium text-slate-600">Steps Executed</p>
-                      <p className="text-lg font-semibold">{result.steps.length}</p>
+                      <p className="text-sm font-medium text-slate-600">Task ID</p>
+                      <p className="text-lg font-semibold">{result.taskId}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-slate-600">Success Rate</p>
+                      <p className="text-sm font-medium text-slate-600">Status</p>
                       <p className="text-lg font-semibold">
-                        {Math.round(result.performance.successRate * 100)}%
+                        {result.status}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-slate-600">Errors</p>
-                      <p className="text-lg font-semibold text-red-600">{result.errors.length}</p>
+                      <p className="text-sm font-medium text-slate-600">Duration</p>
+                      <p className="text-lg font-semibold">{result.metadata.duration}ms</p>
                     </div>
                   </div>
                   
-                  {result.errors.length > 0 && (
+                  {result.error && (
                     <div className="mt-4">
-                      <h5 className="font-medium text-red-800 mb-2">Errors:</h5>
-                      <div className="space-y-2">
-                        {result.errors.map((error, errorIndex) => (
-                          <div key={errorIndex} className="bg-red-50 p-3 rounded-lg">
-                            <div className="flex items-center space-x-2">
-                              <AlertTriangle className="w-4 h-4 text-red-500" />
-                              <span className="font-medium text-red-800">{error.type}</span>
-                            </div>
-                            <p className="text-sm text-red-700 mt-1">{error.message}</p>
-                          </div>
-                        ))}
+                      <h5 className="font-medium text-red-800 mb-2">Error:</h5>
+                      <div className="bg-red-50 p-3 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <AlertTriangle className="w-4 h-4 text-red-500" />
+                          <span className="font-medium text-red-800">Task Error</span>
+                        </div>
+                        <p className="text-sm text-red-700 mt-1">{result.error}</p>
                       </div>
                     </div>
                   )}
