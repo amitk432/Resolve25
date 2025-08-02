@@ -6,6 +6,7 @@ dotenv.config({ path: './.env.local' });
 
 const nextConfig: NextConfig = {
   /* config options here */
+  serverExternalPackages: ['playwright'],
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -72,6 +73,13 @@ const nextConfig: NextConfig = {
         buffer: false,
         events: false,
         async_hooks: false,
+        playwright: false,
+        'playwright-core': false,
+        '@genkit-ai/firebase': false,
+        readline: false,
+        child_process: false,
+        electron: false,
+        http2: false,
       };
     }
     

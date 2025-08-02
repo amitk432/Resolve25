@@ -13,15 +13,15 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertTriangle, CheckCircle, Clock, Play, Pause, Settings, Monitor, TrendingUp, Shield, Zap } from 'lucide-react';
 import { 
-  AdvancedAutomationEngine, 
+  AutomationApiWrapper,
   AutomationTask, 
-  AutomationResult, 
-  EngineConfig,
+  TaskResult, 
+  AutomationEngineConfig,
   TaskConfig,
   AutomationAction,
   ValidationRule,
   PerformanceMetrics 
-} from '@/services/advanced-automation-engine';
+} from '@/services/automation-api-wrapper';
 
 interface AdvancedAutomationUIProps {
   className?: string;
@@ -49,10 +49,22 @@ const TASK_TEMPLATES: TaskTemplate[] = [
         { type: 'wait', selector: '#search', timeout: 3000 }
       ],
       validations: [
-        { type: 'presence', selector: '#search', expected: true, required: true }
+        { type: 'presence', selector: '#search', expected: true }
       ],
-      errorHandling: { strategy: 'retry', notificationLevel: 'warning' },
-      performance: { enableParallelization: false, batchSize: 1, cacheElements: true, optimizeSelectors: true, preloadResources: false }
+      errorHandling: { 
+        retryStrategy: 'exponential',
+        maxRetries: 3,
+        captureScreenshot: true,
+        captureTrace: false,
+        fallbackActions: []
+      },
+      performance: { 
+        networkIdle: true,
+        waitUntil: 'networkidle0',
+        timeout: 30000,
+        enableCache: true,
+        disableImages: false
+      }
     }
   },
   {
@@ -68,10 +80,22 @@ const TASK_TEMPLATES: TaskTemplate[] = [
         { type: 'click', selector: 'button[type="submit"]' }
       ],
       validations: [
-        { type: 'presence', selector: '.success-message', expected: true, required: true }
+        { type: 'presence', selector: '.success-message', expected: true }
       ],
-      errorHandling: { strategy: 'retry', notificationLevel: 'error' },
-      performance: { enableParallelization: false, batchSize: 1, cacheElements: true, optimizeSelectors: true, preloadResources: true }
+      errorHandling: {
+        retryStrategy: 'exponential',
+        maxRetries: 3,
+        captureScreenshot: true,
+        captureTrace: false,
+        fallbackActions: []
+      },
+      performance: {
+        networkIdle: false,
+        waitUntil: 'domcontentloaded',
+        timeout: 30000,
+        enableCache: false,
+        disableImages: true
+      }
     }
   }
 ];
