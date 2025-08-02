@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import DashboardLayout from '@/components/dashboard-layout';
-import AITaskManager from '@/components/ai-task-manager';
+import { IntegratedAITaskManager } from '@/components/integrated-ai-task-manager';
 import FeatureGuard from '@/components/feature-guard';
 
 export default function AITaskManagerPage() {
@@ -36,7 +36,7 @@ export default function AITaskManagerPage() {
   return (
     <FeatureGuard featureName="ai-task-manager">
       <DashboardLayout>
-        <AITaskManager />
+        <IntegratedAITaskManager />
       </DashboardLayout>
     </FeatureGuard>
   );

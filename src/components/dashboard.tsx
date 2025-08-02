@@ -18,7 +18,7 @@ import FinanceTab from './finance-tab';
 import JobSearchTab from './job-search-tab';
 import TravelGoalsTab from './travel-goals-tab';
 import DailyTodoTab from './daily-todo-tab';
-import AITaskManager from './ai-task-manager';
+import { IntegratedAITaskManager } from './integrated-ai-task-manager';
 import { EditProfileDialog } from './edit-profile-dialog';
 import { useToast } from '@/hooks/use-toast';
 import type { SuggestedMonthlyPlan } from '@/ai/flows/generate-monthly-plan-suggestions';
@@ -584,7 +584,7 @@ export default function Dashboard({ data, onUpdate }: DashboardProps) {
                 />
             </TabsContent>
             <TabsContent value="ai-task-manager">
-                <AITaskManager />
+                <IntegratedAITaskManager />
             </TabsContent>
         </div>
       </Tabs>
